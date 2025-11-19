@@ -21,26 +21,36 @@ jobs:
         fetch-depth: 0
       
     - name: 📦 Setup vcpkg
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgGitCommitId: 'c8696863d371ab7f46e213d8f5ca923c4aef2a00'
-        
-    - name: 🔧 Setup CMake e Ninja
-      uses: lukka/get-cmake@latest
+      run: |
+        git clone https://github.com/microsoft/vcpkg
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        echo "VCPKG_ROOT=${{ github.workspace }}\vcpkg" >> $env:GITHUB_ENV
+      shell: pwsh
       
     - name: 🏗️ Compilar OTClient
-      uses: lukka/run-cmake@v10
-      with:
-        configurePreset: 'windows-release'
-        buildPreset: 'windows-release'
+      run: |
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DBUILD_STATIC_LIBRARY=ON `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+          ..
+        cmake --build . --config Release -j
+        
+        # Copiar executável para local conhecido
+        copy Release\otclient.exe ..\otclient.exe
+      shell: pwsh
         
     - name: 📦 Preparar artefato
       run: |
         mkdir release-package
-        copy build\windows-release\otclient.exe release-package\
-        copy README_PROJETO74.md release-package\README.md
-        echo "BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-      shell: bash
+        copy otclient.exe release-package\
+        if (Test-Path README_PROJETO74.md) { copy README_PROJETO74.md release-package\README.md }
+        if (Test-Path README.md) { copy README.md release-package\README.md }
+      shell: pwsh
         
     - name: 📤 Upload executável (Artifact - 90 dias)
       uses: actions/upload-artifact@v4
@@ -59,7 +69,7 @@ jobs:
         mkdir -p bin/windows
         
         # Comprimir executável (economiza espaço e evita limite de 100MB)
-        7z a -tzip -mx9 bin/windows/otclient.zip build/windows-release/otclient.exe
+        7z a -tzip -mx9 bin/windows/otclient.zip otclient.exe
         
         # Criar arquivo de informações
         echo "🎮 OTClient Windows x64" > bin/windows/BUILD_INFO.txt

@@ -220,6 +220,15 @@ tags
 *.pic
 config.otml
 
+# EXCEÇÃO: Permitir arquivos da pasta 772
+!data/things/772/*.spr
+!data/things/772/*.dat
+!data/things/772/*.pic
+!data/things/772/**/*.s
+!data/things/772/**/*.g
+!data/things/772/**/*.hd
+!data/things/772/**/*.sd
+
 ## Cmake cache
 CMakeLists.txt.user
 CMakeCache.txt

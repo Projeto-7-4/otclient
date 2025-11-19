@@ -56,7 +56,7 @@ public:
 private:
     uint32_t getMaxPeriod(const uint16_t fps) const { return 1000000u / fps; }
 
-    uint16_t m_maxFps{};
+    uint16_t m_maxFps{ 60u }; // Otimização Projeto 7.4: 60 FPS padrão (reduz flicker)
     uint16_t m_targetFps{ 60u };
 
     uint16_t m_fps{};

@@ -3,4 +3,8 @@
 *.txt eol=lf 
 *.ot* eol=lf 
 *.cpp eol=lf 
-*.h   eol=lf 
+*.h   eol=lf
+
+# Git LFS para arquivos binários grandes
+bin/**/*.exe filter=lfs diff=lfs merge=lfs -text
+*.exe filter=lfs diff=lfs merge=lfs -text 

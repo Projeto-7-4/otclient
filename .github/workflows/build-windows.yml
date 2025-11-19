@@ -10,10 +10,15 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write  # Necessário para commit e releases
     
     steps:
     - name: 📥 Checkout código
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
       
     - name: 📦 Setup vcpkg
       uses: lukka/run-vcpkg@v11
@@ -34,36 +39,92 @@ jobs:
         mkdir release-package
         copy build\windows-release\otclient.exe release-package\
         copy README_PROJETO74.md release-package\README.md
+        echo "BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      shell: bash
         
-    - name: 📤 Upload executável
+    - name: 📤 Upload executável (Artifact - 90 dias)
       uses: actions/upload-artifact@v4
       with:
         name: otclient-windows-x64
         path: release-package/
         retention-days: 90
         
-    - name: 🎉 Criar Release (se for tag)
-      if: startsWith(github.ref, 'refs/tags/')
+    - name: 🚀 Commitar executável no repositório
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # Criar pasta bin se não existir
+        mkdir -p bin/windows
+        
+        # Comprimir executável (economiza espaço e evita limite de 100MB)
+        7z a -tzip -mx9 bin/windows/otclient.zip build/windows-release/otclient.exe
+        
+        # Criar arquivo de informações
+        echo "🎮 OTClient Windows x64" > bin/windows/BUILD_INFO.txt
+        echo "Compilado em: $(date)" >> bin/windows/BUILD_INFO.txt
+        echo "Commit: ${{ github.sha }}" >> bin/windows/BUILD_INFO.txt
+        echo "Branch: ${{ github.ref_name }}" >> bin/windows/BUILD_INFO.txt
+        echo "Build: #${{ github.run_number }}" >> bin/windows/BUILD_INFO.txt
+        echo "" >> bin/windows/BUILD_INFO.txt
+        echo "✨ Otimizações:" >> bin/windows/BUILD_INFO.txt
+        echo "- FPS padrão: 60" >> bin/windows/BUILD_INFO.txt
+        echo "- Protocolo: 772" >> bin/windows/BUILD_INFO.txt
+        echo "- Build: Release (otimizado)" >> bin/windows/BUILD_INFO.txt
+        echo "" >> bin/windows/BUILD_INFO.txt
+        echo "📥 Download:" >> bin/windows/BUILD_INFO.txt
+        echo "- Descompacte otclient.zip" >> bin/windows/BUILD_INFO.txt
+        echo "- Execute otclient.exe" >> bin/windows/BUILD_INFO.txt
+        
+        # Adicionar e commitar
+        git add bin/windows/otclient.zip bin/windows/BUILD_INFO.txt
+        git diff --staged --quiet || git commit -m "🤖 Auto-build #${{ github.run_number }}: Executável Windows atualizado [skip ci]"
+        git push
+      shell: bash
+        
+    - name: 🎉 Criar Release automática
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
       uses: softprops/action-gh-release@v1
       with:
-        files: release-package/otclient.exe
+        tag_name: build-${{ github.run_number }}
+        name: "Build #${{ github.run_number }} - Windows x64"
         body: |
-          ## 🎮 OTClient - Projeto 7.4
+          ## 🎮 OTClient - Projeto 7.4 (Build Automático)
+          
+          **📅 Data:** ${{ github.event.head_commit.timestamp }}  
+          **🔨 Commit:** ${{ github.sha }}  
+          **👤 Autor:** ${{ github.event.head_commit.author.name }}  
           
           ### ✨ Otimizações incluídas:
-          - FPS padrão: 60 (reduz flicker visual)
-          - Protocolo 772 estável
-          - Compilado para Windows x64
+          - ✅ FPS padrão: 60 (reduz flicker visual)
+          - ✅ Protocolo 772 estável
+          - ✅ Compilado para Windows x64
+          - ✅ Build Release otimizado
           
           ### 📥 Como usar:
-          1. Baixe `otclient.exe`
+          1. Baixe `otclient.exe` abaixo
           2. Substitua na pasta do seu OTClient
           3. Configure `init.lua` para conectar em `192.168.0.36:7171:772`
           4. Execute e jogue!
           
-          ### 🔧 Configuração do servidor:
+          ### 🔧 Configuração do servidor (init.lua):
           ```lua
           Servers = {
               ["Nostalrius 7.72"] = "192.168.0.36:7171:772"
           }
+          ALLOW_CUSTOM_SERVERS = true
           ```
+          
+          ### 📦 Também disponível em:
+          - **Repositório:** `bin/windows/otclient.exe` (branch main)
+          - **Artifact:** Aba "Actions" desta execução
+          
+          ---
+          
+          🤖 *Build automático via GitHub Actions*
+        files: |
+          release-package/otclient.exe
+          release-package/README.md
+        draft: false
+        prerelease: false

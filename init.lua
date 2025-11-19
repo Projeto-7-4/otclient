@@ -117,3 +117,13 @@ if g_app.hasUpdater() then
 end
 
 loadModules()
+
+-- ========================================
+-- 🎮 OTIMIZAÇÕES PROJETO 7.4
+-- ========================================
+
+-- Otimizar FPS para reduzir flicker visual
+-- (monstros morrendo, items aparecendo, etc)
+g_app.setMaxFps(60)
+
+g_logger.info("✅ Otimizações Projeto 7.4 aplicadas (FPS: 60)")

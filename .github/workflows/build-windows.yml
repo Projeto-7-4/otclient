@@ -1,140 +1,172 @@
 name: 🏗️ Build OTClient Windows
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Permite executar manualmente
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - ".github/workflows/build-windows.yml"
+
+permissions:
+  contents: write  # Para commit e releases
+
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
+  MAKEFLAGS: "-j 2"
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    permissions:
-      contents: write  # Necessário para commit e releases
-    
+  build:
+    name: windows-release
+    runs-on: windows-2022
+
     steps:
-    - name: 📥 Checkout código
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
-      
-    - name: 📦 Setup vcpkg
-      run: |
-        git clone https://github.com/microsoft/vcpkg
-        cd vcpkg
-        .\bootstrap-vcpkg.bat
-        echo "VCPKG_ROOT=${{ github.workspace }}\vcpkg" >> $env:GITHUB_ENV
-      shell: pwsh
-      
-    - name: 🏗️ Compilar OTClient
-      run: |
-        mkdir build
-        cd build
-        cmake -G "Visual Studio 17 2022" -A x64 `
-          -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DBUILD_STATIC_LIBRARY=ON `
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-          ..
-        cmake --build . --config Release -j
-        
-        # Copiar executável para local conhecido
-        copy Release\otclient.exe ..\otclient.exe
-      shell: pwsh
-        
-    - name: 📦 Preparar artefato
-      run: |
-        mkdir release-package
-        copy otclient.exe release-package\
-        if (Test-Path README_PROJETO74.md) { copy README_PROJETO74.md release-package\README.md }
-        if (Test-Path README.md) { copy README.md release-package\README.md }
-      shell: pwsh
-        
-    - name: 📤 Upload executável (Artifact - 90 dias)
-      uses: actions/upload-artifact@v4
-      with:
-        name: otclient-windows-x64
-        path: release-package/
-        retention-days: 90
-        
-    - name: 🚀 Commitar executável no repositório
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        
-        # Criar pasta bin se não existir
-        mkdir -p bin/windows
-        
-        # Comprimir executável (economiza espaço e evita limite de 100MB)
-        7z a -tzip -mx9 bin/windows/otclient.zip otclient.exe
-        
-        # Criar arquivo de informações
-        echo "🎮 OTClient Windows x64" > bin/windows/BUILD_INFO.txt
-        echo "Compilado em: $(date)" >> bin/windows/BUILD_INFO.txt
-        echo "Commit: ${{ github.sha }}" >> bin/windows/BUILD_INFO.txt
-        echo "Branch: ${{ github.ref_name }}" >> bin/windows/BUILD_INFO.txt
-        echo "Build: #${{ github.run_number }}" >> bin/windows/BUILD_INFO.txt
-        echo "" >> bin/windows/BUILD_INFO.txt
-        echo "✨ Otimizações:" >> bin/windows/BUILD_INFO.txt
-        echo "- FPS padrão: 60" >> bin/windows/BUILD_INFO.txt
-        echo "- Protocolo: 772" >> bin/windows/BUILD_INFO.txt
-        echo "- Build: Release (otimizado)" >> bin/windows/BUILD_INFO.txt
-        echo "" >> bin/windows/BUILD_INFO.txt
-        echo "📥 Download:" >> bin/windows/BUILD_INFO.txt
-        echo "- Descompacte otclient.zip" >> bin/windows/BUILD_INFO.txt
-        echo "- Execute otclient.exe" >> bin/windows/BUILD_INFO.txt
-        
-        # Adicionar e commitar
-        git add bin/windows/otclient.zip bin/windows/BUILD_INFO.txt
-        git diff --staged --quiet || git commit -m "🤖 Auto-build #${{ github.run_number }}: Executável Windows atualizado [skip ci]"
-        git push
-      shell: bash
-        
-    - name: 🎉 Criar Release automática
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: build-${{ github.run_number }}
-        name: "Build #${{ github.run_number }} - Windows x64"
-        body: |
-          ## 🎮 OTClient - Projeto 7.4 (Build Automático)
-          
-          **📅 Data:** ${{ github.event.head_commit.timestamp }}  
-          **🔨 Commit:** ${{ github.sha }}  
-          **👤 Autor:** ${{ github.event.head_commit.author.name }}  
-          
-          ### ✨ Otimizações incluídas:
-          - ✅ FPS padrão: 60 (reduz flicker visual)
-          - ✅ Protocolo 772 estável
-          - ✅ Compilado para Windows x64
-          - ✅ Build Release otimizado
-          
-          ### 📥 Como usar:
-          1. Baixe `otclient.exe` abaixo
-          2. Substitua na pasta do seu OTClient
-          3. Configure `init.lua` para conectar em `192.168.0.36:7171:772`
-          4. Execute e jogue!
-          
-          ### 🔧 Configuração do servidor (init.lua):
-          ```lua
-          Servers = {
-              ["Nostalrius 7.72"] = "192.168.0.36:7171:772"
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Get vcpkg commit ID
+        id: vcpkg-step
+        shell: pwsh
+        run: |
+          $json = Get-Content vcpkg.json -Raw | ConvertFrom-Json
+          $commit = $json.'builtin-baseline'
+          echo "vcpkgGitCommitId=$commit" >> $env:GITHUB_OUTPUT
+
+      - name: 📊 Compute vcpkg.json hash
+        id: hash
+        shell: pwsh
+        run: |
+          $json = Get-Content "vcpkg.json" -Raw -Encoding UTF8
+          $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+          $sha256 = [System.Security.Cryptography.SHA256]::Create()
+          $hashBytes = $sha256.ComputeHash($bytes)
+          $hash = [BitConverter]::ToString($hashBytes) -replace '-', ''
+          "hash=$hash" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: 💾 Cache vcpkg artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg/installed
+            ${{ github.workspace }}/vcpkg/buildtrees
+            ${{ github.workspace }}/vcpkg/downloads
+          key: vcpkg-windows-2022-windows-release-${{ steps.hash.outputs.hash }}
+          restore-keys: |
+            vcpkg-windows-2022-windows-release-
+
+      - name: 🗑️ Remove Windows pre-installed MySQL
+        run: Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "C:/mysql*"
+
+      - name: 📦 Install vcpkg
+        uses: lukka/run-vcpkg@a400452f634fe49e9f18d388aeb1809dcc642136
+        with:
+          vcpkgGitCommitId: ${{ steps.vcpkg-step.outputs.vcpkgGitCommitId }}
+
+      - name: 🔧 Get latest CMake and Ninja
+        uses: lukka/get-cmake@v3.31.6
+
+      - name: 🏗️ Configure and Build
+        uses: lukka/run-cmake@main
+        with:
+          configurePreset: 'windows-release'
+          buildPreset: 'windows-release'
+
+      - name: 📦 Prepare artifact folder
+        shell: pwsh
+        run: |
+          $artifactDir = "$env:GITHUB_WORKSPACE\artifacts"
+          New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+
+          $exePath = Get-ChildItem -Recurse -Path $env:GITHUB_WORKSPACE -Filter "otclient*.exe" | Select-Object -First 1
+
+          if (-not $exePath) {
+            Write-Error "Not found otclient*.exe!"
+            exit 1
           }
-          ALLOW_CUSTOM_SERVERS = true
-          ```
+
+          Copy-Item $exePath.FullName -Destination $artifactDir
+
+          $dlls = Get-ChildItem -Path $exePath.Directory.FullName -Filter "*.dll"
+          foreach ($dll in $dlls) {
+            Copy-Item $dll.FullName -Destination $artifactDir
+          }
+
+      - name: 📤 Upload Artifact (90 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: otclient-windows-x64
+          path: ${{ github.workspace }}/artifacts
+
+      - name: 🚀 Commitar executável no repositório
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           
-          ### 📦 Também disponível em:
-          - **Repositório:** `bin/windows/otclient.exe` (branch main)
-          - **Artifact:** Aba "Actions" desta execução
+          mkdir -p bin/windows
           
-          ---
+          # Comprimir executável
+          cd artifacts
+          7z a -tzip -mx9 ../bin/windows/otclient.zip *
+          cd ..
           
-          🤖 *Build automático via GitHub Actions*
-        files: |
-          release-package/otclient.exe
-          release-package/README.md
-        draft: false
-        prerelease: false
+          # Criar BUILD_INFO
+          cat > bin/windows/BUILD_INFO.txt << EOF
+          🎮 OTClient Windows x64
+          Compilado em: $(date)
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref_name }}
+          Build: #${{ github.run_number }}
+          
+          ✨ Otimizações:
+          - FPS padrão: 60
+          - Protocolo: 772
+          - Build: Release (otimizado)
+          
+          📥 Download:
+          - Descompacte otclient.zip
+          - Execute otclient.exe
+          EOF
+          
+          git add bin/windows/otclient.zip bin/windows/BUILD_INFO.txt
+          git diff --staged --quiet || git commit -m "🤖 Auto-build #${{ github.run_number }}: Executável Windows atualizado [skip ci]"
+          git push
+
+      - name: 🎉 Criar Release automática
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Build #${{ github.run_number }} - Windows x64"
+          body: |
+            ## 🎮 OTClient - Projeto 7.4 (Build Automático)
+            
+            **📅 Compilado:** ${{ github.event.head_commit.timestamp }}  
+            **🔨 Commit:** ${{ github.sha }}  
+            
+            ### ✨ Otimizações incluídas:
+            - ✅ FPS padrão: 60 (reduz flicker visual)
+            - ✅ Protocolo 772 estável
+            - ✅ Compilado para Windows x64
+            - ✅ Build Release otimizado
+            
+            ### 📥 Como usar:
+            1. Baixe `otclient.zip` abaixo
+            2. Extraia o arquivo
+            3. Copie para pasta do seu OTClient
+            4. Execute `otclient.exe` e jogue!
+            
+            ### 🔧 Configuração do servidor (init.lua):
+            ```lua
+            Servers = {
+                ["Nostalrius 7.72"] = "192.168.0.36:7171:772"
+            }
+            ```
+          files: |
+            bin/windows/otclient.zip
+          draft: false
+          prerelease: false

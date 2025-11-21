@@ -41,11 +41,19 @@ local function parseMarketOffers(protocol, msg)
       id = msg:getU32(),
       itemId = msg:getU16(),
       amount = msg:getU16(),
-      price = msg:getU32(),
-      type = msg:getU8(),
-      playerName = msg:getString(),
-      secondsRemaining = msg:getU32()
+      price = msg:getU32()
     }
+    
+    -- Ler type e converter ASCII para número se necessário
+    local rawType = msg:getU8()
+    if rawType > 10 then
+      rawType = rawType - 48  -- Converter ASCII '0'-'9' (48-57) para 0-9
+      print('[MarketProtocol] Converted ASCII ' .. (rawType + 48) .. ' to ' .. rawType)
+    end
+    offer.type = rawType
+    
+    offer.playerName = msg:getString()
+    offer.secondsRemaining = msg:getU32()
     
     -- Calculate expire time string
     local hours = math.floor(offer.secondsRemaining / 3600)

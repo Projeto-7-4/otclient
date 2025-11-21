@@ -69,7 +69,7 @@ end
 
 -- =============================================
 -- PROTOCOL REGISTRATION
-// =============================================
+-- =============================================
 
 function initProtocol()
   connect(g_game, { 
@@ -116,7 +116,7 @@ end
 
 -- =============================================
 -- SENDING FUNCTIONS (Client -> Server)
-// =============================================
+-- =============================================
 
 function MarketProtocol.sendMarketBrowse(offerType)
   local msg = OutputMessage.create()

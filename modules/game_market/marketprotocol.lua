@@ -14,8 +14,8 @@ local MarketOpcodes = {
   ClientMarketCancel = 0xF2,
   ClientMarketAccept = 0xF3,
   
-  -- Server -> Client (usando 0xEC - opcode não usado em 7.72)
-  ServerMarketOffers = 0xEC,
+  -- Server -> Client (0x7F = 127, opcode customizado livre em 7.72)
+  ServerMarketOffers = 0x7F,
 }
 
 local function send(msg)
@@ -74,14 +74,16 @@ end
 -- =============================================
 
 function initProtocol()
+  print('[MarketProtocol] Initializing protocol module...')
+  
   connect(g_game, { 
     onGameStart = MarketProtocol.registerProtocol,
     onGameEnd = MarketProtocol.unregisterProtocol 
   })
   
-  if g_game.isOnline() then
-    MarketProtocol.registerProtocol()
-  end
+  -- NÃO chamar registerProtocol() aqui, deixar apenas o onGameStart fazer isso
+  -- para evitar registro duplo
+  print('[MarketProtocol] Protocol module initialized (will register on game start)')
 end
 
 function terminateProtocol()

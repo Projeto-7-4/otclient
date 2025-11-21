@@ -254,34 +254,44 @@ function Market.showDemoOffers()
   
   offersList:destroyChildren()
   
-  -- Demo offers by category (IDs corretos do Tibia 7.72)
+  -- Demo offers com IDs básicos/comuns do Tibia 7.72
   local allOffers = {
-    -- Weapons
-    {itemName = "Magic Sword", amount = 1, price = 10000, playerName = "Warrior99", itemId = 2400, category = 1},
-    {itemName = "Giant Sword", amount = 1, price = 15000, playerName = "Knight_Pro", itemId = 2393, category = 1},
-    {itemName = "Fire Axe", amount = 1, price = 12000, playerName = "Axe_Master", itemId = 2432, category = 1},
+    -- Weapons (IDs básicos)
+    {itemName = "Sword", amount = 1, price = 500, playerName = "Warrior99", itemId = 2376, category = 1},
+    {itemName = "Two Handed Sword", amount = 1, price = 950, playerName = "Knight_Pro", itemId = 2377, category = 1},
+    {itemName = "Axe", amount = 1, price = 500, playerName = "Axe_Master", itemId = 2386, category = 1},
+    {itemName = "Club", amount = 1, price = 500, playerName = "Club_Guy", itemId = 2382, category = 1},
     
-    -- Armors
-    {itemName = "Demon Armor", amount = 1, price = 50000, playerName = "Rich_Player", itemId = 2494, category = 2},
-    {itemName = "Golden Armor", amount = 1, price = 25000, playerName = "Gold_Seller", itemId = 2466, category = 2},
-    {itemName = "Crown Armor", amount = 1, price = 35000, playerName = "Mage_Shop", itemId = 2487, category = 2},
+    -- Armors (IDs básicos)
+    {itemName = "Plate Armor", amount = 1, price = 4000, playerName = "Armor_Shop", itemId = 2463, category = 2},
+    {itemName = "Chain Armor", amount = 1, price = 700, playerName = "Dealer_Pro", itemId = 2464, category = 2},
+    {itemName = "Leather Armor", amount = 1, price = 300, playerName = "Newbie_Store", itemId = 2467, category = 2},
     
-    -- Shields
-    {itemName = "Vampire Shield", amount = 1, price = 18000, playerName = "Shield_Guy", itemId = 2534, category = 3},
-    {itemName = "Demon Shield", amount = 1, price = 30000, playerName = "Tank_Pro", itemId = 2520, category = 3},
+    -- Shields (IDs básicos)
+    {itemName = "Wooden Shield", amount = 1, price = 150, playerName = "Shield_Guy", itemId = 2512, category = 3},
+    {itemName = "Steel Shield", amount = 1, price = 800, playerName = "Tank_Pro", itemId = 2509, category = 3},
+    {itemName = "Battle Shield", amount = 1, price = 350, playerName = "Warrior_Shop", itemId = 2513, category = 3},
     
-    -- Helmets
-    {itemName = "Crusader Helmet", amount = 1, price = 8000, playerName = "Helmet_Shop", itemId = 2497, category = 4},
-    {itemName = "Demon Helmet", amount = 1, price = 40000, playerName = "Elite_Seller", itemId = 2493, category = 4},
+    -- Helmets (IDs básicos)
+    {itemName = "Helmet", amount = 1, price = 580, playerName = "Helmet_Shop", itemId = 2458, category = 4},
+    {itemName = "Chain Helmet", amount = 1, price = 350, playerName = "Armor_Guy", itemId = 2457, category = 4},
+    {itemName = "Brass Helmet", amount = 1, price = 200, playerName = "Dealer_Store", itemId = 2460, category = 4},
     
-    -- Potions
-    {itemName = "Great Health Potion", amount = 100, price = 15000, playerName = "Potion_Store", itemId = 239, category = 10},
-    {itemName = "Great Mana Potion", amount = 100, price = 12000, playerName = "Mana_Shop", itemId = 238, category = 10},
-    {itemName = "Ultimate Health Potion", amount = 50, price = 20000, playerName = "Premium_Store", itemId = 237, category = 10},
+    -- Legs (IDs básicos)
+    {itemName = "Plate Legs", amount = 1, price = 1200, playerName = "Legs_Shop", itemId = 2647, category = 5},
+    {itemName = "Chain Legs", amount = 1, price = 300, playerName = "Armor_Store", itemId = 2648, category = 5},
     
-    -- Runes
-    {itemName = "Sudden Death Rune", amount = 100, price = 30000, playerName = "Rune_Master", itemId = 2268, category = 9},
-    {itemName = "Explosion Rune", amount = 100, price = 18000, playerName = "Healer_Shop", itemId = 2313, category = 9},
+    -- Boots (IDs básicos)
+    {itemName = "Leather Boots", amount = 1, price = 200, playerName = "Boot_Shop", itemId = 2643, category = 6},
+    {itemName = "Steel Boots", amount = 1, price = 800, playerName = "Premium_Store", itemId = 2645, category = 6},
+    
+    -- Potions (IDs básicos)
+    {itemName = "Health Potion", amount = 100, price = 5000, playerName = "Potion_Store", itemId = 236, category = 10},
+    {itemName = "Mana Potion", amount = 100, price = 5000, playerName = "Mana_Shop", itemId = 268, category = 10},
+    
+    -- Others
+    {itemName = "Rope", amount = 50, price = 500, playerName = "Tool_Shop", itemId = 2120, category = 11},
+    {itemName = "Shovel", amount = 10, price = 300, playerName = "Tool_Store", itemId = 2554, category = 11},
   }
   
   -- Get search text

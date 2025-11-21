@@ -449,6 +449,9 @@ function Market.createOfferWidget(offer)
   widget:setPhantom(false)
   widget:setFocusable(true)
   
+  -- Armazenar referência do widget na oferta
+  offer.widget = widget
+  
   widget.onClick = function()
     if selectedOfferWidget then
       selectedOfferWidget:setBackgroundColor('#1a1a1a')
@@ -476,18 +479,93 @@ function Market.goToPage(page)
 end
 
 function Market.onOfferClick(offer, widget)
-  print('[Market] Offer clicked: ' .. offer.name)
+  print('[Market] Offer clicked: ' .. offer.name .. ' (ID: ' .. offer.id .. ')')
   
-  local message = string.format(
-    '%s\n\n%s\nPrice: %d %s\n\nType: %s\n\nDEMO MODE - Server integration coming soon!',
-    offer.name,
-    offer.expire,
-    offer.price,
-    offer.currency,
-    offer.type:upper()
-  )
+  if offer.type == 'sell' then
+    -- Oferta de VENDA no mercado = jogador quer COMPRAR
+    local message = string.format(
+      'Buy %s?\n\nAmount: %d\nPrice: %d Gold Coins\nTotal: %d Gold Coins\n\nSeller: %s\nExpires: %s',
+      offer.name,
+      offer.amount,
+      offer.price,
+      offer.price * offer.amount,
+      offer.seller or 'Unknown',
+      offer.expire
+    )
+    
+    displayGeneralBox('Confirm Purchase', message, {
+      {text='Buy', callback = function()
+        Market.buyOffer(offer)
+      end},
+      {text='Cancel', callback = function() end}
+    }, function() end, function() end)
+  else
+    -- Oferta de COMPRA no mercado = jogador quer VENDER
+    local message = string.format(
+      'Sell %s to this buyer?\n\nAmount: %d\nPrice per unit: %d Gold Coins\nTotal: %d Gold Coins\n\nBuyer: %s\nExpires: %s',
+      offer.name,
+      offer.amount,
+      offer.price,
+      offer.price * offer.amount,
+      offer.seller or 'Unknown',
+      offer.expire
+    )
+    
+    displayGeneralBox('Confirm Sale', message, {
+      {text='Sell', callback = function()
+        Market.sellToOffer(offer)
+      end},
+      {text='Cancel', callback = function() end}
+    }, function() end, function() end)
+  end
+end
+
+function Market.buyOffer(offer)
+  print('[Market] Buying offer ID ' .. offer.id)
   
-  displayInfoBox('Rarity Market - Offer Details', message)
+  -- Verificar se o jogador tem gold suficiente
+  local playerGold = g_game.getMoney() or 0
+  local totalCost = offer.price * offer.amount
+  
+  if playerGold < totalCost then
+    displayErrorBox('Insufficient Gold', 'You need ' .. totalCost .. ' Gold Coins to buy this offer.\nYou have: ' .. playerGold .. ' Gold Coins.')
+    return
+  end
+  
+  -- Enviar ao servidor
+  protocol.sendMarketAccept(offer.id, offer.amount)
+  
+  -- Aguardar resposta do servidor
+  displayInfoBox('Market', 'Processing your purchase...')
+  
+  -- Atualizar lista após 2 segundos
+  scheduleEvent(function()
+    protocol.sendMarketBrowse(selectedOfferType)
+  end, 2000)
+end
+
+function Market.sellToOffer(offer)
+  print('[Market] Selling to offer ID ' .. offer.id)
+  
+  -- Verificar se o jogador tem o item
+  -- TODO: Implementar verificação de inventário
+  
+  -- Enviar ao servidor
+  protocol.sendMarketAccept(offer.id, offer.amount)
+  
+  -- Aguardar resposta do servidor
+  displayInfoBox('Market', 'Processing your sale...')
+  
+  -- Atualizar lista após 2 segundos
+  scheduleEvent(function()
+    protocol.sendMarketBrowse(selectedOfferType)
+  end, 2000)
+end
+
+function Market.createSellOffer()
+  print('[Market] Opening sell dialog')
+  
+  displayInfoBox('Sell Item', 'Select an item from your inventory, then use /market sell <amount> <price>')
 end
 
 function Market.showHistory()
@@ -507,11 +585,35 @@ function Market.showHistory()
 end
 
 function Market.onSellItem()
-  displayInfoBox('Rarity Market', 'Sell Item\n\nSelect an item from your inventory to create a sell offer.\n\nDEMO MODE - Server integration coming soon!')
+  displayInfoBox('Rarity Market', 'To sell an item:\n\n1. Right-click the item in your inventory\n2. Select "Offer on Market"\n\nOr use command:\n/market sell <item_id> <amount> <price>')
 end
 
 function Market.onBuyItem()
-  displayInfoBox('Rarity Market', 'Buy Item\n\nPlace a buy order for an item you want.\n\nDEMO MODE - Server integration coming soon!')
+  if not selectedOfferWidget then
+    displayErrorBox('No Offer Selected', 'Please select an offer from the list first.')
+    return
+  end
+  
+  -- Encontrar a oferta selecionada
+  local selectedOffer = nil
+  for _, offer in ipairs(allOffers) do
+    if offer.widget == selectedOfferWidget then
+      selectedOffer = offer
+      break
+    end
+  end
+  
+  if not selectedOffer then
+    displayErrorBox('Error', 'Could not find the selected offer.')
+    return
+  end
+  
+  if selectedOffer.type == 'sell' then
+    -- É uma oferta de venda, então o jogador vai comprar
+    Market.buyOffer(selectedOffer)
+  else
+    displayInfoBox('Info', 'This is a buy order. To sell to this buyer, use /market sell <item_id> <amount>')
+  end
 end
 
 function Market.refresh()

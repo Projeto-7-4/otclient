@@ -11,39 +11,26 @@ oldPos = nil
 function init()
   -- Carregar na section horizontal dedicada no topo direito
   local minimapSection = modules.game_interface.getMinimapHorizontalSection()
-  print('[Minimap] DEBUG: minimapSection = ' .. tostring(minimapSection))
   
   if minimapSection then
+    -- Garantir que a section está visível
+    minimapSection:setVisible(true)
+    minimapSection:show()
+    
     minimapWindow = g_ui.loadUI('minimap', minimapSection)
-    print('[Minimap] ✅ Loaded in horizontal section (600x250px)')
-    print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
-    print('[Minimap] Section size: ' .. minimapSection:getWidth() .. 'x' .. minimapSection:getHeight())
+    print('[Minimap] ✅ Loaded in horizontal section')
   else
     -- Fallback: painel direito
     minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
     print('[Minimap] ⚠️ Loaded in right panel (fallback)')
   end
   
-  if minimapWindow then
-    print('[Minimap] Window created: ' .. tostring(minimapWindow))
-    print('[Minimap] BEFORE show() - Window visible: ' .. tostring(minimapWindow:isVisible()))
-    print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
-    
-    -- Forçar visibilidade
-    if minimapSection then
-      print('[Minimap] BEFORE show() - Section visible: ' .. tostring(minimapSection:isVisible()))
-      minimapSection:setVisible(true)
-      minimapSection:show()
-      minimapWindow:setVisible(true)
-      minimapWindow:show()
-      minimapWindow:raise()
-      print('[Minimap] AFTER show() - Section visible: ' .. tostring(minimapSection:isVisible()))
-      print('[Minimap] AFTER show() - Window visible: ' .. tostring(minimapWindow:isVisible()))
-      print('[Minimap] ✅ Forced visibility commands sent')
-    end
-  else
+  if not minimapWindow then
     print('[Minimap] ❌ ERROR: Failed to create window!')
+    return
   end
+  
+  print('[Minimap] ✅ Window created successfully')
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
@@ -65,13 +52,13 @@ function init()
     print('[Minimap] Calling setup()...')
     minimapWindow:setup()
     print('[Minimap] AFTER setup() - Window visible: ' .. tostring(minimapWindow:isVisible()))
-    
-    -- Forçar de novo após setup
-    if minimapSection then
-      minimapSection:show()
-      minimapWindow:show()
-      print('[Minimap] Re-forced visibility after setup()')
-    end
+  end
+  
+  -- ✅ ABRIR A JANELA EXPLICITAMENTE (como Skills faz!)
+  if minimapWindow.open then
+    print('[Minimap] Calling open()...')
+    minimapWindow:open()
+    print('[Minimap] AFTER open() - Window visible: ' .. tostring(minimapWindow:isVisible()))
   end
 
   connect(g_game, {
@@ -86,21 +73,6 @@ function init()
   if g_game.isOnline() then
     online()
   end
-  
-  -- HACK: Forçar visibilidade após tudo carregar
-  scheduleEvent(function()
-    if minimapSection then
-      minimapSection:setVisible(true)
-      minimapSection:show()
-      print('[Minimap] [DELAYED] Section forced visible')
-    end
-    if minimapWindow then
-      minimapWindow:setVisible(true)
-      minimapWindow:show()
-      minimapWindow:raise()
-      print('[Minimap] [DELAYED] Window forced visible: ' .. tostring(minimapWindow:isVisible()))
-    end
-  end, 100)
 end
 
 function terminate()

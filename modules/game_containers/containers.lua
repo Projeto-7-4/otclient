@@ -214,7 +214,47 @@ function onContainerOpen(container, previousContainer)
     containerWindow:setContentHeight(filledLines*cellSize.height)
   end
 
+  -- Add Market button for Depot/Locker
+  local containerName = container:getName():lower()
+  if containerName:find('depot') or containerName:find('locker') or containerName:find('chest') then
+    addMarketButton(containerWindow)
+  end
+
   containerWindow:setup()
+end
+
+function addMarketButton(containerWindow)
+  -- Remove existing market button if any
+  local existingButton = containerWindow:recursiveGetChildById('marketButton')
+  if existingButton then
+    existingButton:destroy()
+  end
+
+  -- Create market button
+  local upButton = containerWindow:getChildById('upButton')
+  if upButton then
+    local marketButton = g_ui.createWidget('Button', upButton:getParent())
+    marketButton:setId('marketButton')
+    marketButton:setText('Market')
+    marketButton:setWidth(45)
+    marketButton:setHeight(upButton:getHeight())
+    marketButton:setMarginLeft(2)
+    
+    -- Position next to up button
+    marketButton:addAnchor(AnchorLeft, 'upButton', AnchorRight)
+    marketButton:addAnchor(AnchorTop, 'upButton', AnchorTop)
+    
+    -- Click handler
+    marketButton.onClick = function()
+      if Market and Market.toggle then
+        Market.toggle()
+      else
+        print('[Container] Market module not loaded')
+      end
+    end
+    
+    print('[Container] Market button added to depot/locker')
+  end
 end
 
 function onContainerClose(container)

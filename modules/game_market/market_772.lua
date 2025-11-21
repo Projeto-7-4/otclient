@@ -85,7 +85,7 @@ function init()
   marketWindow:hide()
   print('[Market] Window hidden')
 
-  -- Get components
+  -- Get components (optional for now - just testing)
   categoryList = marketWindow:recursiveGetChildById('categoryList')
   offersList = marketWindow:recursiveGetChildById('offersList')
   buyButton = marketWindow:recursiveGetChildById('buyButton')
@@ -99,19 +99,17 @@ function init()
   amountLabel = marketWindow:recursiveGetChildById('amountLabel')
   sellerLabel = marketWindow:recursiveGetChildById('sellerLabel')
   
-  -- Check critical components
-  if not categoryList then print('[Market] WARNING: categoryList not found') end
-  if not offersList then print('[Market] WARNING: offersList not found') end
-  if not buyButton then print('[Market] WARNING: buyButton not found') end
-  print('[Market] Components loaded')
+  print('[Market] Components loaded (may be nil for now)')
 
-  -- Connect events
+  -- Connect events (only if components exist)
   if categoryList then
     categoryList.onChildFocusChange = Market.onCategorySelect
+    print('[Market] Connected categoryList events')
   end
   
   if offersList then
     offersList.onChildFocusChange = Market.onOfferSelect
+    print('[Market] Connected offersList events')
   end
   
   if buyButton then
@@ -135,12 +133,14 @@ function init()
   end
   print('[Market] Events connected')
 
-  -- Populate categories
-  Market.populateCategories()
+  -- Populate categories (only if list exists)
+  if categoryList then
+    Market.populateCategories()
+  end
 
   -- Register hotkey
   g_keyboard.bindKeyDown('Ctrl+M', Market.toggle)
-  print('[Market] Hotkey registered')
+  print('[Market] Hotkey registered (Ctrl+M)')
 
   print('[Market] ✅ Initialization complete!')
 end

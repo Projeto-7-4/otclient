@@ -88,38 +88,30 @@ function init()
   if not sellButton then print('[Market] WARNING: sellButton not found') end
   if not refreshButton then print('[Market] WARNING: refreshButton not found') end
   
-  print('[Market] Components loaded (modern syntax)')
+  print('[Market] Components loaded')
 
-  -- Connect events (only if widgets exist)
-  if categoryList then
-    connect(categoryList, { onChildFocusChange = Market.onCategorySelect })
-  end
-  
-  if offersList then
-    connect(offersList, { onChildFocusChange = Market.onOfferSelect })
-  end
-  
+  -- Connect button events (direct onClick)
   if buyButton then
-    connect(buyButton, { onClick = Market.onBuyClick })
+    buyButton.onClick = Market.onBuyClick
   end
   
   if sellButton then
-    connect(sellButton, { onClick = Market.onSellClick })
+    sellButton.onClick = Market.onSellClick
   end
   
   if refreshButton then
-    connect(refreshButton, { onClick = Market.onRefreshClick })
+    refreshButton.onClick = Market.onRefreshClick
   end
   
   if myOffersButton then
-    connect(myOffersButton, { onClick = Market.onMyOffersClick })
+    myOffersButton.onClick = Market.onMyOffersClick
   end
   
   if searchEdit then
-    connect(searchEdit, { onTextChange = Market.onSearchChange })
+    searchEdit.onTextChange = Market.onSearchChange
   end
   
-  print('[Market] Events connected')
+  print('[Market] Button events connected')
 
   -- Populate categories
   print('[Market] Calling populateCategories()...')
@@ -202,8 +194,22 @@ function Market.populateCategories()
   
   print('[Market] Adding ' .. #categories .. ' categories...')
   for i, category in ipairs(categories) do
-    local label = categoryList:addItem(category.name)
+    -- Create widget manually (like Shop does)
+    local label = g_ui.createWidget('Label', categoryList)
+    label:setText(category.name)
+    label:setPhantom(false)
     label.categoryId = category.id
+    label:setHeight(20)
+    label:setTextAlign(AlignLeft)
+    label:setMarginLeft(5)
+    
+    -- Make it clickable
+    label.onClick = function()
+      selectedCategory = category.id
+      print('[Market] Category clicked: ' .. category.name)
+      Market.showDemoOffers()
+    end
+    
     print('[Market] Added category: ' .. category.name .. ' (id=' .. category.id .. ')')
   end
   
@@ -277,12 +283,24 @@ function Market.showDemoOffers()
     end
   end
   
-  -- Add to list
+  -- Add to list (using createWidget like Shop)
   for _, offer in ipairs(filteredOffers) do
     local text = string.format('%s (x%d) - %d gp - %s', 
       offer.itemName, offer.amount, offer.price, offer.playerName)
-    local label = offersList:addItem(text)
+    
+    -- Create widget manually
+    local label = g_ui.createWidget('Label', offersList)
+    label:setText(text)
+    label:setPhantom(false)
     label.offer = offer
+    label:setHeight(20)
+    label:setTextAlign(AlignLeft)
+    label:setMarginLeft(5)
+    
+    -- Make it clickable
+    label.onClick = function()
+      Market.onOfferSelect(offersList, label)
+    end
   end
   
   print('[Market] ' .. #filteredOffers .. ' offers displayed (category: ' .. selectedCategory .. ')')

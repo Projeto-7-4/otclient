@@ -12,8 +12,8 @@ local MarketOpcodes = {
   ClientMarketCancel = 0xF2,
   ClientMarketAccept = 0xF3,
   
-  -- Server -> Client
-  ServerMarketOffers = 0xF7,
+  -- Server -> Client (usando 0xFE para evitar conflitos)
+  ServerMarketOffers = 0xFE,
 }
 
 local function send(msg)

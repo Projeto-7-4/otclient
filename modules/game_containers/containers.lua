@@ -224,6 +224,13 @@ function onContainerOpen(container, previousContainer)
 end
 
 function addMarketButton(containerWindow)
+  -- Check if Market module is available
+  local marketModule = g_modules.getModule('game_market')
+  if not marketModule or not marketModule:isLoaded() then
+    print('[Container] Market module not loaded - skipping button')
+    return
+  end
+
   -- Remove existing market button if any
   local existingButton = containerWindow:recursiveGetChildById('marketButton')
   if existingButton then
@@ -246,10 +253,17 @@ function addMarketButton(containerWindow)
     
     -- Click handler
     marketButton.onClick = function()
+      -- Import Market module
+      local Market = nil
+      if marketModule then
+        Market = marketModule:getSandbox().Market
+      end
+      
       if Market and Market.toggle then
         Market.toggle()
       else
-        print('[Container] Market module not loaded')
+        g_logger.error('[Container] Market.toggle() not found')
+        displayErrorBox('Market Error', 'Market module is not properly loaded.')
       end
     end
     

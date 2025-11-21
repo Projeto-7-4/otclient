@@ -203,10 +203,9 @@ function openFullMap()
     fullMapWidget:setCameraPosition(playerPos)
   end
   
-  fullMapWidget:setZoom(-1)  -- Zoom out para ver mais área
+  -- Configurações básicas de zoom e visualização
+  fullMapWidget:setZoom(-1)
   fullMapWidget:setMultifloor(false)
-  fullMapWidget:setKeepAspectRatio(false)
-  fullMapWidget:setDrawMinimapColors(true)
   
   print('[Minimap] Full map window opened successfully!')
 end

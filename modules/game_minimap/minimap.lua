@@ -174,7 +174,7 @@ function openFullMap()
 
   print('[Minimap] Opening full map window...')
   
-  -- Criar a janela modal
+  -- Criar a janela modal (igual ao Market)
   fullMapWindow = g_ui.displayUI('fullmap')
   
   if not fullMapWindow then
@@ -182,16 +182,32 @@ function openFullMap()
     return
   end
   
+  -- Centralizar a janela na tela
+  fullMapWindow:centerIn('parent')
+  
   -- Criar um widget de minimapa para a janela expandida
-  fullMapWidget = g_ui.createWidget('UIMap', fullMapWindow:getChildById('mapPanel'))
+  local mapPanel = fullMapWindow:getChildById('mapPanel')
+  if not mapPanel then
+    print('[Minimap] ERROR: mapPanel not found')
+    fullMapWindow:destroy()
+    fullMapWindow = nil
+    return
+  end
+  
+  fullMapWidget = g_ui.createWidget('UIMap', mapPanel)
   fullMapWidget:fill('parent')
   
   -- Copiar configurações do minimapa principal
-  local playerPos = g_game.getLocalPlayer():getPosition()
-  fullMapWidget:setCameraPosition(playerPos)
-  fullMapWidget:setCrossPosition(playerPos)
-  fullMapWidget:setZoom(0)  -- Zoom padrão
+  local player = g_game.getLocalPlayer()
+  if player then
+    local playerPos = player:getPosition()
+    fullMapWidget:setCameraPosition(playerPos)
+    fullMapWidget:setCrossPosition(playerPos)
+  end
+  
+  fullMapWidget:setZoom(-1)  -- Zoom out para ver mais área
   fullMapWidget:setMultifloor(false)
+  fullMapWidget:setKeepAspectRatio(false)
   
   print('[Minimap] Full map window opened successfully!')
 end

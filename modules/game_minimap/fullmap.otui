@@ -1,14 +1,18 @@
-MainWindow
+Window
   id: fullMapWindow
   !text: tr('World Map')
-  size: 800 600
+  size: 900 700
   @onEscape: modules.game_minimap.closeFullMap()
   
   Panel
     id: mapPanel
     anchors.fill: parent
     anchors.bottom: closeButton.top
+    margin-top: 5
+    margin-left: 5
+    margin-right: 5
     margin-bottom: 10
+    background-color: #00000088
     
   Button
     id: closeButton

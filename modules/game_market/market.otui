@@ -1,62 +1,316 @@
-MarketWindow < MainWindow
+MarketWindow < MiniWindow
   id: marketWindow
   !text: tr('Market')
-  size: 700 530
+  height: 450
+  icon: /images/topbuttons/market
+  @onEscape: self:hide()
 
-  @onEscape: Market.close()
+  MiniWindowContents
+    padding: 4
+    layout:
+      type: verticalBox
+      fit-children: true
 
-  // Main Panel Window
+    // Top panel com busca
+    Panel
+      id: topPanel
+      height: 30
+      layout:
+        type: horizontalBox
+        spacing: 4
 
-  MarketTabBar
-    id: mainTabBar
-    width: 164
-    height: 25
+      TextEdit
+        id: searchEdit
+        placeholder: Search items...
+        width: 200
+
+      Button
+        id: myOffersButton
+        text: My Offers
+        width: 80
+
+      Button
+        id: sellButton
+        text: Sell Item
+        width: 80
+
+    // Main content
+    HorizontalSeparator
+
+    Panel
+      id: mainPanel
+      layout:
+        type: horizontalBox
+        spacing: 4
+
+      // Left panel - Categories
+      Panel
+        id: leftPanel
+        width: 120
+        layout:
+          type: verticalBox
+          spacing: 2
+
+        Label
+          text: Categories
+          text-align: center
+          font: verdana-11px-rounded
+          background-color: #00000088
+
+        VerticalScrollBar
+          id: categoryScrollBar
+          height: 300
+          step: 14
+          pixels-scroll: true
+
+          TextList
+            id: categoryList
+            vertical-scrollbar: categoryScrollBar
+            focusable: false
+            phantom: false
+
+      VerticalSeparator
+
+      // Middle panel - Offers list
+      Panel
+        id: middlePanel
+        layout:
+          type: verticalBox
+          spacing: 2
+
+        Label
+          text: Market Offers
+          text-align: center
+          font: verdana-11px-rounded
+          background-color: #00000088
+
+        VerticalScrollBar
+          id: offersScrollBar
+          height: 300
+          step: 14
+          pixels-scroll: true
+
+          TextList
+            id: offersList
+            vertical-scrollbar: offersScrollBar
+            focusable: false
+            phantom: false
+
+      VerticalSeparator
+
+      // Right panel - Item preview and details
+      Panel
+        id: rightPanel
+        width: 150
+        layout:
+          type: verticalBox
+          spacing: 4
+
+        Label
+          text: Item Details
+          text-align: center
+          font: verdana-11px-rounded
+          background-color: #00000088
+
+        Item
+          id: itemPreview
+          size: 64 64
+          anchors.horizontalCenter: parent.horizontalCenter
+          phantom: true
+
+        Label
+          id: itemNameLabel
+          text-align: center
+          font: verdana-11px-rounded
+
+        Label
+          id: priceLabel
+          text-align: center
+          font: verdana-11px-rounded
+
+        Label
+          id: amountLabel
+          text-align: center
+          font: verdana-11px-rounded
+
+        HorizontalSeparator
+
+        Button
+          id: buyButton
+          text: Buy
+          anchors.horizontalCenter: parent.horizontalCenter
+
+// Window para comprar item
+MarketBuyWindow < MainWindow
+  id: buyWindow
+  !text: tr('Buy Item')
+  size: 300 200
+  @onEscape: self:destroy()
+
+  Label
+    id: itemName
     anchors.top: parent.top
     anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    font: verdana-11px-rounded
+    margin-top: 10
 
-  Panel
-    id: mainTabContent
+  Label
+    id: priceLabel
     anchors.top: prev.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    padding: 3
-    border-width: 1
-    border-color: #000000
-    margin-bottom: 20
+    text-align: center
+    margin-top: 10
 
   Label
-    id: balanceLabel
-    !text: tr('Balance') .. ':'
-    font: verdana-11px-rounded
-    text-offset: 0 2
-    anchors.top: parent.top
+    text: Amount:
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    margin-top: 15
+    margin-left: 20
+
+  TextEdit
+    id: amountEdit
+    anchors.top: prev.top
+    anchors.left: prev.right
     anchors.right: parent.right
+    margin-left: 10
+    margin-right: 20
+    text: 1
+
+  Label
+    id: totalLabel
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    margin-top: 10
+    font: verdana-11px-rounded
 
   Button
-    id: closeButton
-    !text: tr('Close')
-    anchors.top: mainTabContent.bottom
-    anchors.horizontalCenter: mainTabContent.horizontalCenter
-    margin-top: 5
-    width: 110
-    @onClick: Market.close()
+    id: confirmButton
+    text: Confirm
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    margin-bottom: 10
+    margin-left: 20
+    width: 100
 
   Button
-    id: refreshOffersButton
-    !text: tr('Refresh Offers')
-    anchors.top: mainTabContent.bottom
-    anchors.right: mainTabContent.right
-    margin-top: 5
-    width: 110
-    @onClick: Market.refreshOffers()
+    id: cancelButton
+    text: Cancel
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    margin-bottom: 10
+    margin-right: 20
+    width: 100
+
+// Window para vender item
+MarketSellWindow < MainWindow
+  id: sellWindow
+  !text: tr('Sell Item')
+  size: 300 250
+  @onEscape: self:destroy()
+
+  Label
+    text: Item ID:
+    anchors.top: parent.top
+    anchors.left: parent.left
+    margin-top: 20
+    margin-left: 20
+
+  TextEdit
+    id: itemEdit
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.right: parent.right
+    margin-left: 10
+    margin-right: 20
+
+  Label
+    text: Amount:
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    margin-top: 15
+    margin-left: 20
+
+  TextEdit
+    id: amountEdit
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.right: parent.right
+    margin-left: 10
+    margin-right: 20
+    text: 1
+
+  Label
+    text: Price (per unit):
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    margin-top: 15
+    margin-left: 20
+
+  TextEdit
+    id: priceEdit
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.right: parent.right
+    margin-left: 10
+    margin-right: 20
+
+  Label
+    id: taxLabel
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    margin-top: 10
+    text: Tax: 5%
 
   Button
-    id: resetButton
-    !text: tr('Reset Market')
-    !tooltip: tr('Reset selection, filters & search')
-    anchors.top: mainTabContent.bottom
-    anchors.left: mainTabContent.left
-    margin-top: 5
-    width: 110
-    @onClick: Market.reset()
+    id: confirmButton
+    text: Confirm
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    margin-bottom: 10
+    margin-left: 20
+    width: 100
+
+  Button
+    id: cancelButton
+    text: Cancel
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    margin-bottom: 10
+    margin-right: 20
+    width: 100
+
+// Estilo para labels de categoria
+MarketCategoryLabel < Label
+  font: verdana-11px-rounded
+  background-color: #ffffff11
+  text-offset: 2 0
+  focusable: true
+  height: 16
+
+  $focus:
+    background-color: #ffffff44
+
+  $!focus:
+    background-color: #ffffff11
+
+// Estilo para labels de ofertas
+MarketOfferLabel < Label
+  font: verdana-11px-rounded
+  background-color: #ffffff11
+  text-offset: 2 0
+  focusable: true
+  height: 16
+
+  $focus:
+    background-color: #ffffff44
+
+  $!focus:
+    background-color: #ffffff11

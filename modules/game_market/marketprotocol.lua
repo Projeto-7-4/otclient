@@ -5,6 +5,8 @@
 MarketProtocol = {}
 
 local protocol
+local protocolRegistered = false  -- Flag para evitar registro duplo
+
 local MarketOpcodes = {
   -- Client -> Server
   ClientMarketBrowse = 0xF0,
@@ -12,8 +14,8 @@ local MarketOpcodes = {
   ClientMarketCancel = 0xF2,
   ClientMarketAccept = 0xF3,
   
-  -- Server -> Client (usando 0xFE para evitar conflitos)
-  ServerMarketOffers = 0xFE,
+  -- Server -> Client (usando 0xEC - opcode não usado em 7.72)
+  ServerMarketOffers = 0xEC,
 }
 
 local function send(msg)
@@ -97,21 +99,35 @@ function MarketProtocol.updateProtocol(_protocol)
 end
 
 function MarketProtocol.registerProtocol()
+  if protocolRegistered then
+    print('[MarketProtocol] ⚠️ Protocol already registered, skipping...')
+    return
+  end
+  
   print('[MarketProtocol] Registering protocol handlers...')
   
   ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   
   MarketProtocol.updateProtocol(g_game.getProtocolGame())
   
-  print('[MarketProtocol] Protocol handlers registered!')
+  protocolRegistered = true
+  print('[MarketProtocol] ✅ Protocol handlers registered!')
 end
 
 function MarketProtocol.unregisterProtocol()
+  if not protocolRegistered then
+    print('[MarketProtocol] Protocol not registered, nothing to unregister')
+    return
+  end
+  
   print('[MarketProtocol] Unregistering protocol handlers...')
   
   ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   
   MarketProtocol.updateProtocol(nil)
+  
+  protocolRegistered = false
+  print('[MarketProtocol] Protocol unregistered')
 end
 
 -- =============================================

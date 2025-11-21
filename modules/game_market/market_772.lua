@@ -41,18 +41,31 @@ local categories = {
 }
 
 function init()
+  print('[Market] init() starting...')
+  
   connect(g_game, {
     onGameStart = Market.online,
     onGameEnd = Market.offline
   })
+  print('[Market] Connected game events')
 
   -- Load UI
-  marketWindow = g_ui.loadUI('market')
-  if not marketWindow then
+  print('[Market] Loading market.otui...')
+  local success, result = pcall(function()
+    return g_ui.loadUI('market', modules.game_interface.getRootWidget())
+  end)
+  
+  if success and result then
+    marketWindow = result
+    print('[Market] UI loaded successfully!')
+  else
     print('[Market] ERROR: Failed to load market.otui')
+    print('[Market] Error:', result)
     return
   end
+  
   marketWindow:hide()
+  print('[Market] Window hidden')
 
   -- Get components
   categoryList = marketWindow:recursiveGetChildById('categoryList')
@@ -71,6 +84,8 @@ function init()
   -- Check critical components
   if not categoryList then print('[Market] WARNING: categoryList not found') end
   if not offersList then print('[Market] WARNING: offersList not found') end
+  if not buyButton then print('[Market] WARNING: buyButton not found') end
+  print('[Market] Components loaded')
 
   -- Connect events
   if categoryList then
@@ -100,14 +115,16 @@ function init()
   if searchEdit then
     searchEdit.onTextChange = Market.onSearchChange
   end
+  print('[Market] Events connected')
 
   -- Populate categories
   Market.populateCategories()
 
   -- Register hotkey
   g_keyboard.bindKeyDown('Ctrl+M', Market.toggle)
+  print('[Market] Hotkey registered')
 
-  print('[Market] Initialized for 7.72')
+  print('[Market] ✅ Initialization complete!')
 end
 
 function terminate()

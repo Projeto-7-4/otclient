@@ -9,7 +9,16 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+  -- Carregar na section horizontal dedicada no topo direito
+  local minimapSection = modules.game_interface.getMinimapHorizontalSection()
+  if minimapSection then
+    minimapWindow = g_ui.loadUI('minimap', minimapSection)
+    print('[Minimap] Loaded in horizontal section (600x250px)')
+  else
+    -- Fallback: painel direito
+    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+    print('[Minimap] Loaded in right panel (fallback)')
+  end
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 

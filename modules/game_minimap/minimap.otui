@@ -5,8 +5,7 @@ MiniWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
-  height: 250
-  width: 600
+  anchors.fill: parent
   
   MiniWindowContents
     padding: 3

@@ -7,9 +7,9 @@ print('[Market] Using global protocol: ' .. tostring(protocol))
 if protocol then
   print('[Market] ✅ Protocol type: ' .. type(protocol))
   if type(protocol) == 'table' and protocol.sendMarketBrowse then
-    print('[Market] ✅ Protocol fully loaded!')
-  else
-    print('[Market] ❌ sendMarketBrowse is missing!')
+      print('[Market] ✅ Protocol fully loaded!')
+    else
+      print('[Market] ❌ sendMarketBrowse is missing!')
   end
 else
   print('[Market] ❌ ERROR: Protocol is nil!')

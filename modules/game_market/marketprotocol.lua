@@ -38,7 +38,7 @@ local function parseMarketBuyResponse(protocol, msg)
   
   if success == 1 then
     print('[MarketProtocol] ✅ Buy success: ' .. message)
-    displayInfoBox('Market - Success', message)
+    -- Silently succeed - user sees updated offers and gold
   else
     print('[MarketProtocol] ❌ Buy failed: ' .. message)
     displayErrorBox('Market - Error', message)

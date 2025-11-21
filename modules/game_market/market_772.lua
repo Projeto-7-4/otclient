@@ -586,8 +586,8 @@ function Market.buyOffer(offer)
     
     print('[Market] Purchase request sent to server (ID: ' .. offerId .. ', amount: ' .. (offer.amount or 1) .. ')')
     
-    -- Aguardar resposta do servidor
-    displayInfoBox('Market', 'Processing your purchase...\n\nThe server will validate your gold and complete the transaction.')
+    -- Aguardar resposta do servidor (sem modal - feedback silencioso)
+    -- displayInfoBox('Market', 'Processing your purchase...\n\nThe server will validate your gold and complete the transaction.')
     
     -- Atualizar lista após 2 segundos
     scheduleEvent(function()
@@ -738,11 +738,12 @@ function Market.onOffersReceived(serverOffers, bankBalance)
   -- Atualizar interface
   Market.applyFilters()
   
-  if #serverOffers > 0 then
-    displayInfoBox('Rarity Market', string.format('Loaded %d offers from server!', #serverOffers))
-  else
-    displayInfoBox('Rarity Market', 'No offers available at the moment.')
-  end
+  -- Silently update - no modal spam
+  -- if #serverOffers > 0 then
+  --   displayInfoBox('Rarity Market', string.format('Loaded %d offers from server!', #serverOffers))
+  -- else
+  --   displayInfoBox('Rarity Market', 'No offers available at the moment.')
+  -- end
 end
 
 print('[Market 7.72] Rarity Market module loaded')

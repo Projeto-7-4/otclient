@@ -828,6 +828,10 @@ function getLeftPanel()
   return getRightPanel()
 end
 
+function getMinimapSection()
+  return gameRootPanel:getChildById('minimapSection')
+end
+
 function getContainerPanel()
   local containerPanel = g_settings.getNumber("containerPanel")
   if containerPanel >= 5 then

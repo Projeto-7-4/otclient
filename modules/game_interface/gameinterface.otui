@@ -43,6 +43,36 @@ UIWidget
   id: gameRootPanel
   anchors.fill: parent
   
+  VerticalSplitter
+    id: minimapHeightSplitter
+    anchors.right: parent.right
+    anchors.top: parent.top
+    relative-margin: bottom
+    margin-bottom: 180
+    
+  HorizontalSplitter
+    id: minimapWidthSplitter
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.bottom: minimapHeightSplitter.bottom
+    relative-margin: left
+    margin-left: 350
+    
+  Panel
+    id: minimapSection
+    focusable: false
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.left: minimapWidthSplitter.right
+    anchors.bottom: minimapHeightSplitter.bottom
+    image-source: /images/ui/panel_side
+    image-border: 4
+    padding: 3
+    phantom: false
+    
+    $mobile:
+      visible: false
+  
   GameMapPanel
     id: gameMapPanel
     anchors.left: gameLeftPanels.right
@@ -81,36 +111,6 @@ UIWidget
     GameAction
       id: chat
       @onSetup: self.image:setImageSource("/images/game/mobile/chat")
-    
-  VerticalSplitter
-    id: minimapHeightSplitter
-    anchors.right: parent.right
-    anchors.top: parent.top
-    relative-margin: bottom
-    margin-bottom: 180
-    
-  HorizontalSplitter
-    id: minimapWidthSplitter
-    anchors.top: parent.top
-    anchors.right: parent.right
-    anchors.bottom: minimapHeightSplitter.bottom
-    relative-margin: left
-    margin-left: 350
-    
-  Panel
-    id: minimapSection
-    focusable: false
-    anchors.top: parent.top
-    anchors.right: parent.right
-    anchors.left: minimapWidthSplitter.right
-    anchors.bottom: minimapHeightSplitter.bottom
-    image-source: /images/ui/panel_side
-    image-border: 4
-    padding: 3
-    phantom: false
-    
-    $mobile:
-      visible: false
 
   Panel
     id: gameLeftPanels

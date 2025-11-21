@@ -580,26 +580,19 @@ function Market.buyOffer(offer)
     return
   end
   
-  -- Verificar se o jogador tem gold suficiente
-  local playerGold = g_game.getMoney() or 0
-  local totalCost = offer.price * (offer.amount or 1)
-  
-  if playerGold < totalCost then
-    displayErrorBox('Insufficient Gold', 'You need ' .. totalCost .. ' Gold Coins to buy this offer.\nYou have: ' .. playerGold .. ' Gold Coins.')
-    return
-  end
-  
-  -- Enviar ao servidor
+  -- Enviar ao servidor (servidor vai validar gold e processar)
   if protocol and protocol.sendMarketAccept then
     protocol.sendMarketAccept(offerId, offer.amount or 1)
     
+    print('[Market] Purchase request sent to server (ID: ' .. offerId .. ', amount: ' .. (offer.amount or 1) .. ')')
+    
     -- Aguardar resposta do servidor
-    displayInfoBox('Market', 'Processing your purchase...')
+    displayInfoBox('Market', 'Processing your purchase...\n\nThe server will validate your gold and complete the transaction.')
     
     -- Atualizar lista após 2 segundos
     scheduleEvent(function()
       if protocol and protocol.sendMarketBrowse then
-        protocol.sendMarketBrowse(selectedOfferType or 2)
+        protocol.sendMarketBrowse(2)  -- Sempre solicitar todas as ofertas
       end
     end, 2000)
   else
@@ -617,20 +610,19 @@ function Market.sellToOffer(offer)
     return
   end
   
-  -- Verificar se o jogador tem o item
-  -- TODO: Implementar verificação de inventário
-  
-  -- Enviar ao servidor
+  -- Enviar ao servidor (servidor vai validar inventário e processar)
   if protocol and protocol.sendMarketAccept then
     protocol.sendMarketAccept(offerId, offer.amount or 1)
     
+    print('[Market] Sale request sent to server (ID: ' .. offerId .. ', amount: ' .. (offer.amount or 1) .. ')')
+    
     -- Aguardar resposta do servidor
-    displayInfoBox('Market', 'Processing your sale...')
+    displayInfoBox('Market', 'Processing your sale...\n\nThe server will validate your items and complete the transaction.')
     
     -- Atualizar lista após 2 segundos
     scheduleEvent(function()
       if protocol and protocol.sendMarketBrowse then
-        protocol.sendMarketBrowse(selectedOfferType or 2)
+        protocol.sendMarketBrowse(2)  -- Sempre solicitar todas as ofertas
       end
     end, 2000)
   else

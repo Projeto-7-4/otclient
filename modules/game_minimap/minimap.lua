@@ -1,6 +1,7 @@
 minimapWidget = nil
 minimapButton = nil
 minimapWindow = nil
+minimapSection = nil
 fullMapWindow = nil
 fullMapWidget = nil
 fullmapView = false
@@ -10,7 +11,7 @@ oldPos = nil
 
 function init()
   -- Carregar na section horizontal dedicada no topo direito
-  local minimapSection = modules.game_interface.getMinimapHorizontalSection()
+  minimapSection = modules.game_interface.getMinimapHorizontalSection()
   
   if minimapSection then
     -- Garantir que a section está visível
@@ -31,12 +32,6 @@ function init()
   end
   
   print('[Minimap] ✅ Window created successfully')
-
-  if not minimapWindow.forceOpen then
-    minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
-      tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
-    minimapButton:setOn(true)
-  end
 
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
 
@@ -59,6 +54,28 @@ function init()
     print('[Minimap] Calling open()...')
     minimapWindow:open()
     print('[Minimap] AFTER open() - Window visible: ' .. tostring(minimapWindow:isVisible()))
+  end
+  
+  -- Criar botão DEPOIS de abrir
+  if not minimapWindow.forceOpen then
+    minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
+      tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
+    minimapButton:setOn(true)
+  end
+  
+  -- DEBUG CRÍTICO
+  print('[Minimap] === DEBUG CRÍTICO ===')
+  if minimapSection then
+    print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
+    print('[Minimap] Section enabled: ' .. tostring(minimapSection:isEnabled()))
+  end
+  print('[Minimap] Window parent: ' .. tostring(minimapWindow:getParent()))
+  print('[Minimap] Window parent visible: ' .. tostring(minimapWindow:getParent():isVisible()))
+  print('[Minimap] Window enabled: ' .. tostring(minimapWindow:isEnabled()))
+  print('[Minimap] Window width: ' .. minimapWindow:getWidth())
+  print('[Minimap] Window height: ' .. minimapWindow:getHeight())
+  if minimapButton then
+    print('[Minimap] Button ON: ' .. tostring(minimapButton:isOn()))
   end
 
   connect(g_game, {

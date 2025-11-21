@@ -306,27 +306,39 @@ function Market.switchTab(tab)
 end
 
 function Market.generateDemoOffers()
+  -- Ofertas com IDs corretos do servidor Nostalrius 7.72
   allOffers = {
-    {name = "9999x Bolt", itemId = 2543, expire = "Expires in 13h 58min", price = 2, currency = "Gold Coins", type = "sell"},
-    {name = "2000x Bolt", itemId = 2543, expire = "Expires in 6 days 15h", price = 2, currency = "Gold Coins", type = "sell"},
-    {name = "120x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 5, currency = "Gold Coins", type = "buy"},
-    {name = "1000x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 5, currency = "Gold Coins", type = "buy"},
-    {name = "102x Sniper Arrow", itemId = 2456, expire = "Expires in 5 days 22h", price = 8, currency = "Gold Coins", type = "sell"},
-    {name = "1000x Sniper Arrow", itemId = 2456, expire = "Expires in 6 days 22h", price = 5, currency = "Gold Coins", type = "sell"},
-    {name = "854x Power Bolt", itemId = 2547, expire = "Expires in 17h 46min", price = 9, currency = "Gold Coins", type = "sell"},
-    {name = "95x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 14, currency = "Gold Coins", type = "buy"},
-    {name = "Sword", itemId = 2376, expire = "Expires in 5 days", price = 500, currency = "Gold Coins", type = "sell"},
-    {name = "Two Handed Sword", itemId = 2377, expire = "Expires in 3 days", price = 950, currency = "Gold Coins", type = "sell"},
-    {name = "Axe", itemId = 2386, expire = "Expires in 4 days", price = 500, currency = "Gold Coins", type = "buy"},
-    {name = "Club", itemId = 2382, expire = "Expires in 2 days", price = 500, currency = "Gold Coins", type = "sell"},
-    {name = "Plate Armor", itemId = 2463, expire = "Expires in 6 days", price = 4000, currency = "Gold Coins", type = "sell"},
-    {name = "Chain Armor", itemId = 2464, expire = "Expires in 1 day", price = 700, currency = "Gold Coins", type = "buy"},
-    {name = "Wooden Shield", itemId = 2512, expire = "Expires in 3 days", price = 150, currency = "Gold Coins", type = "sell"},
-    {name = "Steel Shield", itemId = 2509, expire = "Expires in 5 days", price = 800, currency = "Gold Coins", type = "sell"},
-    {name = "Helmet", itemId = 2458, expire = "Expires in 2 days", price = 580, currency = "Gold Coins", type = "buy"},
-    {name = "Plate Legs", itemId = 2647, expire = "Expires in 4 days", price = 1200, currency = "Gold Coins", type = "sell"},
-    {name = "Leather Boots", itemId = 2643, expire = "Expires in 1 day", price = 200, currency = "Gold Coins", type = "buy"},
-    {name = "Health Potion (100x)", itemId = 236, expire = "Expires in 6 days", price = 5000, currency = "Gold Coins", type = "sell"},
+    -- Ammunition
+    {name = "120x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 240, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "95x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 190, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "958x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 1916, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "1000x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 2000, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "2000x Bolt", itemId = 2543, expire = "Expires in 6 days 15h", price = 4000, currency = "2 Gold Coins ea", type = "sell"},
+    {name = "102x Sniper Arrow", itemId = 7364, expire = "Expires in 5 days 22h", price = 816, currency = "8 Gold Coins ea", type = "sell"},
+    {name = "1000x Sniper Arrow", itemId = 7364, expire = "Expires in 6 days 22h", price = 8000, currency = "8 Gold Coins ea", type = "sell"},
+    {name = "854x Power Bolt", itemId = 2547, expire = "Expires in 17h 46min", price = 7686, currency = "9 Gold Coins ea", type = "sell"},
+    
+    -- Weapons
+    {name = "Axe", itemId = 3274, expire = "Expires in 4 days", price = 500, currency = "500 Gold Coins", type = "buy"},
+    {name = "Sword", itemId = 3264, expire = "Expires in 5 days", price = 600, currency = "600 Gold Coins", type = "sell"},
+    {name = "Club", itemId = 3270, expire = "Expires in 2 days", price = 450, currency = "450 Gold Coins", type = "sell"},
+    {name = "Two Handed Sword", itemId = 2377, expire = "Expires in 3 days", price = 950, currency = "950 Gold Coins", type = "sell"},
+    
+    -- Armors
+    {name = "Plate Armor", itemId = 2463, expire = "Expires in 6 days", price = 4000, currency = "4000 Gold Coins", type = "sell"},
+    {name = "Chain Armor", itemId = 2464, expire = "Expires in 1 day", price = 700, currency = "700 Gold Coins", type = "buy"},
+    
+    -- Shields
+    {name = "Wooden Shield", itemId = 3412, expire = "Expires in 3 days", price = 150, currency = "150 Gold Coins", type = "sell"},
+    {name = "Steel Shield", itemId = 2509, expire = "Expires in 5 days", price = 800, currency = "800 Gold Coins", type = "sell"},
+    
+    -- Helmets
+    {name = "Helmet", itemId = 2458, expire = "Expires in 2 days", price = 580, currency = "580 Gold Coins", type = "buy"},
+    {name = "Chain Helmet", itemId = 2457, expire = "Expires in 1 day", price = 300, currency = "300 Gold Coins", type = "sell"},
+    
+    -- Potions
+    {name = "100x Health Potion", itemId = 7618, expire = "Expires in 6 days", price = 5000, currency = "50 Gold Coins ea", type = "sell"},
+    {name = "50x Mana Potion", itemId = 7620, expire = "Expires in 4 days", price = 4000, currency = "80 Gold Coins ea", type = "sell"},
   }
 end
 
@@ -393,9 +405,16 @@ function Market.createOfferWidget(offer)
     itemExpire:setText(offer.expire)
   end
   
+  -- Use itemCurrency (OTUI usa esse ID agora)
+  local itemCurrency = widget:getChildById('itemCurrency')
+  if itemCurrency then
+    itemCurrency:setText(offer.currency)
+  end
+  
+  -- Fallback para itemPrice se existir
   local itemPrice = widget:getChildById('itemPrice')
   if itemPrice then
-    itemPrice:setText(offer.price .. ' ' .. offer.currency)
+    itemPrice:setText(offer.currency)
   end
   
   local actionButton = widget:getChildById('actionButton')

@@ -28,6 +28,13 @@ function init()
     print('[Minimap] Window created: ' .. tostring(minimapWindow))
     print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
     print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
+    
+    -- Forçar visibilidade
+    if minimapSection then
+      minimapSection:show()
+      minimapWindow:show()
+      print('[Minimap] ✅ Forced visibility ON')
+    end
   else
     print('[Minimap] ❌ ERROR: Failed to create window!')
   end

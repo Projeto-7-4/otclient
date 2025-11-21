@@ -73,14 +73,6 @@ UIWidget
     $mobile:
       visible: false
   
-  GameMapPanel
-    id: gameMapPanel
-    anchors.left: gameLeftPanels.right
-    anchors.right: minimapWidthSplitter.left
-    anchors.top: parent.top
-    anchors.bottom: gameBottomPanel.top
-    focusable: false    
-    
   Panel
     id: gameLeftActions
     focusable: false
@@ -126,6 +118,14 @@ UIWidget
       type: horizontalBox
       fit-children: true
       spacing: -1
+  
+  GameMapPanel
+    id: gameMapPanel
+    anchors.left: gameLeftPanels.right
+    anchors.right: minimapWidthSplitter.left
+    anchors.top: parent.top
+    anchors.bottom: gameBottomPanel.top
+    focusable: false
 
   Panel
     id: gameLeftActionPanel

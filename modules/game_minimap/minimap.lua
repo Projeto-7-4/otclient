@@ -7,6 +7,8 @@ fullmapView = false
 loaded = false
 oldZoom = nil
 oldPos = nil
+isExpanded = false
+originalParent = nil
 
 function init()
   minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
@@ -162,6 +164,46 @@ function toggleFullMap()
   oldPos = minimapWidget:getCameraPosition()
   minimapWidget:setZoom(zoom)
   minimapWidget:setCameraPosition(pos)
+end
+
+function toggleExpanded()
+  local expandedSection = modules.game_interface.getMinimapExpandedSection()
+  if not expandedSection then
+    print('[Minimap] ERROR: Expanded section not found')
+    return
+  end
+  
+  if not isExpanded then
+    -- EXPANDIR: Move para section horizontal no topo
+    print('[Minimap] Expanding minimap to horizontal section')
+    originalParent = minimapWindow:getParent()
+    minimapWindow:setParent(expandedSection)
+    minimapWindow:fill('parent')
+    minimapWindow:setHeight(nil)
+    minimapWindow:setWidth(nil)
+    expandedSection:show()
+    
+    -- Ajustar GameMapPanel para começar abaixo da section
+    local gameMapPanel = modules.game_interface.getMapPanel()
+    gameMapPanel:setMarginTop(expandedSection:getHeight())
+    
+    isExpanded = true
+    print('[Minimap] Expanded!')
+  else
+    -- RECOLHER: Volta para painel direito
+    print('[Minimap] Collapsing minimap to right panel')
+    minimapWindow:setParent(originalParent)
+    minimapWindow:setHeight(200)
+    minimapWindow:setWidth(450)
+    expandedSection:hide()
+    
+    -- Restaurar GameMapPanel
+    local gameMapPanel = modules.game_interface.getMapPanel()
+    gameMapPanel:setMarginTop(0)
+    
+    isExpanded = false
+    print('[Minimap] Collapsed!')
+  end
 end
 
 function openFullMap()

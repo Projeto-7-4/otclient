@@ -43,6 +43,18 @@ UIWidget
   id: gameRootPanel
   anchors.fill: parent
   
+  Panel
+    id: minimapExpandedSection
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 200
+    visible: false
+    image-source: /images/ui/panel_side
+    image-border: 4
+    padding: 4
+    focusable: false
+  
   GameMapPanel
     id: gameMapPanel
     anchors.left: gameLeftPanels.right

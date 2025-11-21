@@ -15,13 +15,13 @@ MiniWindow
     
     Button
       id: expandButton
-      !text: tr('Expand Map')
+      !text: tr('Expand')
       anchors.top: parent.top
       anchors.left: parent.left
       anchors.right: parent.right
       height: 20
       margin-bottom: 3
-      @onClick: modules.game_minimap.openFullMap()
+      @onClick: modules.game_minimap.toggleExpanded()
     
     Panel
       id: minimapBackground

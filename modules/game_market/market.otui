@@ -300,7 +300,7 @@ MainWindow
       margin-top: 5
       margin-bottom: 5
 
-    Panel
+    ScrollablePanel
       id: offersList
       anchors.top: offersHeader.bottom
       anchors.left: parent.left
@@ -310,6 +310,7 @@ MainWindow
       margin-left: 5
       margin-right: 5
       margin-bottom: 5
+      vertical-scrollbar: offersScrollBar
       layout:
         type: verticalBox
         spacing: 3

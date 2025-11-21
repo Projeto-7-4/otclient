@@ -14,8 +14,8 @@ local MarketOpcodes = {
   ClientMarketCancel = 0xF2,
   ClientMarketAccept = 0xF3,
   
-  -- Server -> Client (0x7F = 127, opcode customizado livre em 7.72)
-  ServerMarketOffers = 0x7F,
+  -- Server -> Client (0x32 = 50, opcode baixo não usado em 7.72)
+  ServerMarketOffers = 0x32,
 }
 
 local function send(msg)
@@ -108,6 +108,12 @@ function MarketProtocol.registerProtocol()
   
   print('[MarketProtocol] Registering protocol handlers...')
   
+  -- Primeiro tenta desregistrar (caso já exista)
+  pcall(function()
+    ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
+  end)
+  
+  -- Agora registra
   ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   
   MarketProtocol.updateProtocol(g_game.getProtocolGame())

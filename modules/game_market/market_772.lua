@@ -67,58 +67,36 @@ function init()
   marketWindow:hide()
   print('[Market] Window hidden')
 
-  -- Get components (optional for now - just testing)
-  categoryList = marketWindow:recursiveGetChildById('categoryList')
-  offersList = marketWindow:recursiveGetChildById('offersList')
-  buyButton = marketWindow:recursiveGetChildById('buyButton')
-  sellButton = marketWindow:recursiveGetChildById('sellButton')
-  refreshButton = marketWindow:recursiveGetChildById('refreshButton')
-  myOffersButton = marketWindow:recursiveGetChildById('myOffersButton')
-  searchEdit = marketWindow:recursiveGetChildById('searchEdit')
-  itemPreview = marketWindow:recursiveGetChildById('itemPreview')
-  itemNameLabel = marketWindow:recursiveGetChildById('itemNameLabel')
-  priceLabel = marketWindow:recursiveGetChildById('priceLabel')
-  amountLabel = marketWindow:recursiveGetChildById('amountLabel')
-  sellerLabel = marketWindow:recursiveGetChildById('sellerLabel')
+  -- Modern OTClientV8 syntax: direct access to components
+  -- No need for getChildById!
+  categoryList = marketWindow.categoryList
+  offersList = marketWindow.offersList
+  buyButton = marketWindow.buyButton
+  sellButton = marketWindow.sellButton
+  refreshButton = marketWindow.refreshButton
+  myOffersButton = marketWindow.myOffersButton
+  searchEdit = marketWindow.searchEdit
+  itemPreview = marketWindow.itemPreview
+  itemNameLabel = marketWindow.itemNameLabel
+  priceLabel = marketWindow.priceLabel
+  amountLabel = marketWindow.amountLabel
+  sellerLabel = marketWindow.sellerLabel
   
-  print('[Market] Components loaded')
+  print('[Market] Components loaded (modern syntax)')
 
-  -- Connect events (only if components exist)
-  if categoryList then
-    categoryList.onChildFocusChange = Market.onCategorySelect
-    print('[Market] Connected categoryList events')
-  end
+  -- Connect events
+  connect(categoryList, { onChildFocusChange = Market.onCategorySelect })
+  connect(offersList, { onChildFocusChange = Market.onOfferSelect })
+  connect(buyButton, { onClick = Market.onBuyClick })
+  connect(sellButton, { onClick = Market.onSellClick })
+  connect(refreshButton, { onClick = Market.onRefreshClick })
+  connect(myOffersButton, { onClick = Market.onMyOffersClick })
+  connect(searchEdit, { onTextChange = Market.onSearchChange })
   
-  if offersList then
-    offersList.onChildFocusChange = Market.onOfferSelect
-    print('[Market] Connected offersList events')
-  end
-  
-  if buyButton then
-    buyButton.onClick = Market.onBuyClick
-  end
-  
-  if sellButton then
-    sellButton.onClick = Market.onSellClick
-  end
-  
-  if refreshButton then
-    refreshButton.onClick = Market.onRefreshClick
-  end
-  
-  if myOffersButton then
-    myOffersButton.onClick = Market.onMyOffersClick
-  end
-  
-  if searchEdit then
-    searchEdit.onTextChange = Market.onSearchChange
-  end
   print('[Market] Events connected')
 
-  -- Populate categories (only if list exists)
-  if categoryList then
-    Market.populateCategories()
-  end
+  -- Populate categories
+  Market.populateCategories()
 
   -- Register hotkey
   g_keyboard.bindKeyDown('Ctrl+M', Market.toggle)
@@ -189,21 +167,77 @@ function Market.populateCategories()
     label.categoryId = category.id
   end
   
-  print('[Market] Categories populated')
+  print('[Market] ' .. #categories .. ' categories populated')
 end
 
 function Market.onCategorySelect(categoryList, focusedChild)
   if not focusedChild then return end
   
   selectedCategory = focusedChild.categoryId or 0
-  print(string.format('[Market] Category selected: %d', selectedCategory))
+  print(string.format('[Market] Category selected: %d (%s)', selectedCategory, focusedChild:getText()))
+  
+  -- Clear offers list (will be populated by server response)
+  if offersList then
+    offersList:destroyChildren()
+  end
+  
+  -- Show demo offers for now
+  Market.showDemoOffers()
+end
+
+function Market.showDemoOffers()
+  if not offersList then return end
+  
+  offersList:destroyChildren()
+  
+  -- Demo offers
+  local demoOffers = {
+    {itemName = "Magic Sword", amount = 1, price = 10000, playerName = "Seller1", itemId = 2400},
+    {itemName = "Demon Armor", amount = 1, price = 50000, playerName = "Seller2", itemId = 2494},
+    {itemName = "Crusader Helmet", amount = 1, price = 8000, playerName = "Seller3", itemId = 2497},
+    {itemName = "Great Health Potion", amount = 100, price = 15000, playerName = "Seller4", itemId = 239},
+  }
+  
+  for _, offer in ipairs(demoOffers) do
+    local text = string.format('%s (x%d) - %d gp - by %s', 
+      offer.itemName, offer.amount, offer.price, offer.playerName)
+    local label = offersList:addItem(text)
+    label.offer = offer
+  end
+  
+  print('[Market] ' .. #demoOffers .. ' demo offers displayed')
 end
 
 function Market.onOfferSelect(offersList, focusedChild)
   if not focusedChild then return end
   
   selectedOffer = focusedChild.offer
-  print(string.format('[Market] Selected offer: %s', selectedOffer and selectedOffer.itemName or 'none'))
+  
+  if not selectedOffer then return end
+  
+  -- Update item preview
+  if itemPreview then
+    itemPreview:setItemId(selectedOffer.itemId)
+  end
+  
+  -- Update labels
+  if itemNameLabel then
+    itemNameLabel:setText(selectedOffer.itemName)
+  end
+  
+  if priceLabel then
+    priceLabel:setText(string.format('Price: %d gp', selectedOffer.price))
+  end
+  
+  if amountLabel then
+    amountLabel:setText(string.format('Amount: %d', selectedOffer.amount))
+  end
+  
+  if sellerLabel then
+    sellerLabel:setText(string.format('Seller: %s', selectedOffer.playerName))
+  end
+  
+  print(string.format('[Market] Selected: %s (%d gp)', selectedOffer.itemName, selectedOffer.price))
 end
 
 function Market.onBuyClick()

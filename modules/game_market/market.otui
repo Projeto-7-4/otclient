@@ -1,21 +1,228 @@
 MainWindow
   id: marketWindow
-  !text: tr('Market')
-  size: 600 400
+  !text: tr('Market - Buy & Sell Items')
+  size: 800 500
   @onEscape: self:hide()
 
-  Label
-    id: testLabel
-    !text: tr('Market System Works!')
-    anchors.centerIn: parent
-    font: verdana-11px-rounded
-    color: white
-
-  Button
-    id: closeButton
-    !text: tr('Close')
-    width: 100
-    anchors.bottom: parent.bottom
-    anchors.horizontalCenter: parent.horizontalCenter
+  // Left Panel - Categories
+  Panel
+    id: leftPanel
+    width: 150
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: buttonsPanel.top
+    margin: 5
     margin-bottom: 10
-    @onClick: self:getParent():hide()
+    border-width: 1
+    border-color: #00000088
+    background-color: #00000044
+
+    Label
+      id: categoriesTitle
+      !text: tr('Categories')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
+
+    VerticalScrollBar
+      id: categoryScrollBar
+      anchors.top: categoriesTitle.bottom
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+      margin-top: 3
+
+    TextList
+      id: categoryList
+      anchors.top: categoriesTitle.bottom
+      anchors.left: parent.left
+      anchors.right: categoryScrollBar.left
+      anchors.bottom: parent.bottom
+      margin-top: 3
+      vertical-scrollbar: categoryScrollBar
+      focusable: false
+
+  // Center Panel - Offers List
+  Panel
+    id: centerPanel
+    anchors.top: parent.top
+    anchors.left: leftPanel.right
+    anchors.right: rightPanel.left
+    anchors.bottom: buttonsPanel.top
+    margin: 5
+    margin-bottom: 10
+    border-width: 1
+    border-color: #00000088
+    background-color: #00000044
+
+    Label
+      id: offersTitle
+      !text: tr('Available Offers')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
+
+    TextEdit
+      id: searchEdit
+      anchors.top: offersTitle.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin: 3
+      height: 20
+
+    VerticalScrollBar
+      id: offersScrollBar
+      anchors.top: searchEdit.bottom
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+      margin-top: 3
+
+    TextList
+      id: offersList
+      anchors.top: searchEdit.bottom
+      anchors.left: parent.left
+      anchors.right: offersScrollBar.left
+      anchors.bottom: parent.bottom
+      margin-top: 3
+      vertical-scrollbar: offersScrollBar
+      focusable: false
+
+  // Right Panel - Item Details
+  Panel
+    id: rightPanel
+    width: 200
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.bottom: buttonsPanel.top
+    margin: 5
+    margin-bottom: 10
+    border-width: 1
+    border-color: #00000088
+    background-color: #00000044
+
+    Label
+      id: detailsTitle
+      !text: tr('Item Details')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
+
+    Item
+      id: itemPreview
+      anchors.top: detailsTitle.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 20
+      size: 64 64
+      virtual: true
+
+    Label
+      id: itemNameLabel
+      !text: tr('Select an offer')
+      anchors.top: itemPreview.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      margin-top: 10
+      height: 30
+
+    HorizontalSeparator
+      anchors.top: itemNameLabel.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+
+    Label
+      id: priceLabel
+      !text: tr('Price: -')
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 10
+
+    Label
+      id: amountLabel
+      !text: tr('Amount: -')
+      anchors.top: priceLabel.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 5
+
+    Label
+      id: sellerLabel
+      !text: tr('Seller: -')
+      anchors.top: amountLabel.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 5
+      color: #aaaaaa
+
+  // Bottom Panel - Buttons
+  Panel
+    id: buttonsPanel
+    height: 40
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    margin-top: 0
+
+    Button
+      id: refreshButton
+      !text: tr('Refresh')
+      width: 100
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+
+    Button
+      id: myOffersButton
+      !text: tr('My Offers')
+      width: 100
+      anchors.left: refreshButton.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 5
+
+    Button
+      id: buyButton
+      !text: tr('Buy')
+      width: 100
+      anchors.right: sellButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 5
+
+    Button
+      id: sellButton
+      !text: tr('Sell')
+      width: 100
+      anchors.right: closeButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 5
+
+    Button
+      id: closeButton
+      !text: tr('Close')
+      width: 100
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      @onClick: self:getParent():getParent():hide()

@@ -5,11 +5,13 @@ MiniWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
-  size: 250 150
+  height: 150
   
   MiniWindowContents
     padding: 3
-    layout: verticalBox
+    layout:
+      type: verticalBox
+      fit-children: false
     
     Button
       id: expandButton
@@ -18,12 +20,8 @@ MiniWindow
       margin-bottom: 3
       @onClick: modules.game_minimap.openFullMap()
     
-    Panel
-      id: minimapPanel
-      layout: verticalBox
-      
-      UIMinimap
-        id: minimap
-        anchors.fill: parent
-        draggable: true
-        focus-scope: true
+    UIMinimap
+      id: minimap
+      draggable: true
+      focus-scope: true
+      phantom: false

@@ -8,11 +8,12 @@ local protocol
 local protocolRegistered = false  -- Flag para evitar registro duplo
 
 local MarketOpcodes = {
-  -- Client -> Server
-  ClientMarketBrowse = 0xF0,
-  ClientMarketCreate = 0xF1,
-  ClientMarketCancel = 0xF2,
-  ClientMarketAccept = 0xF3,
+  -- Client -> Server (alinhado com protocolgame.cpp do servidor)
+  ClientMarketBrowse = 0xF0,  -- parseMarketRequestOffers
+  ClientMarketBuy = 0xF1,      -- parseMarketBuy (COMPRAR/ACEITAR)
+  ClientMarketSell = 0xF2,     -- parseMarketSell (CRIAR OFERTA)
+  ClientMarketCancel = 0xF3,   -- parseMarketCancel
+  ClientMarketMyOffers = 0xF4, -- parseMarketMyOffers
   
   -- Server -> Client (0x32 = 50, opcode baixo não usado em 7.72)
   ServerMarketOffers = 0x32,
@@ -175,7 +176,7 @@ end
 
 function MarketProtocol.sendMarketCreate(offerType, itemId, amount, price)
   local msg = OutputMessage.create()
-  msg:addU8(MarketOpcodes.ClientMarketCreate)
+  msg:addU8(MarketOpcodes.ClientMarketSell)  -- 0xF2 = criar oferta de venda
   msg:addU8(offerType) -- 0 = buy, 1 = sell
   msg:addU16(itemId)
   msg:addU16(amount)
@@ -186,7 +187,7 @@ end
 
 function MarketProtocol.sendMarketCancel(offerId)
   local msg = OutputMessage.create()
-  msg:addU8(MarketOpcodes.ClientMarketCancel)
+  msg:addU8(MarketOpcodes.ClientMarketCancel)  -- 0xF3 = cancelar oferta
   msg:addU32(offerId)
   send(msg)
   print('[MarketProtocol] Cancelling offer: ' .. offerId)
@@ -194,11 +195,11 @@ end
 
 function MarketProtocol.sendMarketAccept(offerId, amount)
   local msg = OutputMessage.create()
-  msg:addU8(MarketOpcodes.ClientMarketAccept)
+  msg:addU8(MarketOpcodes.ClientMarketBuy)  -- 0xF1 = comprar/aceitar oferta
   msg:addU32(offerId)
   msg:addU16(amount)
   send(msg)
-  print('[MarketProtocol] Accepting offer: ' .. offerId .. ', amount ' .. amount)
+  print('[MarketProtocol] Buying/accepting offer: ' .. offerId .. ', amount ' .. amount)
 end
 
 -- Auto-initialize protocol

@@ -315,45 +315,54 @@ end
 
 function Market.generateDemoOffers()
   -- ✅ IDs CORRETOS extraídos do servidor Nostalrius items.srv
-  allOffers = {
+  local demoOffers = {
     -- Ammunition
-    {name = "120x Bolt", itemId = 3446, expire = "Expires in 4 days 18h", price = 240, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "95x Bolt", itemId = 3446, expire = "Expires in 2 days 7h", price = 190, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "958x Bolt", itemId = 3446, expire = "Expires in 2 days 7h", price = 1916, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "1000x Bolt", itemId = 3446, expire = "Expires in 4 days 18h", price = 2000, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "2000x Bolt", itemId = 3446, expire = "Expires in 6 days 15h", price = 4000, currency = "2 Gold Coins ea", type = "sell"},
-    {name = "500x Arrow", itemId = 3447, expire = "Expires in 5 days 22h", price = 500, currency = "1 Gold Coin ea", type = "sell"},
-    {name = "200x Poison Arrow", itemId = 3448, expire = "Expires in 6 days 22h", price = 1000, currency = "5 Gold Coins ea", type = "sell"},
-    {name = "854x Power Bolt", itemId = 3450, expire = "Expires in 17h 46min", price = 7686, currency = "9 Gold Coins ea", type = "sell"},
-    {name = "100x Burst Arrow", itemId = 3449, expire = "Expires in 3 days 12h", price = 600, currency = "6 Gold Coins ea", type = "buy"},
-    {name = "50x Crystal Arrow", itemId = 3239, expire = "Expires in 1 day 8h", price = 1000, currency = "20 Gold Coins ea", type = "sell"},
+    {name = "120x Bolt", itemId = 3446, amount = 120, expire = "Expires in 4 days 18h", price = 240, currency = "2 Gold Coins ea", type = "buy", seller = "Demo Trader"},
+    {name = "95x Bolt", itemId = 3446, amount = 95, expire = "Expires in 2 days 7h", price = 190, currency = "2 Gold Coins ea", type = "buy", seller = "Demo Trader"},
+    {name = "958x Bolt", itemId = 3446, amount = 958, expire = "Expires in 2 days 7h", price = 1916, currency = "2 Gold Coins ea", type = "buy", seller = "Demo Trader"},
+    {name = "1000x Bolt", itemId = 3446, amount = 1000, expire = "Expires in 4 days 18h", price = 2000, currency = "2 Gold Coins ea", type = "buy", seller = "Demo Trader"},
+    {name = "2000x Bolt", itemId = 3446, amount = 2000, expire = "Expires in 6 days 15h", price = 4000, currency = "2 Gold Coins ea", type = "sell", seller = "Demo Trader"},
+    {name = "500x Arrow", itemId = 3447, amount = 500, expire = "Expires in 5 days 22h", price = 500, currency = "1 Gold Coin ea", type = "sell", seller = "Demo Trader"},
+    {name = "200x Poison Arrow", itemId = 3448, amount = 200, expire = "Expires in 6 days 22h", price = 1000, currency = "5 Gold Coins ea", type = "sell", seller = "Demo Trader"},
+    {name = "854x Power Bolt", itemId = 3450, amount = 854, expire = "Expires in 17h 46min", price = 7686, currency = "9 Gold Coins ea", type = "sell", seller = "Demo Trader"},
+    {name = "100x Burst Arrow", itemId = 3449, amount = 100, expire = "Expires in 3 days 12h", price = 600, currency = "6 Gold Coins ea", type = "buy", seller = "Demo Trader"},
+    {name = "50x Crystal Arrow", itemId = 3239, amount = 50, expire = "Expires in 1 day 8h", price = 1000, currency = "20 Gold Coins ea", type = "sell", seller = "Demo Trader"},
     
     -- Weapons
-    {name = "Axe", itemId = 3274, expire = "Expires in 4 days", price = 500, currency = "500 Gold Coins", type = "buy"},
-    {name = "Sword", itemId = 3264, expire = "Expires in 5 days", price = 600, currency = "600 Gold Coins", type = "sell"},
-    {name = "Club", itemId = 3270, expire = "Expires in 2 days", price = 450, currency = "450 Gold Coins", type = "sell"},
-    {name = "Two Handed Sword", itemId = 3265, expire = "Expires in 3 days", price = 950, currency = "950 Gold Coins", type = "sell"},
-    {name = "Spike Sword", itemId = 3271, expire = "Expires in 5 days 12h", price = 8000, currency = "8000 Gold Coins", type = "buy"},
-    {name = "Longsword", itemId = 3285, expire = "Expires in 2 days 6h", price = 1200, currency = "1200 Gold Coins", type = "sell"},
+    {name = "Axe", itemId = 3274, amount = 1, expire = "Expires in 4 days", price = 500, currency = "500 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Sword", itemId = 3264, amount = 1, expire = "Expires in 5 days", price = 600, currency = "600 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Club", itemId = 3270, amount = 1, expire = "Expires in 2 days", price = 450, currency = "450 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Two Handed Sword", itemId = 3265, amount = 1, expire = "Expires in 3 days", price = 950, currency = "950 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Spike Sword", itemId = 3271, amount = 1, expire = "Expires in 5 days 12h", price = 8000, currency = "8000 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Longsword", itemId = 3285, amount = 1, expire = "Expires in 2 days 6h", price = 1200, currency = "1200 Gold Coins", type = "sell", seller = "Demo Trader"},
     
     -- Armors
-    {name = "Plate Armor", itemId = 3357, expire = "Expires in 6 days", price = 4000, currency = "4000 Gold Coins", type = "sell"},
-    {name = "Chain Armor", itemId = 3358, expire = "Expires in 1 day", price = 700, currency = "700 Gold Coins", type = "buy"},
-    {name = "Brass Armor", itemId = 3359, expire = "Expires in 4 days 3h", price = 2500, currency = "2500 Gold Coins", type = "sell"},
-    {name = "Leather Armor", itemId = 3361, expire = "Expires in 3 days", price = 300, currency = "300 Gold Coins", type = "buy"},
+    {name = "Plate Armor", itemId = 3357, amount = 1, expire = "Expires in 6 days", price = 4000, currency = "4000 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Chain Armor", itemId = 3358, amount = 1, expire = "Expires in 1 day", price = 700, currency = "700 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Brass Armor", itemId = 3359, amount = 1, expire = "Expires in 4 days 3h", price = 2500, currency = "2500 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Leather Armor", itemId = 3361, amount = 1, expire = "Expires in 3 days", price = 300, currency = "300 Gold Coins", type = "buy", seller = "Demo Trader"},
     
     -- Shields
-    {name = "Wooden Shield", itemId = 3412, expire = "Expires in 3 days", price = 150, currency = "150 Gold Coins", type = "sell"},
-    {name = "Steel Shield", itemId = 3409, expire = "Expires in 5 days", price = 800, currency = "800 Gold Coins", type = "sell"},
-    {name = "Plate Shield", itemId = 3410, expire = "Expires in 2 days 18h", price = 1200, currency = "1200 Gold Coins", type = "buy"},
-    {name = "Brass Shield", itemId = 3411, expire = "Expires in 4 days 9h", price = 900, currency = "900 Gold Coins", type = "sell"},
+    {name = "Wooden Shield", itemId = 3412, amount = 1, expire = "Expires in 3 days", price = 150, currency = "150 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Steel Shield", itemId = 3409, amount = 1, expire = "Expires in 5 days", price = 800, currency = "800 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Plate Shield", itemId = 3410, amount = 1, expire = "Expires in 2 days 18h", price = 1200, currency = "1200 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Brass Shield", itemId = 3411, amount = 1, expire = "Expires in 4 days 9h", price = 900, currency = "900 Gold Coins", type = "sell", seller = "Demo Trader"},
     
     -- Helmets
-    {name = "Steel Helmet", itemId = 3351, expire = "Expires in 2 days", price = 580, currency = "580 Gold Coins", type = "buy"},
-    {name = "Chain Helmet", itemId = 3352, expire = "Expires in 1 day", price = 300, currency = "300 Gold Coins", type = "sell"},
-    {name = "Iron Helmet", itemId = 3353, expire = "Expires in 3 days 6h", price = 400, currency = "400 Gold Coins", type = "buy"},
-    {name = "Brass Helmet", itemId = 3354, expire = "Expires in 5 days", price = 500, currency = "500 Gold Coins", type = "sell"},
+    {name = "Steel Helmet", itemId = 3351, amount = 1, expire = "Expires in 2 days", price = 580, currency = "580 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Chain Helmet", itemId = 3352, amount = 1, expire = "Expires in 1 day", price = 300, currency = "300 Gold Coins", type = "sell", seller = "Demo Trader"},
+    {name = "Iron Helmet", itemId = 3353, amount = 1, expire = "Expires in 3 days 6h", price = 400, currency = "400 Gold Coins", type = "buy", seller = "Demo Trader"},
+    {name = "Brass Helmet", itemId = 3354, amount = 1, expire = "Expires in 5 days", price = 500, currency = "500 Gold Coins", type = "sell", seller = "Demo Trader"},
   }
+  
+  -- Adicionar IDs fictícios para demo
+  allOffers = {}
+  for i, offer in ipairs(demoOffers) do
+    offer.id = 9000 + i  -- IDs fictícios começando em 9001
+    table.insert(allOffers, offer)
+  end
+  
+  print('[Market] Generated ' .. #allOffers .. ' DEMO offers (not from server)')
 end
 
 function Market.applyFilters()
@@ -521,11 +530,18 @@ function Market.onOfferClick(offer, widget)
 end
 
 function Market.buyOffer(offer)
-  print('[Market] Buying offer ID ' .. offer.id)
+  local offerId = offer.id or 0
+  print('[Market] Buying offer ID ' .. tostring(offerId))
+  
+  -- Verificar se é oferta DEMO (IDs fictícios >= 9000)
+  if offerId >= 9000 then
+    displayErrorBox('Demo Offer', 'This is a DEMO offer!\n\nTo see REAL offers from the server:\n1. Make sure you are logged in\n2. Click "Refresh" button\n\nDemo offers cannot be purchased.')
+    return
+  end
   
   -- Verificar se o jogador tem gold suficiente
   local playerGold = g_game.getMoney() or 0
-  local totalCost = offer.price * offer.amount
+  local totalCost = offer.price * (offer.amount or 1)
   
   if playerGold < totalCost then
     displayErrorBox('Insufficient Gold', 'You need ' .. totalCost .. ' Gold Coins to buy this offer.\nYou have: ' .. playerGold .. ' Gold Coins.')
@@ -533,33 +549,52 @@ function Market.buyOffer(offer)
   end
   
   -- Enviar ao servidor
-  protocol.sendMarketAccept(offer.id, offer.amount)
-  
-  -- Aguardar resposta do servidor
-  displayInfoBox('Market', 'Processing your purchase...')
-  
-  -- Atualizar lista após 2 segundos
-  scheduleEvent(function()
-    protocol.sendMarketBrowse(selectedOfferType)
-  end, 2000)
+  if protocol and protocol.sendMarketAccept then
+    protocol.sendMarketAccept(offerId, offer.amount or 1)
+    
+    -- Aguardar resposta do servidor
+    displayInfoBox('Market', 'Processing your purchase...')
+    
+    -- Atualizar lista após 2 segundos
+    scheduleEvent(function()
+      if protocol and protocol.sendMarketBrowse then
+        protocol.sendMarketBrowse(selectedOfferType or 2)
+      end
+    end, 2000)
+  else
+    displayErrorBox('Error', 'Market protocol not initialized. Please reconnect.')
+  end
 end
 
 function Market.sellToOffer(offer)
-  print('[Market] Selling to offer ID ' .. offer.id)
+  local offerId = offer.id or 0
+  print('[Market] Selling to offer ID ' .. tostring(offerId))
+  
+  -- Verificar se é oferta DEMO (IDs fictícios >= 9000)
+  if offerId >= 9000 then
+    displayErrorBox('Demo Offer', 'This is a DEMO offer!\n\nTo see REAL offers from the server:\n1. Make sure you are logged in\n2. Click "Refresh" button\n\nDemo offers cannot be used for trading.')
+    return
+  end
   
   -- Verificar se o jogador tem o item
   -- TODO: Implementar verificação de inventário
   
   -- Enviar ao servidor
-  protocol.sendMarketAccept(offer.id, offer.amount)
-  
-  -- Aguardar resposta do servidor
-  displayInfoBox('Market', 'Processing your sale...')
-  
-  -- Atualizar lista após 2 segundos
-  scheduleEvent(function()
-    protocol.sendMarketBrowse(selectedOfferType)
-  end, 2000)
+  if protocol and protocol.sendMarketAccept then
+    protocol.sendMarketAccept(offerId, offer.amount or 1)
+    
+    -- Aguardar resposta do servidor
+    displayInfoBox('Market', 'Processing your sale...')
+    
+    -- Atualizar lista após 2 segundos
+    scheduleEvent(function()
+      if protocol and protocol.sendMarketBrowse then
+        protocol.sendMarketBrowse(selectedOfferType or 2)
+      end
+    end, 2000)
+  else
+    displayErrorBox('Error', 'Market protocol not initialized. Please reconnect.')
+  end
 end
 
 function Market.createSellOffer()
@@ -622,10 +657,15 @@ function Market.refresh()
   -- Solicitar ofertas do servidor se estiver online
   if g_game.isOnline() then
     print('[Market] Requesting fresh offers from server...')
-    protocol.sendMarketBrowse(2)
+    if protocol and protocol.sendMarketBrowse then
+      protocol.sendMarketBrowse(2)
+      displayInfoBox('Rarity Market', 'Refreshing offers from server...')
+    else
+      displayErrorBox('Error', 'Market protocol not initialized. Please close and reopen the Market.')
+    end
   else
     Market.applyFilters()
-    displayInfoBox('Rarity Market', 'Market refreshed (demo mode)!')
+    displayInfoBox('Rarity Market', 'Showing demo offers (offline mode)')
   end
 end
 
@@ -643,11 +683,12 @@ function Market.onOffersReceived(serverOffers)
       name = string.format("%dx Item #%d", offer.amount, offer.itemId),
       itemId = offer.itemId,
       amount = offer.amount,
-      expire = offer.expireText,
+      expire = offer.expireText or "No expiry",
       price = offer.price,
-      currency = offer.currencyText,
+      currency = offer.currencyText or string.format("%d Gold Coins", offer.price),
       type = (offer.type == 1) and "sell" or "buy",
-      playerName = offer.playerName
+      playerName = offer.playerName,
+      seller = offer.playerName  -- Adicionar seller também
     }
     
     table.insert(allOffers, formattedOffer)
@@ -665,3 +706,5 @@ function Market.onOffersReceived(serverOffers)
 end
 
 print('[Market 7.72] Rarity Market module loaded')
+
+-- UI Components

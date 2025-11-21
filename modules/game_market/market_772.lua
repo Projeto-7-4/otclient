@@ -48,9 +48,9 @@ local historyTab
 -- State
 local currentTab = "offers" -- "offers" or "history"
 local selectedCategory = "All"
-local selectedOfferType = "buy" -- "buy" or "sell"
+local selectedOfferType = "sell" -- "buy" or "sell" (padrão: sell para ver ofertas de venda)
 local selectedTransactionType = "direct" -- "direct" or "auction"
-local selectedCreator = "all" -- "all", "yourself", "others"
+local selectedCreator = "others" -- "all", "yourself", "others" (padrão: others)
 local searchText = ""
 local currentPage = 1
 local itemsPerPage = 100  -- Mostrar todos com scroll ao invés de paginação
@@ -140,14 +140,14 @@ function init()
     categoryFilter.onOptionChange = Market.onCategoryChange
   end
   
-  -- Setup buttons
+  -- Setup buttons (padrão: SELL ativo)
   if buyFilter then
     buyFilter.onClick = function() Market.setOfferType('buy') end
-    Market.setButtonActive(buyFilter, true)
   end
   
   if sellFilter then
     sellFilter.onClick = function() Market.setOfferType('sell') end
+    Market.setButtonActive(sellFilter, true)  -- SELL ativo por padrão
   end
   
   if directFilter then
@@ -328,8 +328,11 @@ function Market.setButtonActive(button, active)
   
   if active then
     button:setBackgroundColor('#4d4d4d')
+    button:setBorderWidth(2)
+    button:setBorderColor('#00ff00')  -- Borda verde para botão ativo
   else
     button:setBackgroundColor('#2d2d2d')
+    button:setBorderWidth(0)  -- Sem borda quando inativo
   end
 end
 

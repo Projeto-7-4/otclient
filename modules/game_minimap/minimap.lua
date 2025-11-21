@@ -193,7 +193,7 @@ function openFullMap()
     return
   end
   
-  fullMapWidget = g_ui.createWidget('UIMap', mapPanel)
+  fullMapWidget = g_ui.createWidget('UIMinimap', mapPanel)
   fullMapWidget:fill('parent')
   
   -- Copiar configurações do minimapa principal
@@ -201,11 +201,15 @@ function openFullMap()
   if player then
     local playerPos = player:getPosition()
     fullMapWidget:setCameraPosition(playerPos)
+    fullMapWidget:setCrossPosition(playerPos)
   end
   
   -- Configurações básicas de zoom e visualização
-  fullMapWidget:setZoom(-1)
+  fullMapWidget:setZoom(-50)
   fullMapWidget:setMultifloor(false)
+  fullMapWidget:setKeepAspectRatio(false)
+  fullMapWidget:setVisibleDimension({width = 15, height = 15})
+  fullMapWidget:setDrawMinimapColors(true)
   
   print('[Minimap] Full map window opened successfully!')
 end

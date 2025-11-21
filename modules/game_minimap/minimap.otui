@@ -1,22 +1,29 @@
-MinimapWindow
+MiniWindow
   id: minimapWindow
   !text: tr('Minimap')
   icon: /images/topbuttons/minimap
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
-  &resizable: true
   size: 250 150
-  &minWidth: 150
-  &minHeight: 100
   
-  Button
-    id: expandButton
-    !text: tr('Expand')
-    anchors.right: parent.right
-    anchors.top: parent.top
-    margin-top: 5
-    margin-right: 5
-    width: 60
-    height: 20
-    @onClick: modules.game_minimap.openFullMap()
+  MiniWindowContents
+    padding: 3
+    layout: verticalBox
+    
+    Button
+      id: expandButton
+      !text: tr('Expand Map')
+      height: 20
+      margin-bottom: 3
+      @onClick: modules.game_minimap.openFullMap()
+    
+    Panel
+      id: minimapPanel
+      layout: verticalBox
+      
+      UIMinimap
+        id: minimap
+        anchors.fill: parent
+        draggable: true
+        focus-scope: true

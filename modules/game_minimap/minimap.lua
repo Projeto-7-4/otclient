@@ -9,7 +9,16 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+  -- Carregar na section horizontal dedicada (topo direito)
+  local minimapSection = modules.game_interface.getMinimapSection()
+  if minimapSection then
+    minimapWindow = g_ui.loadUI('minimap_horizontal', minimapSection)
+    print('[Minimap] Loaded in horizontal section (top-right)')
+  else
+    -- Fallback: modo antigo (painel direito)
+    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+    print('[Minimap] Loaded in right panel (fallback)')
+  end
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
@@ -27,7 +36,10 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  minimapWindow:setup()
+  -- Só chamar setup() se for MiniWindow (fallback)
+  if minimapWindow.setup then
+    minimapWindow:setup()
+  end
 
   connect(g_game, {
     onGameStart = online,

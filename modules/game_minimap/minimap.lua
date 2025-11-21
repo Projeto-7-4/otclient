@@ -86,6 +86,21 @@ function init()
   if g_game.isOnline() then
     online()
   end
+  
+  -- HACK: Forçar visibilidade após tudo carregar
+  scheduleEvent(function()
+    if minimapSection then
+      minimapSection:setVisible(true)
+      minimapSection:show()
+      print('[Minimap] [DELAYED] Section forced visible')
+    end
+    if minimapWindow then
+      minimapWindow:setVisible(true)
+      minimapWindow:show()
+      minimapWindow:raise()
+      print('[Minimap] [DELAYED] Window forced visible: ' .. tostring(minimapWindow:isVisible()))
+    end
+  end, 100)
 end
 
 function terminate()

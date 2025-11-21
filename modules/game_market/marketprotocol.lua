@@ -17,9 +17,9 @@ local MarketOpcodes = {
   ClientMarketHistory = 0xF5,  -- parseMarketHistory (NOVO)
   
   -- Server -> Client
-  ServerMarketOffers = 0x32,   -- Lista de ofertas
+  ServerMarketOffers = 0xF0,   -- Lista de ofertas (alinhado com servidor)
   ServerMarketBuyResponse = 0xF1,  -- Resposta de compra (success/fail)
-  ServerMarketHistory = 0x33,  -- Histórico de transações (NOVO)
+  ServerMarketHistory = 0xF6,  -- Histórico de transações (NOVO) - Mudado de 0x33 para evitar conflito
 }
 
 local function send(msg)

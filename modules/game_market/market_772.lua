@@ -1,26 +1,15 @@
 Market = {}
 
--- Load protocol: try sandbox first, then global
-local protocol = runinsandbox('marketprotocol')
+-- Use global protocol (already loaded by market.otmod)
+local protocol = _G.MarketProtocol
 
-print('[Market] Protocol from sandbox: ' .. tostring(protocol))
-if protocol and protocol.sendMarketBrowse then
-  print('[Market] ✅ Using sandboxed protocol')
-else
-  print('[Market] ⚠️ Sandbox incomplete, using global...')
-  protocol = _G.MarketProtocol
-end
-
-print('[Market] Final protocol: ' .. tostring(protocol))
+print('[Market] Using global protocol: ' .. tostring(protocol))
 if protocol then
   print('[Market] ✅ Protocol type: ' .. type(protocol))
-  if type(protocol) == 'table' then
-    print('[Market] ✅ sendMarketBrowse: ' .. tostring(protocol.sendMarketBrowse ~= nil))
-    if protocol.sendMarketBrowse then
-      print('[Market] ✅ Protocol fully loaded!')
-    else
-      print('[Market] ❌ sendMarketBrowse is missing!')
-    end
+  if type(protocol) == 'table' and protocol.sendMarketBrowse then
+    print('[Market] ✅ Protocol fully loaded!')
+  else
+    print('[Market] ❌ sendMarketBrowse is missing!')
   end
 else
   print('[Market] ❌ ERROR: Protocol is nil!')

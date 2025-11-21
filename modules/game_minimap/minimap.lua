@@ -26,14 +26,20 @@ function init()
   
   if minimapWindow then
     print('[Minimap] Window created: ' .. tostring(minimapWindow))
-    print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
+    print('[Minimap] BEFORE show() - Window visible: ' .. tostring(minimapWindow:isVisible()))
     print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
     
     -- Forçar visibilidade
     if minimapSection then
+      print('[Minimap] BEFORE show() - Section visible: ' .. tostring(minimapSection:isVisible()))
+      minimapSection:setVisible(true)
       minimapSection:show()
+      minimapWindow:setVisible(true)
       minimapWindow:show()
-      print('[Minimap] ✅ Forced visibility ON')
+      minimapWindow:raise()
+      print('[Minimap] AFTER show() - Section visible: ' .. tostring(minimapSection:isVisible()))
+      print('[Minimap] AFTER show() - Window visible: ' .. tostring(minimapWindow:isVisible()))
+      print('[Minimap] ✅ Forced visibility commands sent')
     end
   else
     print('[Minimap] ❌ ERROR: Failed to create window!')
@@ -55,7 +61,18 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  minimapWindow:setup()
+  if minimapWindow.setup then
+    print('[Minimap] Calling setup()...')
+    minimapWindow:setup()
+    print('[Minimap] AFTER setup() - Window visible: ' .. tostring(minimapWindow:isVisible()))
+    
+    -- Forçar de novo após setup
+    if minimapSection then
+      minimapSection:show()
+      minimapWindow:show()
+      print('[Minimap] Re-forced visibility after setup()')
+    end
+  end
 
   connect(g_game, {
     onGameStart = online,

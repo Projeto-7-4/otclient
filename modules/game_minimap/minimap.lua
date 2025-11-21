@@ -11,13 +11,25 @@ oldPos = nil
 function init()
   -- Carregar na section horizontal dedicada no topo direito
   local minimapSection = modules.game_interface.getMinimapHorizontalSection()
+  print('[Minimap] DEBUG: minimapSection = ' .. tostring(minimapSection))
+  
   if minimapSection then
     minimapWindow = g_ui.loadUI('minimap', minimapSection)
-    print('[Minimap] Loaded in horizontal section (600x250px)')
+    print('[Minimap] ✅ Loaded in horizontal section (600x250px)')
+    print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
+    print('[Minimap] Section size: ' .. minimapSection:getWidth() .. 'x' .. minimapSection:getHeight())
   else
     -- Fallback: painel direito
     minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-    print('[Minimap] Loaded in right panel (fallback)')
+    print('[Minimap] ⚠️ Loaded in right panel (fallback)')
+  end
+  
+  if minimapWindow then
+    print('[Minimap] Window created: ' .. tostring(minimapWindow))
+    print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
+    print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
+  else
+    print('[Minimap] ❌ ERROR: Failed to create window!')
   end
 
   if not minimapWindow.forceOpen then

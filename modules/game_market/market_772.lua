@@ -124,6 +124,9 @@ function init()
 
   -- Populate categories
   Market.populateCategories()
+  
+  -- Show demo offers on first category
+  Market.showDemoOffers()
 
   -- Register hotkey
   g_keyboard.bindKeyDown('Ctrl+M', Market.toggle)
@@ -217,22 +220,62 @@ function Market.showDemoOffers()
   
   offersList:destroyChildren()
   
-  -- Demo offers
-  local demoOffers = {
-    {itemName = "Magic Sword", amount = 1, price = 10000, playerName = "Seller1", itemId = 2400},
-    {itemName = "Demon Armor", amount = 1, price = 50000, playerName = "Seller2", itemId = 2494},
-    {itemName = "Crusader Helmet", amount = 1, price = 8000, playerName = "Seller3", itemId = 2497},
-    {itemName = "Great Health Potion", amount = 100, price = 15000, playerName = "Seller4", itemId = 239},
+  -- Demo offers by category
+  local allOffers = {
+    -- Weapons
+    {itemName = "Magic Sword", amount = 1, price = 10000, playerName = "Warrior99", itemId = 2400, category = 1},
+    {itemName = "Bright Sword", amount = 1, price = 8000, playerName = "Knight_Pro", itemId = 2407, category = 1},
+    {itemName = "Fire Axe", amount = 1, price = 12000, playerName = "Axe_Master", itemId = 2432, category = 1},
+    
+    -- Armors
+    {itemName = "Demon Armor", amount = 1, price = 50000, playerName = "Rich_Player", itemId = 2494, category = 2},
+    {itemName = "Golden Armor", amount = 1, price = 25000, playerName = "Gold_Seller", itemId = 2466, category = 2},
+    {itemName = "Magic Plate Armor", amount = 1, price = 35000, playerName = "Mage_Shop", itemId = 2472, category = 2},
+    
+    -- Shields
+    {itemName = "Vampire Shield", amount = 1, price = 18000, playerName = "Shield_Guy", itemId = 2534, category = 3},
+    {itemName = "Demon Shield", amount = 1, price = 30000, playerName = "Tank_Pro", itemId = 2520, category = 3},
+    
+    -- Helmets
+    {itemName = "Crusader Helmet", amount = 1, price = 8000, playerName = "Helmet_Shop", itemId = 2497, category = 4},
+    {itemName = "Demon Helmet", amount = 1, price = 40000, playerName = "Elite_Seller", itemId = 2493, category = 4},
+    
+    -- Potions
+    {itemName = "Great Health Potion", amount = 100, price = 15000, playerName = "Potion_Store", itemId = 239, category = 10},
+    {itemName = "Great Mana Potion", amount = 100, price = 12000, playerName = "Mana_Shop", itemId = 238, category = 10},
+    {itemName = "Ultimate Health Potion", amount = 50, price = 20000, playerName = "Premium_Store", itemId = 237, category = 10},
+    
+    -- Runes
+    {itemName = "Sudden Death Rune", amount = 100, price = 30000, playerName = "Rune_Master", itemId = 2268, category = 9},
+    {itemName = "Ultimate Healing Rune", amount = 100, price = 18000, playerName = "Healer_Shop", itemId = 2273, category = 9},
   }
   
-  for _, offer in ipairs(demoOffers) do
-    local text = string.format('%s (x%d) - %d gp - by %s', 
+  -- Get search text
+  local searchText = ""
+  if searchEdit then
+    searchText = searchEdit:getText():lower()
+  end
+  
+  -- Filter by category and search text
+  local filteredOffers = {}
+  for _, offer in ipairs(allOffers) do
+    local matchesCategory = (selectedCategory == 0 or offer.category == selectedCategory)
+    local matchesSearch = (searchText == "" or offer.itemName:lower():find(searchText, 1, true))
+    
+    if matchesCategory and matchesSearch then
+      table.insert(filteredOffers, offer)
+    end
+  end
+  
+  -- Add to list
+  for _, offer in ipairs(filteredOffers) do
+    local text = string.format('%s (x%d) - %d gp - %s', 
       offer.itemName, offer.amount, offer.price, offer.playerName)
     local label = offersList:addItem(text)
     label.offer = offer
   end
   
-  print('[Market] ' .. #demoOffers .. ' demo offers displayed')
+  print('[Market] ' .. #filteredOffers .. ' offers displayed (category: ' .. selectedCategory .. ')')
 end
 
 function Market.onOfferSelect(offersList, focusedChild)
@@ -268,27 +311,50 @@ function Market.onOfferSelect(offersList, focusedChild)
 end
 
 function Market.onBuyClick()
-  print('[Market] Buy button clicked')
-  displayInfoBox('Market', 'Buy functionality - Coming soon!')
+  if not selectedOffer then
+    displayInfoBox('Market', 'Please select an item first!')
+    return
+  end
+  
+  print('[Market] Buy button clicked - Item: ' .. selectedOffer.itemName)
+  
+  local message = string.format(
+    'Buy %s (x%d) for %d gold?\n\nThis is a DEMO. Server integration coming soon!',
+    selectedOffer.itemName,
+    selectedOffer.amount,
+    selectedOffer.price
+  )
+  displayInfoBox('Market - Buy Item', message)
 end
 
 function Market.onSellClick()
   print('[Market] Sell button clicked')
-  displayInfoBox('Market', 'Sell functionality - Coming soon!')
+  
+  local message = 'Sell Item\n\nSelect an item from your inventory to sell.\n\nThis is a DEMO. Server integration coming soon!'
+  displayInfoBox('Market - Sell Item', message)
 end
 
 function Market.onRefreshClick()
   print('[Market] Refresh button clicked')
-  displayInfoBox('Market', 'Refresh functionality - Coming soon!')
+  Market.showDemoOffers()
+  displayInfoBox('Market', 'Offers refreshed!')
 end
 
 function Market.onMyOffersClick()
   print('[Market] My Offers button clicked')
-  displayInfoBox('Market', 'My Offers functionality - Coming soon!')
+  
+  local message = 'My Offers\n\nHere you will see all your active sell offers.\n\nThis is a DEMO. Server integration coming soon!'
+  displayInfoBox('Market - My Offers', message)
 end
 
 function Market.onSearchChange()
-  print('[Market] Search changed')
+  if not searchEdit then return end
+  
+  local searchText = searchEdit:getText():lower()
+  print('[Market] Search: ' .. searchText)
+  
+  -- Filter and display offers
+  Market.showDemoOffers()
 end
 
 print('[Market 7.72] Module loaded')

@@ -1,6 +1,8 @@
 minimapWidget = nil
 minimapButton = nil
 minimapWindow = nil
+fullMapWindow = nil
+fullMapWidget = nil
 fullmapView = false
 loaded = false
 oldZoom = nil
@@ -161,4 +163,45 @@ function toggleFullMap()
   oldPos = minimapWidget:getCameraPosition()
   minimapWidget:setZoom(zoom)
   minimapWidget:setCameraPosition(pos)
+end
+
+function openFullMap()
+  if fullMapWindow then
+    fullMapWindow:raise()
+    fullMapWindow:focus()
+    return
+  end
+
+  print('[Minimap] Opening full map window...')
+  
+  -- Criar a janela modal
+  fullMapWindow = g_ui.displayUI('fullmap')
+  
+  if not fullMapWindow then
+    print('[Minimap] ERROR: Failed to load fullmap.otui')
+    return
+  end
+  
+  -- Criar um widget de minimapa para a janela expandida
+  fullMapWidget = g_ui.createWidget('UIMap', fullMapWindow:getChildById('mapPanel'))
+  fullMapWidget:fill('parent')
+  
+  -- Copiar configurações do minimapa principal
+  local playerPos = g_game.getLocalPlayer():getPosition()
+  fullMapWidget:setCameraPosition(playerPos)
+  fullMapWidget:setCrossPosition(playerPos)
+  fullMapWidget:setZoom(0)  -- Zoom padrão
+  fullMapWidget:setMultifloor(false)
+  
+  print('[Minimap] Full map window opened successfully!')
+end
+
+function closeFullMap()
+  if fullMapWindow then
+    print('[Minimap] Closing full map window...')
+    fullMapWidget:destroy()
+    fullMapWidget = nil
+    fullMapWindow:destroy()
+    fullMapWindow = nil
+  end
 end

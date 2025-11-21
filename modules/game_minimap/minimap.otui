@@ -5,3 +5,14 @@ MinimapWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
+  
+  Button
+    id: expandButton
+    !text: tr('Expand')
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 5
+    margin-right: 5
+    width: 60
+    height: 20
+    @onClick: modules.game_minimap.openFullMap()

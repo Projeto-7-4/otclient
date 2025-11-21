@@ -204,12 +204,8 @@ function openFullMap()
     fullMapWidget:setCrossPosition(playerPos)
   end
   
-  -- Configurações básicas de zoom e visualização
+  -- Configurações básicas de zoom para visualização ampla
   fullMapWidget:setZoom(-50)
-  fullMapWidget:setMultifloor(false)
-  fullMapWidget:setKeepAspectRatio(false)
-  fullMapWidget:setVisibleDimension({width = 15, height = 15})
-  fullMapWidget:setDrawMinimapColors(true)
   
   print('[Minimap] Full map window opened successfully!')
 end

@@ -1,31 +1,31 @@
-Panel
+UIWidget
   id: minimapContainer
   anchors.fill: parent
-  padding: 8
   
-  Label
-    id: minimapTitle
-    !text: tr('Minimap')
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    height: 20
-    font: verdana-11px-rounded
-    text-align: center
-    background-color: #00000088
+  UIWidget
+    id: minimapPanel
+    anchors.fill: parent
+    margin: 8
+    image-source: /images/ui/panel_flat
+    image-border: 4
     
-  Panel
-    id: minimapBackground
-    anchors.top: minimapTitle.bottom
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    margin-top: 4
-    background-color: #000000
-    border: 1 black
-    
-    Minimap
-      id: minimap
-      anchors.fill: parent
+    Label
+      id: minimapTitle
+      !text: tr('Minimap')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 18
       margin: 2
+      font: verdana-11px-rounded
+      text-align: center
+      
+    UIMinimap
+      id: minimap
+      anchors.top: minimapTitle.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin: 4
+      background-color: #000000
 

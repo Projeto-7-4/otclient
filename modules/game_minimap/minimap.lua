@@ -10,7 +10,6 @@ oldPos = nil
 
 function init()
   minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-  minimapWindow:setContentMinimumHeight(64)
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 

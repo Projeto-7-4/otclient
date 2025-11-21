@@ -5,6 +5,10 @@ MinimapWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
+  &resizable: true
+  size: 250 150
+  &minWidth: 150
+  &minHeight: 100
   
   Button
     id: expandButton

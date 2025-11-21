@@ -209,6 +209,17 @@ function init()
     historyTab.onClick = function() Market.switchTab('history') end
   end
   
+  -- Sort buttons
+  local sortTimeButton = marketWindow:recursiveGetChildById('sortTimeButton')
+  if sortTimeButton then
+    sortTimeButton.onClick = function() Market.sortBy('time') end
+  end
+  
+  local sortValueButton = marketWindow:recursiveGetChildById('sortValueButton')
+  if sortValueButton then
+    sortValueButton.onClick = function() Market.sortBy('value') end
+  end
+  
   -- Bottom buttons
   local sellItemButton = marketWindow:recursiveGetChildById('sellItemButton')
   if sellItemButton then
@@ -417,6 +428,25 @@ function Market.generateDemoOffers()
   end
   
   print('[Market] Generated ' .. #allOffers .. ' DEMO offers (not from server)')
+end
+
+function Market.sortBy(sortType)
+  print('[Market] Sorting by: ' .. sortType)
+  
+  if sortType == 'time' then
+    -- Ordenar por tempo de expiração (menor para maior)
+    table.sort(filteredOffers, function(a, b)
+      return (a.secondsRemaining or 0) < (b.secondsRemaining or 0)
+    end)
+  elseif sortType == 'value' then
+    -- Ordenar por valor (menor para maior)
+    table.sort(filteredOffers, function(a, b)
+      return a.price < b.price
+    end)
+  end
+  
+  -- Atualizar lista
+  Market.updateOffersList()
 end
 
 function Market.applyFilters()
@@ -799,7 +829,8 @@ function Market.onOffersReceived(serverOffers, bankBalance, guid)
       currency = offer.currencyText or string.format("%d Gold Coins", offer.price),
       type = (offer.type == 1) and "sell" or "buy",
       playerName = offer.playerName,
-      seller = offer.playerName  -- Adicionar seller também
+      seller = offer.playerName,  -- Adicionar seller também
+      secondsRemaining = offer.secondsRemaining or 0  -- Para sorting
     }
     
     table.insert(allOffers, formattedOffer)

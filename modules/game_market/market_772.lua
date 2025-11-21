@@ -48,6 +48,10 @@ function init()
 
   -- Load UI
   marketWindow = g_ui.loadUI('market')
+  if not marketWindow then
+    print('[Market] ERROR: Failed to load market.otui')
+    return
+  end
   marketWindow:hide()
 
   -- Get components
@@ -63,6 +67,10 @@ function init()
   priceLabel = marketWindow:recursiveGetChildById('priceLabel')
   amountLabel = marketWindow:recursiveGetChildById('amountLabel')
   sellerLabel = marketWindow:recursiveGetChildById('sellerLabel')
+  
+  -- Check critical components
+  if not categoryList then print('[Market] WARNING: categoryList not found') end
+  if not offersList then print('[Market] WARNING: offersList not found') end
 
   -- Connect events
   if categoryList then
@@ -151,25 +159,8 @@ function Market.populateCategories()
   categoryList:destroyChildren()
   
   for _, category in ipairs(categories) do
-    local label = g_ui.createWidget('Label', categoryList)
-    label:setText(category.name)
-    label:setPhantom(false)
+    local label = categoryList:addItem(category.name)
     label.categoryId = category.id
-    label:setFocusable(true)
-    
-    label:setMarginTop(2)
-    label:setMarginBottom(2)
-    label:setTextOffset({x=5, y=0})
-    
-    -- Style
-    label:setBackgroundColor('#00000055')
-    label.onFocusChange = function(self, focused)
-      if focused then
-        self:setBackgroundColor('#ffffff44')
-      else
-        self:setBackgroundColor('#00000055')
-      end
-    end
   end
   
   print('[Market] Categories populated')
@@ -214,26 +205,10 @@ function Market.refreshOffers()
   end
   
   for _, offer in ipairs(filteredOffers) do
-    local label = g_ui.createWidget('Label', offersList)
-    label:setText(string.format('%s (x%d) - %d gp - by %s', 
-      offer.itemName, offer.amount, offer.price, offer.playerName))
-    label:setPhantom(false)
+    local text = string.format('%s (x%d) - %d gp - by %s', 
+      offer.itemName, offer.amount, offer.price, offer.playerName)
+    local label = offersList:addItem(text)
     label.offer = offer
-    label:setFocusable(true)
-    
-    label:setMarginTop(2)
-    label:setMarginBottom(2)
-    label:setTextOffset({x=5, y=0})
-    
-    -- Style
-    label:setBackgroundColor('#00000055')
-    label.onFocusChange = function(self, focused)
-      if focused then
-        self:setBackgroundColor('#ffffff44')
-      else
-        self:setBackgroundColor('#00000055')
-      end
-    end
   end
   
   print(string.format('[Market] Displaying %d filtered offers', #filteredOffers))

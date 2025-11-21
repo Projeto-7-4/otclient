@@ -29,31 +29,24 @@ MarketWindow < MainWindow
       height: 20
       text-offset: 0 3
 
-    ScrollablePanel
-      id: categoryScrollPanel
+    VerticalScrollBar
+      id: categoryScrollBar
       anchors.top: prev.bottom
-      anchors.left: parent.left
+      anchors.bottom: parent.bottom
       anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+      margin-top: 3
+
+    TextList
+      id: categoryList
+      anchors.top: categoriesTitle.bottom
+      anchors.left: parent.left
+      anchors.right: categoryScrollBar.left
       anchors.bottom: parent.bottom
       margin-top: 3
       vertical-scrollbar: categoryScrollBar
-
-      VerticalScrollBar
-        id: categoryScrollBar
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        step: 14
-        pixels-scroll: true
-
-      Panel
-        id: categoryList
-        anchors.left: parent.left
-        anchors.right: prev.left
-        anchors.top: parent.top
-        layout:
-          type: verticalBox
-          spacing: 1
+      focusable: false
 
   // Center Panel - Offers List
   Panel
@@ -89,31 +82,24 @@ MarketWindow < MainWindow
       placeholder: Search items...
       height: 20
 
-    ScrollablePanel
-      id: offersScrollPanel
+    VerticalScrollBar
+      id: offersScrollBar
       anchors.top: prev.bottom
-      anchors.left: parent.left
+      anchors.bottom: parent.bottom
       anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+      margin-top: 3
+
+    TextList
+      id: offersList
+      anchors.top: searchEdit.bottom
+      anchors.left: parent.left
+      anchors.right: offersScrollBar.left
       anchors.bottom: parent.bottom
       margin-top: 3
       vertical-scrollbar: offersScrollBar
-
-      VerticalScrollBar
-        id: offersScrollBar
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        step: 14
-        pixels-scroll: true
-
-      Panel
-        id: offersList
-        anchors.left: parent.left
-        anchors.right: prev.left
-        anchors.top: parent.top
-        layout:
-          type: verticalBox
-          spacing: 1
+      focusable: false
 
   // Right Panel - Item Details
   Panel

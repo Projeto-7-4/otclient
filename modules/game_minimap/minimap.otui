@@ -34,3 +34,4 @@ MiniWindow
         draggable: true
         focus-scope: true
         phantom: false
+        color: black

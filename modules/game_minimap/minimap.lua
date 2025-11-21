@@ -195,6 +195,7 @@ function openFullMap()
   
   fullMapWidget = g_ui.createWidget('UIMinimap', mapPanel)
   fullMapWidget:fill('parent')
+  fullMapWidget:setColor('black')
   
   -- Copiar configurações do minimapa principal
   local player = g_game.getLocalPlayer()

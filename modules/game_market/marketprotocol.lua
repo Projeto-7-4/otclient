@@ -145,9 +145,24 @@ end
 function MarketProtocol.sendMarketBrowse(offerType)
   local msg = OutputMessage.create()
   msg:addU8(MarketOpcodes.ClientMarketBrowse)
-  msg:addU8(offerType or 2) -- 0 = buy, 1 = sell, 2 = all
+  
+  -- Converter string para número se necessário
+  local typeNum = offerType
+  if type(offerType) == 'string' then
+    if offerType == 'buy' then
+      typeNum = 0
+    elseif offerType == 'sell' then
+      typeNum = 1
+    else
+      typeNum = 2  -- all
+    end
+  elseif offerType == nil then
+    typeNum = 2  -- all
+  end
+  
+  msg:addU8(typeNum) -- 0 = buy, 1 = sell, 2 = all
   send(msg)
-  print('[MarketProtocol] Requested market browse (type: ' .. (offerType or 2) .. ')')
+  print('[MarketProtocol] Requested market browse (type: ' .. typeNum .. ')')
 end
 
 function MarketProtocol.sendMarketCreate(offerType, itemId, amount, price)

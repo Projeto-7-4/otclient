@@ -529,7 +529,7 @@ function Market.goToPage(page)
 end
 
 function Market.onOfferClick(offer, widget)
-  print('[Market] Offer clicked: ' .. offer.name .. ' (ID: ' .. offer.id .. ')')
+  print('[Market] Offer clicked: ' .. offer.name .. ' (ID: ' .. offer.id .. ', Type: ' .. tostring(offer.type) .. ')')
   
   if offer.type == 'sell' then
     -- Oferta de VENDA no mercado = jogador quer COMPRAR
@@ -733,7 +733,7 @@ function Market.onOffersReceived(serverOffers)
     }
     
     table.insert(allOffers, formattedOffer)
-    print(string.format('[Market] - Offer %d: %s by %s (%d gp)', offer.id, formattedOffer.name, offer.playerName, offer.price))
+    print(string.format('[Market] - Offer %d: %s by %s (%d gp) [Type: %s (raw: %d)]', offer.id, formattedOffer.name, offer.playerName, offer.price, formattedOffer.type, offer.type))
   end
   
   -- Atualizar interface

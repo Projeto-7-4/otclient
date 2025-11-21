@@ -9,19 +9,23 @@ MiniWindow
   
   MiniWindowContents
     padding: 3
-    layout:
-      type: verticalBox
-      fit-children: false
     
     Button
       id: expandButton
       !text: tr('Expand Map')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
       height: 20
       margin-bottom: 3
       @onClick: modules.game_minimap.openFullMap()
     
     UIMinimap
       id: minimap
+      anchors.top: expandButton.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
       draggable: true
       focus-scope: true
       phantom: false

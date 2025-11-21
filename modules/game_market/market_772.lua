@@ -737,14 +737,52 @@ function Market.showHistory()
   offersList:destroyChildren()
   
   if offersTitle then
-    offersTitle:setText('History')
+    offersTitle:setText('Transaction History')
   end
   
-  local label = g_ui.createWidget('Label', offersList)
-  label:setText('No transaction history yet.')
-  label:setTextAlign(AlignCenter)
-  label:setColor('#ffffff')
-  label:setMarginTop(100)
+  -- Solicitar histórico do servidor
+  if protocol and protocol.sendMarketHistory then
+    print('[Market] Requesting transaction history from server...')
+    protocol.sendMarketHistory()
+  else
+    -- Fallback: mostrar mensagem
+    local label = g_ui.createWidget('Label', offersList)
+    label:setText('No transaction history yet.\n\n(Make a purchase to see it here!)')
+    label:setTextAlign(AlignCenter)
+    label:setColor('#ffffff')
+    label:setMarginTop(100)
+  end
+end
+
+function Market.onHistoryReceived(historyItems)
+  if not offersList then return end
+  
+  offersList:destroyChildren()
+  
+  print('[Market] Received ' .. #historyItems .. ' history items')
+  
+  if #historyItems == 0 then
+    local label = g_ui.createWidget('Label', offersList)
+    label:setText('No transaction history yet.\n\n(Make a purchase to see it here!)')
+    label:setTextAlign(AlignCenter)
+    label:setColor('#ffffff')
+    label:setMarginTop(100)
+    return
+  end
+  
+  -- Exibir cada item do histórico
+  for _, item in ipairs(historyItems) do
+    local widget = g_ui.createWidget('Label', offersList)
+    local text = string.format('[%s] %s %dx %s for %d gp', 
+                                item.date or 'Unknown', 
+                                item.type == 0 and 'Bought' or 'Sold',
+                                item.amount,
+                                item.itemName or 'Unknown Item',
+                                item.price)
+    widget:setText(text)
+    widget:setColor('#ffffff')
+    widget:setMarginTop(2)
+  end
 end
 
 function Market.onSellItem()

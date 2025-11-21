@@ -14,10 +14,12 @@ local MarketOpcodes = {
   ClientMarketSell = 0xF2,     -- parseMarketSell (CRIAR OFERTA)
   ClientMarketCancel = 0xF3,   -- parseMarketCancel
   ClientMarketMyOffers = 0xF4, -- parseMarketMyOffers
+  ClientMarketHistory = 0xF5,  -- parseMarketHistory (NOVO)
   
   -- Server -> Client
   ServerMarketOffers = 0x32,   -- Lista de ofertas
   ServerMarketBuyResponse = 0xF1,  -- Resposta de compra (success/fail)
+  ServerMarketHistory = 0x33,  -- Histórico de transações (NOVO)
 }
 
 local function send(msg)
@@ -125,6 +127,32 @@ local function parseMarketOffers(protocol, msg)
   signalcall(Market.onOffersReceived, offers, bankBalance, playerGUID)
   return true
 end
+local function parseMarketHistory(protocol, msg)
+  print('[MarketProtocol] Parsing market history...')
+  
+  local historyCount = msg:getU8()
+  print('[MarketProtocol] Received ' .. historyCount .. ' history items')
+  
+  local historyItems = {}
+  
+  for i = 1, historyCount do
+    local item = {
+      id = msg:getU32(),
+      itemId = msg:getU16(),
+      itemName = msg:getString(),
+      amount = msg:getU16(),
+      price = msg:getU32(),
+      type = msg:getU8(),  -- 0 = bought, 1 = sold
+      date = msg:getString()
+    }
+    table.insert(historyItems, item)
+    print('[MarketProtocol]   - ' .. item.date .. ': ' .. (item.type == 0 and 'Bought' or 'Sold') .. ' ' .. item.amount .. 'x ' .. item.itemName .. ' for ' .. item.price .. ' gp')
+  end
+  
+  -- Enviar para o Market
+  signalcall(Market.onHistoryReceived, historyItems)
+  return true
+end
 
 -- =============================================
 -- PROTOCOL REGISTRATION
@@ -174,6 +202,7 @@ function MarketProtocol.registerProtocol()
   -- Agora registra
   ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketBuyResponse, parseMarketBuyResponse)
+  ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketHistory, parseMarketHistory)
   
   MarketProtocol.updateProtocol(g_game.getProtocolGame())
   
@@ -191,6 +220,7 @@ function MarketProtocol.unregisterProtocol()
   
   ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketBuyResponse, parseMarketBuyResponse)
+  ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketHistory, parseMarketHistory)
   
   MarketProtocol.updateProtocol(nil)
   
@@ -223,6 +253,13 @@ function MarketProtocol.sendMarketBrowse(offerType)
   msg:addU8(typeNum) -- 0 = buy, 1 = sell, 2 = all
   send(msg)
   print('[MarketProtocol] Requested market browse (type: ' .. typeNum .. ')')
+end
+
+function MarketProtocol.sendMarketHistory()
+  local msg = OutputMessage.create()
+  msg:addU8(MarketOpcodes.ClientMarketHistory)  -- 0xF5
+  send(msg)
+  print('[MarketProtocol] Requested market history')
 end
 
 function MarketProtocol.sendMarketCreate(offerType, itemId, amount, price)

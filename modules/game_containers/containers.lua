@@ -253,15 +253,27 @@ function addMarketButton(containerWindow)
     
     -- Click handler
     marketButton.onClick = function()
+      print('[Container] Market button clicked!')
+      
       -- Import Market module
       local Market = nil
       if marketModule then
+        print('[Container] Getting Market from sandbox...')
         Market = marketModule:getSandbox().Market
+        print('[Container] Market =', Market)
+      else
+        print('[Container] marketModule is nil!')
       end
       
       if Market and Market.toggle then
+        print('[Container] Calling Market.toggle()...')
         Market.toggle()
       else
+        print('[Container] ERROR: Market or Market.toggle not found!')
+        print('[Container] Market =', Market)
+        if Market then
+          print('[Container] Market.toggle =', Market.toggle)
+        end
         g_logger.error('[Container] Market.toggle() not found')
         displayErrorBox('Market Error', 'Market module is not properly loaded.')
       end

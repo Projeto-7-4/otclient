@@ -141,15 +141,25 @@ function Market.offline()
 end
 
 function Market.toggle()
-  if not marketWindow then return end
+  print('[Market] toggle() called')
+  
+  if not marketWindow then 
+    print('[Market] ERROR: marketWindow is nil!')
+    return 
+  end
+  
+  print('[Market] marketWindow exists, checking visibility...')
   
   if marketWindow:isVisible() then
+    print('[Market] Window is visible, hiding...')
     marketWindow:hide()
   else
+    print('[Market] Window is hidden, showing...')
     marketWindow:show()
     marketWindow:raise()
     marketWindow:focus()
     Market.requestOffers()
+    print('[Market] Window should be visible now!')
   end
 end
 

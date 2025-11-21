@@ -67,20 +67,19 @@ function init()
   marketWindow:hide()
   print('[Market] Window hidden')
 
-  -- Modern OTClientV8 syntax: direct access to components
-  -- No need for getChildById!
-  categoryList = marketWindow.categoryList
-  offersList = marketWindow.offersList
-  buyButton = marketWindow.buyButton
-  sellButton = marketWindow.sellButton
-  refreshButton = marketWindow.refreshButton
-  myOffersButton = marketWindow.myOffersButton
-  searchEdit = marketWindow.searchEdit
-  itemPreview = marketWindow.itemPreview
-  itemNameLabel = marketWindow.itemNameLabel
-  priceLabel = marketWindow.priceLabel
-  amountLabel = marketWindow.amountLabel
-  sellerLabel = marketWindow.sellerLabel
+  -- Get components using recursiveGetChildById (classic syntax)
+  categoryList = marketWindow:recursiveGetChildById('categoryList')
+  offersList = marketWindow:recursiveGetChildById('offersList')
+  buyButton = marketWindow:recursiveGetChildById('buyButton')
+  sellButton = marketWindow:recursiveGetChildById('sellButton')
+  refreshButton = marketWindow:recursiveGetChildById('refreshButton')
+  myOffersButton = marketWindow:recursiveGetChildById('myOffersButton')
+  searchEdit = marketWindow:recursiveGetChildById('searchEdit')
+  itemPreview = marketWindow:recursiveGetChildById('itemPreview')
+  itemNameLabel = marketWindow:recursiveGetChildById('itemNameLabel')
+  priceLabel = marketWindow:recursiveGetChildById('priceLabel')
+  amountLabel = marketWindow:recursiveGetChildById('amountLabel')
+  sellerLabel = marketWindow:recursiveGetChildById('sellerLabel')
   
   -- Debug: check which components exist
   if not categoryList then print('[Market] WARNING: categoryList not found') end

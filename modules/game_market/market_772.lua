@@ -232,7 +232,15 @@ function Market.toggle()
     marketWindow:raise()
     marketWindow:focus()
     Market.updatePlayerInfo()
-    Market.applyFilters()
+    
+    -- Solicitar ofertas reais do servidor
+    if g_game.isOnline() then
+      print('[Market] Requesting offers from server...')
+      protocol.sendMarketBrowse(2) -- 2 = all offers
+    else
+      print('[Market] Not online, showing demo offers')
+      Market.applyFilters() -- Usa ofertas demo
+    end
   end
 end
 
@@ -508,8 +516,50 @@ end
 
 function Market.refresh()
   Market.updatePlayerInfo()
+  
+  -- Solicitar ofertas do servidor se estiver online
+  if g_game.isOnline() then
+    print('[Market] Requesting fresh offers from server...')
+    protocol.sendMarketBrowse(2)
+  else
+    Market.applyFilters()
+    displayInfoBox('Rarity Market', 'Market refreshed (demo mode)!')
+  end
+end
+
+-- Callback quando recebe ofertas do servidor
+function Market.onOffersReceived(serverOffers)
+  print('[Market] ✅ Received ' .. #serverOffers .. ' offers from server!')
+  
+  -- Limpar ofertas antigas
+  allOffers = {}
+  
+  -- Processar ofertas do servidor
+  for _, offer in ipairs(serverOffers) do
+    local formattedOffer = {
+      id = offer.id,
+      name = string.format("%dx Item #%d", offer.amount, offer.itemId),
+      itemId = offer.itemId,
+      amount = offer.amount,
+      expire = offer.expireText,
+      price = offer.price,
+      currency = offer.currencyText,
+      type = (offer.type == 1) and "sell" or "buy",
+      playerName = offer.playerName
+    }
+    
+    table.insert(allOffers, formattedOffer)
+    print(string.format('[Market] - Offer %d: %s by %s (%d gp)', offer.id, formattedOffer.name, offer.playerName, offer.price))
+  end
+  
+  -- Atualizar interface
   Market.applyFilters()
-  displayInfoBox('Rarity Market', 'Market refreshed!')
+  
+  if #serverOffers > 0 then
+    displayInfoBox('Rarity Market', string.format('Loaded %d offers from server!', #serverOffers))
+  else
+    displayInfoBox('Rarity Market', 'No offers available at the moment.')
+  end
 end
 
 print('[Market 7.72] Rarity Market module loaded')

@@ -27,6 +27,13 @@ function init()
   end
 
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
+  
+  if not minimapWidget then
+    print('[Minimap] ERROR: Could not find minimap widget!')
+    return
+  end
+  
+  print('[Minimap] Widget found: ' .. tostring(minimapWidget))
 
   local gameRootPanel = modules.game_interface.getRootPanel()
   g_keyboard.bindKeyPress('Alt+Left', function() minimapWidget:move(1,0) end, gameRootPanel)
@@ -38,6 +45,15 @@ function init()
 
   if minimapWindow.setup then
     minimapWindow:setup()
+  end
+  
+  -- Forçar carregamento se já estiver online
+  if g_game.isOnline() then
+    scheduleEvent(function()
+      minimapWidget:load()
+      updateCameraPosition()
+      print('[Minimap] Loaded and positioned')
+    end, 100)
   end
 
   connect(g_game, {

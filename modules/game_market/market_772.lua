@@ -306,39 +306,45 @@ function Market.switchTab(tab)
 end
 
 function Market.generateDemoOffers()
-  -- Ofertas com IDs corretos do servidor Nostalrius 7.72
+  -- ✅ IDs CORRETOS extraídos do servidor Nostalrius items.srv
   allOffers = {
     -- Ammunition
-    {name = "120x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 240, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "95x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 190, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "958x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 1916, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "1000x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 2000, currency = "2 Gold Coins ea", type = "buy"},
-    {name = "2000x Bolt", itemId = 2543, expire = "Expires in 6 days 15h", price = 4000, currency = "2 Gold Coins ea", type = "sell"},
-    {name = "102x Sniper Arrow", itemId = 7364, expire = "Expires in 5 days 22h", price = 816, currency = "8 Gold Coins ea", type = "sell"},
-    {name = "1000x Sniper Arrow", itemId = 7364, expire = "Expires in 6 days 22h", price = 8000, currency = "8 Gold Coins ea", type = "sell"},
-    {name = "854x Power Bolt", itemId = 2547, expire = "Expires in 17h 46min", price = 7686, currency = "9 Gold Coins ea", type = "sell"},
+    {name = "120x Bolt", itemId = 3446, expire = "Expires in 4 days 18h", price = 240, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "95x Bolt", itemId = 3446, expire = "Expires in 2 days 7h", price = 190, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "958x Bolt", itemId = 3446, expire = "Expires in 2 days 7h", price = 1916, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "1000x Bolt", itemId = 3446, expire = "Expires in 4 days 18h", price = 2000, currency = "2 Gold Coins ea", type = "buy"},
+    {name = "2000x Bolt", itemId = 3446, expire = "Expires in 6 days 15h", price = 4000, currency = "2 Gold Coins ea", type = "sell"},
+    {name = "500x Arrow", itemId = 3447, expire = "Expires in 5 days 22h", price = 500, currency = "1 Gold Coin ea", type = "sell"},
+    {name = "200x Poison Arrow", itemId = 3448, expire = "Expires in 6 days 22h", price = 1000, currency = "5 Gold Coins ea", type = "sell"},
+    {name = "854x Power Bolt", itemId = 3450, expire = "Expires in 17h 46min", price = 7686, currency = "9 Gold Coins ea", type = "sell"},
+    {name = "100x Burst Arrow", itemId = 3449, expire = "Expires in 3 days 12h", price = 600, currency = "6 Gold Coins ea", type = "buy"},
+    {name = "50x Crystal Arrow", itemId = 3239, expire = "Expires in 1 day 8h", price = 1000, currency = "20 Gold Coins ea", type = "sell"},
     
     -- Weapons
     {name = "Axe", itemId = 3274, expire = "Expires in 4 days", price = 500, currency = "500 Gold Coins", type = "buy"},
     {name = "Sword", itemId = 3264, expire = "Expires in 5 days", price = 600, currency = "600 Gold Coins", type = "sell"},
     {name = "Club", itemId = 3270, expire = "Expires in 2 days", price = 450, currency = "450 Gold Coins", type = "sell"},
-    {name = "Two Handed Sword", itemId = 2377, expire = "Expires in 3 days", price = 950, currency = "950 Gold Coins", type = "sell"},
+    {name = "Two Handed Sword", itemId = 3265, expire = "Expires in 3 days", price = 950, currency = "950 Gold Coins", type = "sell"},
+    {name = "Spike Sword", itemId = 3271, expire = "Expires in 5 days 12h", price = 8000, currency = "8000 Gold Coins", type = "buy"},
+    {name = "Longsword", itemId = 3285, expire = "Expires in 2 days 6h", price = 1200, currency = "1200 Gold Coins", type = "sell"},
     
     -- Armors
-    {name = "Plate Armor", itemId = 2463, expire = "Expires in 6 days", price = 4000, currency = "4000 Gold Coins", type = "sell"},
-    {name = "Chain Armor", itemId = 2464, expire = "Expires in 1 day", price = 700, currency = "700 Gold Coins", type = "buy"},
+    {name = "Plate Armor", itemId = 3357, expire = "Expires in 6 days", price = 4000, currency = "4000 Gold Coins", type = "sell"},
+    {name = "Chain Armor", itemId = 3358, expire = "Expires in 1 day", price = 700, currency = "700 Gold Coins", type = "buy"},
+    {name = "Brass Armor", itemId = 3359, expire = "Expires in 4 days 3h", price = 2500, currency = "2500 Gold Coins", type = "sell"},
+    {name = "Leather Armor", itemId = 3361, expire = "Expires in 3 days", price = 300, currency = "300 Gold Coins", type = "buy"},
     
     -- Shields
     {name = "Wooden Shield", itemId = 3412, expire = "Expires in 3 days", price = 150, currency = "150 Gold Coins", type = "sell"},
-    {name = "Steel Shield", itemId = 2509, expire = "Expires in 5 days", price = 800, currency = "800 Gold Coins", type = "sell"},
+    {name = "Steel Shield", itemId = 3409, expire = "Expires in 5 days", price = 800, currency = "800 Gold Coins", type = "sell"},
+    {name = "Plate Shield", itemId = 3410, expire = "Expires in 2 days 18h", price = 1200, currency = "1200 Gold Coins", type = "buy"},
+    {name = "Brass Shield", itemId = 3411, expire = "Expires in 4 days 9h", price = 900, currency = "900 Gold Coins", type = "sell"},
     
     -- Helmets
-    {name = "Helmet", itemId = 2458, expire = "Expires in 2 days", price = 580, currency = "580 Gold Coins", type = "buy"},
-    {name = "Chain Helmet", itemId = 2457, expire = "Expires in 1 day", price = 300, currency = "300 Gold Coins", type = "sell"},
-    
-    -- Potions
-    {name = "100x Health Potion", itemId = 7618, expire = "Expires in 6 days", price = 5000, currency = "50 Gold Coins ea", type = "sell"},
-    {name = "50x Mana Potion", itemId = 7620, expire = "Expires in 4 days", price = 4000, currency = "80 Gold Coins ea", type = "sell"},
+    {name = "Steel Helmet", itemId = 3351, expire = "Expires in 2 days", price = 580, currency = "580 Gold Coins", type = "buy"},
+    {name = "Chain Helmet", itemId = 3352, expire = "Expires in 1 day", price = 300, currency = "300 Gold Coins", type = "sell"},
+    {name = "Iron Helmet", itemId = 3353, expire = "Expires in 3 days 6h", price = 400, currency = "400 Gold Coins", type = "buy"},
+    {name = "Brass Helmet", itemId = 3354, expire = "Expires in 5 days", price = 500, currency = "500 Gold Coins", type = "sell"},
   }
 end
 

@@ -1,17 +1,26 @@
 Market = {}
 
--- Try to load protocol from sandbox, fallback to global
+-- Load protocol: try sandbox first, then global
 local protocol = runinsandbox('marketprotocol')
-if not protocol then
-  print('[Market] ⚠️ runinsandbox failed, trying global...')
+
+print('[Market] Protocol from sandbox: ' .. tostring(protocol))
+if protocol and protocol.sendMarketBrowse then
+  print('[Market] ✅ Using sandboxed protocol')
+else
+  print('[Market] ⚠️ Sandbox incomplete, using global...')
   protocol = _G.MarketProtocol
 end
 
-print('[Market] Protocol loaded: ' .. tostring(protocol))
+print('[Market] Final protocol: ' .. tostring(protocol))
 if protocol then
   print('[Market] ✅ Protocol type: ' .. type(protocol))
   if type(protocol) == 'table' then
     print('[Market] ✅ sendMarketBrowse: ' .. tostring(protocol.sendMarketBrowse ~= nil))
+    if protocol.sendMarketBrowse then
+      print('[Market] ✅ Protocol fully loaded!')
+    else
+      print('[Market] ❌ sendMarketBrowse is missing!')
+    end
   end
 else
   print('[Market] ❌ ERROR: Protocol is nil!')

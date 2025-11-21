@@ -9,16 +9,7 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  -- Carregar na section horizontal dedicada
-  local minimapSection = modules.game_interface.getMinimapSection()
-  if minimapSection then
-    minimapWindow = g_ui.loadUI('minimap_section', minimapSection)
-    print('[Minimap] Loaded in horizontal section')
-  else
-    -- Fallback: carregar no painel direito (modo antigo)
-    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-    print('[Minimap] Loaded in right panel (fallback)')
-  end
+  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
@@ -36,10 +27,7 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  -- Só chamar setup() se for MiniWindow (modo antigo)
-  if minimapWindow.setup then
-    minimapWindow:setup()
-  end
+  minimapWindow:setup()
 
   connect(g_game, {
     onGameStart = online,
@@ -85,25 +73,12 @@ end
 
 function toggle()
   if not minimapButton then return end
-  local minimapSection = modules.game_interface.getMinimapSection()
-  if minimapSection then
-    -- Modo section: apenas mostrar/esconder
-    if minimapButton:isOn() then
-      minimapSection:hide()
-      minimapButton:setOn(false)
-    else
-      minimapSection:show()
-      minimapButton:setOn(true)
-    end
+  if minimapButton:isOn() then
+    minimapWindow:close()
+    minimapButton:setOn(false)
   else
-    -- Modo antigo (MiniWindow)
-    if minimapButton:isOn() then
-      minimapWindow:close()
-      minimapButton:setOn(false)
-    else
-      minimapWindow:open()
-      minimapButton:setOn(true)
-    end
+    minimapWindow:open()
+    minimapButton:setOn(true)
   end
 end
 
@@ -218,20 +193,19 @@ function openFullMap()
     return
   end
   
-  fullMapWidget = g_ui.createWidget('UIMinimap', mapPanel)
+  fullMapWidget = g_ui.createWidget('UIMap', mapPanel)
   fullMapWidget:fill('parent')
-  fullMapWidget:setColor('black')
   
   -- Copiar configurações do minimapa principal
   local player = g_game.getLocalPlayer()
   if player then
     local playerPos = player:getPosition()
     fullMapWidget:setCameraPosition(playerPos)
-    fullMapWidget:setCrossPosition(playerPos)
   end
   
-  -- Configurações básicas de zoom para visualização ampla
-  fullMapWidget:setZoom(-50)
+  -- Configurações básicas de zoom e visualização
+  fullMapWidget:setZoom(-1)
+  fullMapWidget:setMultifloor(false)
   
   print('[Minimap] Full map window opened successfully!')
 end

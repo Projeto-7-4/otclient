@@ -1,189 +1,157 @@
--- Market Protocol for 7.72
--- Adapted from mehah's OTClient for Nostalrius 7.72 protocol
+-- =============================================
+-- MARKET PROTOCOL FOR 7.72
+-- =============================================
+
 MarketProtocol = {}
 
-local silent
 local protocol
-local statistics = runinsandbox('offerstatistic')
+local MarketOpcodes = {
+  -- Client -> Server
+  ClientMarketBrowse = 0xF0,
+  ClientMarketCreate = 0xF1,
+  ClientMarketCancel = 0xF2,
+  ClientMarketAccept = 0xF3,
+  
+  -- Server -> Client
+  ServerMarketOffers = 0xF7,
+}
 
--- Send message to server
 local function send(msg)
-  if protocol and not silent then
+  if protocol then
     protocol:send(msg)
   end
 end
 
--- Read market offer from message (simplified for 7.72)
-local function readMarketOffer(msg)
-  local offerId = msg:getU32()
-  local playerId = msg:getU32()
-  local playerName = msg:getString()
-  local itemId = msg:getU16()
-  local itemName = msg:getString()
-  local amount = msg:getU16()
-  local price = msg:getU32()
-  local category = msg:getU8()
-  local timestamp = msg:getU32()
-  
-  return {
-    id = offerId,
-    playerId = playerId,
-    playerName = playerName,
-    itemId = itemId,
-    itemName = itemName,
-    amount = amount,
-    price = price,
-    category = category,
-    timestamp = timestamp,
-    item = Item.create(itemId)
-  }
-end
+-- =============================================
+-- PARSING FUNCTIONS (Server -> Client)
+-- =============================================
 
--- Parse market offers list (0xF0)
 local function parseMarketOffers(protocol, msg)
-  local count = msg:getU16()
-  local offers = {}
+  print('[MarketProtocol] Parsing market offers...')
   
-  for i = 1, count do
-    table.insert(offers, readMarketOffer(msg))
+  local offers = {}
+  local offerCount = msg:getU8()
+  
+  print('[MarketProtocol] Received ' .. offerCount .. ' offers')
+  
+  for i = 1, offerCount do
+    local offer = {
+      id = msg:getU32(),
+      itemId = msg:getU16(),
+      amount = msg:getU16(),
+      price = msg:getU32(),
+      type = msg:getU8(),
+      playerName = msg:getString(),
+      secondsRemaining = msg:getU32()
+    }
+    
+    -- Calculate expire time string
+    local hours = math.floor(offer.secondsRemaining / 3600)
+    local days = math.floor(hours / 24)
+    
+    if days > 0 then
+      offer.expireText = string.format("Expires in %d day%s %dh", days, days > 1 and "s" or "", hours % 24)
+    elseif hours > 0 then
+      offer.expireText = string.format("Expires in %dh %dmin", hours, math.floor((offer.secondsRemaining % 3600) / 60))
+    else
+      offer.expireText = string.format("Expires in %dmin", math.floor(offer.secondsRemaining / 60))
+    end
+    
+    -- Format currency
+    offer.currencyText = string.format("%d Gold Coin%s", offer.price, offer.price > 1 and "s" or "")
+    
+    table.insert(offers, offer)
   end
   
-  print(string.format('[MarketProtocol] Received %d offers from server', count))
-  signalcall(Market.onMarketBrowse, offers)
+  signalcall(Market.onOffersReceived, offers)
   return true
 end
 
--- Parse buy response (0xF1)
-local function parseMarketBuyResponse(protocol, msg)
-  local success = msg:getU8() == 1
-  local message = msg:getString()
-  
-  print(string.format('[MarketProtocol] Buy response: %s - %s', success and 'SUCCESS' or 'FAILED', message))
-  signalcall(Market.onMarketBuyResponse, success, message)
-  return true
-end
+-- =============================================
+-- PROTOCOL REGISTRATION
+// =============================================
 
--- Parse sell response (0xF2)
-local function parseMarketSellResponse(protocol, msg)
-  local success = msg:getU8() == 1
-  local message = msg:getString()
-  
-  print(string.format('[MarketProtocol] Sell response: %s - %s', success and 'SUCCESS' or 'FAILED', message))
-  signalcall(Market.onMarketSellResponse, success, message)
-  return true
-end
-
--- Initialize protocol
 function initProtocol()
   connect(g_game, { 
     onGameStart = MarketProtocol.registerProtocol,
     onGameEnd = MarketProtocol.unregisterProtocol 
   })
-
+  
   if g_game.isOnline() then
     MarketProtocol.registerProtocol()
   end
-
-  MarketProtocol.silent(false)
-  print('[MarketProtocol] Initialized for 7.72')
 end
 
--- Terminate protocol
 function terminateProtocol()
   disconnect(g_game, { 
     onGameStart = MarketProtocol.registerProtocol,
     onGameEnd = MarketProtocol.unregisterProtocol 
   })
-
+  
   MarketProtocol.unregisterProtocol()
   MarketProtocol = nil
-  print('[MarketProtocol] Terminated')
 end
 
--- Update protocol reference
 function MarketProtocol.updateProtocol(_protocol)
   protocol = _protocol
 end
 
--- Register opcodes for 7.72
 function MarketProtocol.registerProtocol()
-  -- Using extended opcodes for 7.72
-  ProtocolGame.registerExtendedOpcode(0xF0, parseMarketOffers)
-  ProtocolGame.registerExtendedOpcode(0xF1, parseMarketBuyResponse)
-  ProtocolGame.registerExtendedOpcode(0xF2, parseMarketSellResponse)
+  print('[MarketProtocol] Registering protocol handlers...')
+  
+  ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   
   MarketProtocol.updateProtocol(g_game.getProtocolGame())
-  print('[MarketProtocol] Opcodes registered (0xF0-0xF2)')
+  
+  print('[MarketProtocol] Protocol handlers registered!')
 end
 
--- Unregister opcodes
 function MarketProtocol.unregisterProtocol()
-  ProtocolGame.unregisterExtendedOpcode(0xF0)
-  ProtocolGame.unregisterExtendedOpcode(0xF1)
-  ProtocolGame.unregisterExtendedOpcode(0xF2)
+  print('[MarketProtocol] Unregistering protocol handlers...')
+  
+  ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
   
   MarketProtocol.updateProtocol(nil)
-  print('[MarketProtocol] Opcodes unregistered')
 end
 
--- Silent mode
-function MarketProtocol.silent(mode)
-  silent = mode
-end
+-- =============================================
+-- SENDING FUNCTIONS (Client -> Server)
+// =============================================
 
--- ============================================================================
--- SENDING PROTOCOLS (Client -> Server)
--- ============================================================================
-
--- Request offers list (0xF0)
-function MarketProtocol.sendMarketBrowse(category)
+function MarketProtocol.sendMarketBrowse(offerType)
   local msg = OutputMessage.create()
-  msg:addU8(0xF0)  -- Request offers
-  msg:addU16(category or 0)  -- 0 = all categories
+  msg:addU8(MarketOpcodes.ClientMarketBrowse)
+  msg:addU8(offerType or 2) -- 0 = buy, 1 = sell, 2 = all
   send(msg)
-  print(string.format('[MarketProtocol] Requesting offers (category: %d)', category or 0))
+  print('[MarketProtocol] Requested market browse (type: ' .. (offerType or 2) .. ')')
 end
 
--- Buy offer (0xF1)
-function MarketProtocol.sendMarketAcceptOffer(offerId, amount)
+function MarketProtocol.sendMarketCreate(offerType, itemId, amount, price)
   local msg = OutputMessage.create()
-  msg:addU8(0xF1)  -- Buy offer
-  msg:addU32(offerId)
-  msg:addU16(amount)
-  send(msg)
-  print(string.format('[MarketProtocol] Buying offer %d (amount: %d)', offerId, amount))
-end
-
--- Create sell offer (0xF2)
-function MarketProtocol.sendMarketCreateOffer(itemId, amount, price)
-  local msg = OutputMessage.create()
-  msg:addU8(0xF2)  -- Create offer
+  msg:addU8(MarketOpcodes.ClientMarketCreate)
+  msg:addU8(offerType) -- 0 = buy, 1 = sell
   msg:addU16(itemId)
   msg:addU16(amount)
   msg:addU32(price)
   send(msg)
-  print(string.format('[MarketProtocol] Creating offer (item: %d, amount: %d, price: %d)', itemId, amount, price))
+  print('[MarketProtocol] Creating offer: ' .. offerType .. ', item ' .. itemId .. ', amount ' .. amount .. ', price ' .. price)
 end
 
--- Cancel offer (0xF3)
-function MarketProtocol.sendMarketCancelOffer(offerId)
+function MarketProtocol.sendMarketCancel(offerId)
   local msg = OutputMessage.create()
-  msg:addU8(0xF3)  -- Cancel offer
+  msg:addU8(MarketOpcodes.ClientMarketCancel)
   msg:addU32(offerId)
   send(msg)
-  print(string.format('[MarketProtocol] Cancelling offer %d', offerId))
+  print('[MarketProtocol] Cancelling offer: ' .. offerId)
 end
 
--- Request my offers (0xF4)
-function MarketProtocol.sendMarketBrowseMyOffers()
+function MarketProtocol.sendMarketAccept(offerId, amount)
   local msg = OutputMessage.create()
-  msg:addU8(0xF4)  -- My offers
+  msg:addU8(MarketOpcodes.ClientMarketAccept)
+  msg:addU32(offerId)
+  msg:addU16(amount)
   send(msg)
-  print('[MarketProtocol] Requesting my offers')
+  print('[MarketProtocol] Accepting offer: ' .. offerId .. ', amount ' .. amount)
 end
 
--- Compatibility aliases for existing Market module
-MarketProtocol.sendMarketBrowseMyHistory = MarketProtocol.sendMarketBrowseMyOffers
-MarketProtocol.sendMarketLeave = function() end -- Not needed for 7.72
-
-print('[MarketProtocol] Module loaded for 7.72')
+print('[MarketProtocol] 7.72 Market Protocol module loaded')

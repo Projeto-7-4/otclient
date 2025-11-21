@@ -2,19 +2,16 @@ Module
   name: game_market
   description: Market system for buying and selling items
   author: Projeto 7.4
-  website: https://github.com/Projeto-7-4
   version: 1.0
   autoload: true
-  autoload-priority: 1000
-  
-  dependencies:
-    - game_interface
-    - game_inventory
+  autoload-priority: 100
   
   onLoad: |
     dofile 'market'
     return true
   
   onUnload: |
-    Market.terminate()
+    if Market then
+      Market.terminate()
+    end
     return true

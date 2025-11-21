@@ -543,13 +543,14 @@ function Market.onOfferClick(offer, widget)
       offer.expire
     )
     
-    local msgBox = displayGeneralBox('Confirm Purchase', message, {
+    local msgBox
+    msgBox = displayGeneralBox('Confirm Purchase', message, {
       {text='Buy', callback = function()
-        msgBox:ok()
+        if msgBox then msgBox:ok() end
         Market.buyOffer(offer)
       end},
       {text='Cancel', callback = function()
-        msgBox:cancel()
+        if msgBox then msgBox:cancel() end
       end}
     }, function() end, function() end)
   else
@@ -564,13 +565,14 @@ function Market.onOfferClick(offer, widget)
       offer.expire
     )
     
-    local msgBox = displayGeneralBox('Confirm Sale', message, {
+    local msgBox
+    msgBox = displayGeneralBox('Confirm Sale', message, {
       {text='Sell', callback = function()
-        msgBox:ok()
+        if msgBox then msgBox:ok() end
         Market.sellToOffer(offer)
       end},
       {text='Cancel', callback = function()
-        msgBox:cancel()
+        if msgBox then msgBox:cancel() end
       end}
     }, function() end, function() end)
   end

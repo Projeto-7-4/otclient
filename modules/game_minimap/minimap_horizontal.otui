@@ -24,11 +24,8 @@ Panel
     background-color: #000000
     border: 1 black
     
-    UIMinimap
+    Minimap
       id: minimap
       anchors.fill: parent
       margin: 2
-      draggable: true
-      focus-scope: true
-      color: black
 

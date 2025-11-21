@@ -201,12 +201,12 @@ function openFullMap()
   if player then
     local playerPos = player:getPosition()
     fullMapWidget:setCameraPosition(playerPos)
-    fullMapWidget:setCrossPosition(playerPos)
   end
   
   fullMapWidget:setZoom(-1)  -- Zoom out para ver mais área
   fullMapWidget:setMultifloor(false)
   fullMapWidget:setKeepAspectRatio(false)
+  fullMapWidget:setDrawMinimapColors(true)
   
   print('[Minimap] Full map window opened successfully!')
 end

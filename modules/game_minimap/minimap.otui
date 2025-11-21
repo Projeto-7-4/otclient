@@ -5,23 +5,21 @@ MiniWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
-  height: 200
-  width: 450
-  &minWidth: 250
-  &maxWidth: 600
+  height: 250
+  width: 600
   
   MiniWindowContents
     padding: 3
     
     Button
       id: expandButton
-      !text: tr('Expand')
+      !text: tr('Expand Map')
       anchors.top: parent.top
       anchors.left: parent.left
       anchors.right: parent.right
       height: 20
       margin-bottom: 3
-      @onClick: modules.game_minimap.toggleExpanded()
+      @onClick: modules.game_minimap.openFullMap()
     
     Panel
       id: minimapBackground

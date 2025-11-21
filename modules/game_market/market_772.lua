@@ -51,15 +51,33 @@ function init()
 
   -- Load UI
   print('[Market] Loading market.otui...')
+  
+  -- Try different methods to get parent widget
+  local parentWidget = nil
+  if g_ui.getRootWidget then
+    parentWidget = g_ui.getRootWidget()
+    print('[Market] Using g_ui.getRootWidget()')
+  elseif rootWidget then
+    parentWidget = rootWidget
+    print('[Market] Using rootWidget')
+  elseif modules and modules.game_interface and modules.game_interface.getMapPanel then
+    parentWidget = modules.game_interface.getMapPanel():getParent()
+    print('[Market] Using MapPanel parent')
+  end
+  
   local success, result = pcall(function()
-    return g_ui.loadUI('market', modules.game_interface.getRootWidget())
+    if parentWidget then
+      return g_ui.loadUI('market', parentWidget)
+    else
+      return g_ui.loadUI('market')
+    end
   end)
   
   if success and result then
     marketWindow = result
-    print('[Market] UI loaded successfully!')
+    print('[Market] ✅ UI loaded successfully!')
   else
-    print('[Market] ERROR: Failed to load market.otui')
+    print('[Market] ❌ ERROR: Failed to load market.otui')
     print('[Market] Error:', result)
     return
   end

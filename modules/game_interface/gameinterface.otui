@@ -92,6 +92,7 @@ UIWidget
     image-source: /images/ui/panel_side
     image-border: 4
     padding: 3
+    phantom: false
     
     $mobile:
       visible: false
@@ -101,20 +102,21 @@ UIWidget
       anchors.top: parent.top
       anchors.bottom: parent.bottom
       anchors.left: parent.left
-      width: 3
+      width: 6
       minimum: 250
-      maximum: 800
-      background: #ffffff44
+      background: #ffffff88
+      phantom: false
       
     ResizeBorder
       id: minimapResizeBottom
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
-      height: 3
+      height: 6
       minimum: 100
       maximum: 600
-      background: #ffffff44
+      background: #ffffff88
+      phantom: false
 
   Panel
     id: gameLeftPanels

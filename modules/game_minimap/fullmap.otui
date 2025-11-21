@@ -12,7 +12,7 @@ Window
     margin-left: 5
     margin-right: 5
     margin-bottom: 10
-    background-color: #00000088
+    background-color: #000000
     
   Button
     id: closeButton

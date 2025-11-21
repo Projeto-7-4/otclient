@@ -20,13 +20,17 @@ MiniWindow
       margin-bottom: 3
       @onClick: modules.game_minimap.openFullMap()
     
-    UIMinimap
-      id: minimap
+    Panel
+      id: minimapBackground
       anchors.top: expandButton.bottom
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
-      draggable: true
-      focus-scope: true
-      phantom: false
       background-color: #000000
+      
+      UIMinimap
+        id: minimap
+        anchors.fill: parent
+        draggable: true
+        focus-scope: true
+        phantom: false

@@ -21,6 +21,8 @@ local sellerLabel
 local offers = {}
 local selectedOffer = nil
 local selectedCategory = 0
+local selectedCategoryWidget = nil
+local selectedOfferWidget = nil
 
 -- Categories
 local categories = {
@@ -202,12 +204,28 @@ function Market.populateCategories()
     label:setHeight(20)
     label:setTextAlign(AlignLeft)
     label:setMarginLeft(5)
+    label:setBackgroundColor('#00000055')
     
-    -- Make it clickable
+    -- Make it clickable with visual selection
     label.onClick = function()
+      -- Remove highlight from previous selection
+      if selectedCategoryWidget then
+        selectedCategoryWidget:setBackgroundColor('#00000055')
+      end
+      
+      -- Highlight this one
+      label:setBackgroundColor('#ffffff44')
+      selectedCategoryWidget = label
+      
       selectedCategory = category.id
       print('[Market] Category clicked: ' .. category.name)
       Market.showDemoOffers()
+    end
+    
+    -- Select "All Items" by default
+    if i == 1 then
+      label:setBackgroundColor('#ffffff44')
+      selectedCategoryWidget = label
     end
     
     print('[Market] Added category: ' .. category.name .. ' (id=' .. category.id .. ')')
@@ -236,17 +254,17 @@ function Market.showDemoOffers()
   
   offersList:destroyChildren()
   
-  -- Demo offers by category
+  -- Demo offers by category (IDs corretos do Tibia 7.72)
   local allOffers = {
     -- Weapons
     {itemName = "Magic Sword", amount = 1, price = 10000, playerName = "Warrior99", itemId = 2400, category = 1},
-    {itemName = "Bright Sword", amount = 1, price = 8000, playerName = "Knight_Pro", itemId = 2407, category = 1},
+    {itemName = "Giant Sword", amount = 1, price = 15000, playerName = "Knight_Pro", itemId = 2393, category = 1},
     {itemName = "Fire Axe", amount = 1, price = 12000, playerName = "Axe_Master", itemId = 2432, category = 1},
     
     -- Armors
     {itemName = "Demon Armor", amount = 1, price = 50000, playerName = "Rich_Player", itemId = 2494, category = 2},
     {itemName = "Golden Armor", amount = 1, price = 25000, playerName = "Gold_Seller", itemId = 2466, category = 2},
-    {itemName = "Magic Plate Armor", amount = 1, price = 35000, playerName = "Mage_Shop", itemId = 2472, category = 2},
+    {itemName = "Crown Armor", amount = 1, price = 35000, playerName = "Mage_Shop", itemId = 2487, category = 2},
     
     -- Shields
     {itemName = "Vampire Shield", amount = 1, price = 18000, playerName = "Shield_Guy", itemId = 2534, category = 3},
@@ -263,7 +281,7 @@ function Market.showDemoOffers()
     
     -- Runes
     {itemName = "Sudden Death Rune", amount = 100, price = 30000, playerName = "Rune_Master", itemId = 2268, category = 9},
-    {itemName = "Ultimate Healing Rune", amount = 100, price = 18000, playerName = "Healer_Shop", itemId = 2273, category = 9},
+    {itemName = "Explosion Rune", amount = 100, price = 18000, playerName = "Healer_Shop", itemId = 2313, category = 9},
   }
   
   -- Get search text
@@ -296,9 +314,19 @@ function Market.showDemoOffers()
     label:setHeight(20)
     label:setTextAlign(AlignLeft)
     label:setMarginLeft(5)
+    label:setBackgroundColor('#00000055')
     
-    -- Make it clickable
+    -- Make it clickable with visual selection
     label.onClick = function()
+      -- Remove highlight from previous selection
+      if selectedOfferWidget then
+        selectedOfferWidget:setBackgroundColor('#00000055')
+      end
+      
+      -- Highlight this one
+      label:setBackgroundColor('#ffffff44')
+      selectedOfferWidget = label
+      
       Market.onOfferSelect(offersList, label)
     end
   end

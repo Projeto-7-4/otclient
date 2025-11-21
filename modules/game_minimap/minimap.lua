@@ -10,24 +10,14 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  -- Carregar na section horizontal dedicada no topo direito
-  minimapSection = modules.game_interface.getMinimapHorizontalSection()
+  -- TESTE: Carregar no RIGHT PANEL primeiro para ver se funciona
+  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+  print('[Minimap] 🧪 TEST: Loaded in RIGHT PANEL')
   
+  -- Salvar a section para testes futuros
+  minimapSection = modules.game_interface.getMinimapHorizontalSection()
   if minimapSection then
-    -- FORÇAR visibilidade com TUDO
-    minimapSection:setVisible(true)
-    minimapSection:show()
-    minimapSection:raise()
-    minimapSection:enable()
-    minimapSection:setOn(true)
-    print('[Minimap] Section forced visible/enabled/raised')
-    
-    minimapWindow = g_ui.loadUI('minimap', minimapSection)
-    print('[Minimap] ✅ Loaded in horizontal section')
-  else
-    -- Fallback: painel direito
-    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-    print('[Minimap] ⚠️ Loaded in right panel (fallback)')
+    print('[Minimap] Section exists but NOT using it (test mode)')
   end
   
   if not minimapWindow then
@@ -88,7 +78,24 @@ function init()
   end
 
   connect(g_game, {
-    onGameStart = online,
+    onGameStart = function()
+      online()
+      -- Forçar visibilidade DEPOIS que o game começar
+      scheduleEvent(function()
+        if minimapSection then
+          minimapSection:setVisible(true)
+          minimapSection:show()
+          minimapSection:raise()
+          print('[Minimap] [onGameStart] Section forced visible: ' .. tostring(minimapSection:isVisible()))
+        end
+        if minimapWindow then
+          minimapWindow:setVisible(true)
+          minimapWindow:show()
+          minimapWindow:raise()
+          print('[Minimap] [onGameStart] Window forced visible: ' .. tostring(minimapWindow:isVisible()))
+        end
+      end, 100)
+    end,
     onGameEnd = offline,
   })
 
@@ -99,22 +106,6 @@ function init()
   if g_game.isOnline() then
     online()
   end
-  
-  -- FORÇAR visibilidade após tudo carregar
-  scheduleEvent(function()
-    if minimapSection then
-      minimapSection:setVisible(true)
-      minimapSection:show()
-      minimapSection:raise()
-      print('[Minimap] [DELAYED] Section forced visible: ' .. tostring(minimapSection:isVisible()))
-    end
-    if minimapWindow then
-      minimapWindow:setVisible(true)
-      minimapWindow:show()
-      minimapWindow:raise()
-      print('[Minimap] [DELAYED] Window forced visible: ' .. tostring(minimapWindow:isVisible()))
-    end
-  end, 500)
 end
 
 function terminate()

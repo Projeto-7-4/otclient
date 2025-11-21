@@ -1,9 +1,6 @@
 Panel
   id: minimapContainer
   anchors.fill: parent
-  layout:
-    type: verticalBox
-    fit-children: false
   
   Label
     id: minimapTitle

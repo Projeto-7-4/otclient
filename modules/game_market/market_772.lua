@@ -543,11 +543,14 @@ function Market.onOfferClick(offer, widget)
       offer.expire
     )
     
-    displayGeneralBox('Confirm Purchase', message, {
+    local msgBox = displayGeneralBox('Confirm Purchase', message, {
       {text='Buy', callback = function()
+        msgBox:ok()
         Market.buyOffer(offer)
       end},
-      {text='Cancel', callback = function() end}
+      {text='Cancel', callback = function()
+        msgBox:cancel()
+      end}
     }, function() end, function() end)
   else
     -- Oferta de COMPRA no mercado = jogador quer VENDER
@@ -561,11 +564,14 @@ function Market.onOfferClick(offer, widget)
       offer.expire
     )
     
-    displayGeneralBox('Confirm Sale', message, {
+    local msgBox = displayGeneralBox('Confirm Sale', message, {
       {text='Sell', callback = function()
+        msgBox:ok()
         Market.sellToOffer(offer)
       end},
-      {text='Cancel', callback = function() end}
+      {text='Cancel', callback = function()
+        msgBox:cancel()
+      end}
     }, function() end, function() end)
   end
 end

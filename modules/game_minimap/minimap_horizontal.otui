@@ -1,0 +1,35 @@
+Panel
+  id: minimapContainer
+  anchors.fill: parent
+  layout:
+    type: verticalBox
+    fit-children: false
+  
+  Label
+    id: minimapTitle
+    !text: tr('Minimap')
+    anchors.top: parent.top
+    anchors.left: parent.left
+    height: 18
+    font: verdana-11px-rounded
+    text-align: left
+    margin-left: 5
+    margin-top: 2
+    
+  Panel
+    id: minimapBackground
+    anchors.top: minimapTitle.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-top: 2
+    background-color: #000000
+    
+    UIMinimap
+      id: minimap
+      anchors.fill: parent
+      draggable: true
+      focus-scope: true
+      phantom: false
+      color: black
+

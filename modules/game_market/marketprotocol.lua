@@ -39,13 +39,11 @@ local function parseMarketBuyResponse(protocol, msg)
   if success == 1 then
     print('[MarketProtocol] ✅ Buy success: ' .. message)
     
-    -- Remover oferta da lista apenas se a compra foi bem-sucedida
+    -- Remover oferta da lista INSTANTANEAMENTE se a compra foi bem-sucedida
     if Market and Market.removeOfferById and Market.getLastPurchasedOfferId then
       local offerId = Market.getLastPurchasedOfferId()
       if offerId then
-        scheduleEvent(function()
-          Market.removeOfferById(offerId)
-        end, 500)
+        Market.removeOfferById(offerId)  -- Instantâneo (0ms)
       end
     end
   else

@@ -626,39 +626,57 @@ end
 
 function Market.removeOfferById(offerId)
   print('[Market] Removing offer ID ' .. offerId .. ' from lists...')
+  print('[Market] allOffers count: ' .. #allOffers)
+  print('[Market] filteredOffers count: ' .. #filteredOffers)
   
   -- 1. Remover de allOffers
+  local removedFromAll = false
   for i = #allOffers, 1, -1 do
     if allOffers[i].id == offerId then
       table.remove(allOffers, i)
-      print('[Market] Removed from allOffers')
+      removedFromAll = true
+      print('[Market] ✅ Removed from allOffers (now ' .. #allOffers .. ' offers)')
       break
     end
   end
   
+  if not removedFromAll then
+    print('[Market] ⚠️ Offer ' .. offerId .. ' NOT FOUND in allOffers')
+  end
+  
   -- 2. Remover de filteredOffers
+  local removedFromFiltered = false
   for i = #filteredOffers, 1, -1 do
     if filteredOffers[i].id == offerId then
       table.remove(filteredOffers, i)
-      print('[Market] Removed from filteredOffers')
+      removedFromFiltered = true
+      print('[Market] ✅ Removed from filteredOffers (now ' .. #filteredOffers .. ' offers)')
       break
     end
+  end
+  
+  if not removedFromFiltered then
+    print('[Market] ⚠️ Offer ' .. offerId .. ' NOT FOUND in filteredOffers')
   end
   
   -- 3. Remover o widget da tela
   if offersList then
     local children = offersList:getChildren()
+    print('[Market] offersList has ' .. #children .. ' children')
+    
     for _, child in ipairs(children) do
       local childOfferId = child.offerId
       if childOfferId == offerId then
         child:destroy()
-        print('[Market] Removed widget from screen')
-        break
+        print('[Market] ✅ Removed widget from screen (now ' .. (#children - 1) .. ' widgets)')
+        return -- Sair da função após remover
       end
     end
+    
+    print('[Market] ⚠️ Widget with offer ID ' .. offerId .. ' NOT FOUND in offersList')
+  else
+    print('[Market] ⚠️ offersList is NIL!')
   end
-  
-  print('[Market] ✅ Offer ' .. offerId .. ' removed successfully!')
 end
 
 function Market.sellToOffer(offer)

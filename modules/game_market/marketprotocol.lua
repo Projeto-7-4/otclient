@@ -15,8 +15,9 @@ local MarketOpcodes = {
   ClientMarketCancel = 0xF3,   -- parseMarketCancel
   ClientMarketMyOffers = 0xF4, -- parseMarketMyOffers
   
-  -- Server -> Client (0x32 = 50, opcode baixo não usado em 7.72)
-  ServerMarketOffers = 0x32,
+  -- Server -> Client
+  ServerMarketOffers = 0x32,   -- Lista de ofertas
+  ServerMarketBuyResponse = 0xF1,  -- Resposta de compra (success/fail)
 }
 
 local function send(msg)
@@ -28,6 +29,23 @@ end
 -- =============================================
 -- PARSING FUNCTIONS (Server -> Client)
 -- =============================================
+
+local function parseMarketBuyResponse(protocol, msg)
+  print('[MarketProtocol] Parsing buy response...')
+  
+  local success = msg:getU8()
+  local message = msg:getString()
+  
+  if success == 1 then
+    print('[MarketProtocol] ✅ Buy success: ' .. message)
+    displayInfoBox('Market - Success', message)
+  else
+    print('[MarketProtocol] ❌ Buy failed: ' .. message)
+    displayErrorBox('Market - Error', message)
+  end
+  
+  return true
+end
 
 local function parseMarketOffers(protocol, msg)
   print('[MarketProtocol] Parsing market offers...')
@@ -120,10 +138,12 @@ function MarketProtocol.registerProtocol()
   -- Primeiro tenta desregistrar (caso já exista)
   pcall(function()
     ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
+    ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketBuyResponse, parseMarketBuyResponse)
   end)
   
   -- Agora registra
   ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
+  ProtocolGame.registerOpcode(MarketOpcodes.ServerMarketBuyResponse, parseMarketBuyResponse)
   
   MarketProtocol.updateProtocol(g_game.getProtocolGame())
   
@@ -140,6 +160,7 @@ function MarketProtocol.unregisterProtocol()
   print('[MarketProtocol] Unregistering protocol handlers...')
   
   ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketOffers, parseMarketOffers)
+  ProtocolGame.unregisterOpcode(MarketOpcodes.ServerMarketBuyResponse, parseMarketBuyResponse)
   
   MarketProtocol.updateProtocol(nil)
   

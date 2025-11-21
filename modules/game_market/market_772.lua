@@ -1,6 +1,21 @@
 Market = {}
 
+-- Try to load protocol from sandbox, fallback to global
 local protocol = runinsandbox('marketprotocol')
+if not protocol then
+  print('[Market] ⚠️ runinsandbox failed, trying global...')
+  protocol = _G.MarketProtocol
+end
+
+print('[Market] Protocol loaded: ' .. tostring(protocol))
+if protocol then
+  print('[Market] ✅ Protocol type: ' .. type(protocol))
+  if type(protocol) == 'table' then
+    print('[Market] ✅ sendMarketBrowse: ' .. tostring(protocol.sendMarketBrowse ~= nil))
+  end
+else
+  print('[Market] ❌ ERROR: Protocol is nil!')
+end
 
 -- UI Components
 local marketWindow

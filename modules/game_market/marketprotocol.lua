@@ -183,5 +183,8 @@ initProtocol()
 
 print('[MarketProtocol] 7.72 Market Protocol module loaded and initialized')
 
--- Return the protocol table for use by market_772.lua
+-- Export globally for market_772.lua to access
+_G.MarketProtocol = MarketProtocol
+
+-- Also return it (for runinsandbox compatibility)
 return MarketProtocol

@@ -468,6 +468,9 @@ end
 function Market.createOfferWidget(offer)
   local widget = g_ui.createWidget('MarketOffer', offersList)
   
+  -- Armazenar o ID da oferta no widget para remoção otimizada
+  widget.offerId = offer.id
+  
   local itemIcon = widget:getChildById('itemIcon')
   if itemIcon then
     itemIcon:setItemId(offer.itemId)
@@ -612,15 +615,50 @@ function Market.buyOffer(offer)
     -- Aguardar resposta do servidor (sem modal - feedback silencioso)
     -- displayInfoBox('Market', 'Processing your purchase...\n\nThe server will validate your gold and complete the transaction.')
     
-    -- Atualizar lista após 2 segundos
+    -- Remover apenas esta oferta da lista (otimizado, sem reload completo)
     scheduleEvent(function()
-      if protocol and protocol.sendMarketBrowse then
-        protocol.sendMarketBrowse(2)  -- Sempre solicitar todas as ofertas
-      end
-    end, 2000)
+      Market.removeOfferById(offerId)
+    end, 1500)
   else
     displayErrorBox('Error', 'Market protocol not initialized. Please reconnect.')
   end
+end
+
+function Market.removeOfferById(offerId)
+  print('[Market] Removing offer ID ' .. offerId .. ' from lists...')
+  
+  -- 1. Remover de allOffers
+  for i = #allOffers, 1, -1 do
+    if allOffers[i].id == offerId then
+      table.remove(allOffers, i)
+      print('[Market] Removed from allOffers')
+      break
+    end
+  end
+  
+  -- 2. Remover de filteredOffers
+  for i = #filteredOffers, 1, -1 do
+    if filteredOffers[i].id == offerId then
+      table.remove(filteredOffers, i)
+      print('[Market] Removed from filteredOffers')
+      break
+    end
+  end
+  
+  -- 3. Remover o widget da tela
+  if offersList then
+    local children = offersList:getChildren()
+    for _, child in ipairs(children) do
+      local childOfferId = child.offerId
+      if childOfferId == offerId then
+        child:destroy()
+        print('[Market] Removed widget from screen')
+        break
+      end
+    end
+  end
+  
+  print('[Market] ✅ Offer ' .. offerId .. ' removed successfully!')
 end
 
 function Market.sellToOffer(offer)
@@ -749,7 +787,7 @@ function Market.onOffersReceived(serverOffers, bankBalance, guid)
   for _, offer in ipairs(serverOffers) do
     local formattedOffer = {
       id = offer.id,
-      name = string.format("%dx Item #%d", offer.amount, offer.itemId),
+      name = string.format("%dx %s", offer.amount, offer.name or "Unknown Item"),
       itemId = offer.itemId,
       amount = offer.amount,
       expire = offer.expireText or "No expiry",

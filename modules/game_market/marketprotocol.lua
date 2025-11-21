@@ -64,14 +64,22 @@ local function parseMarketOffers(protocol, msg)
   print('[MarketProtocol] Received ' .. offerCount .. ' offers')
   
   for i = 1, offerCount do
+    -- Ordem EXATA do servidor (protocolgame.cpp):
+    -- 1. id, 2. itemId, 3. itemName (STRING!), 4. amount, 5. price, 6. type, 7. playerName, 8. secondsRemaining
     local offer = {
       id = msg:getU32(),
-      itemId = msg:getU16(),
-      amount = msg:getU16(),
-      price = msg:getU32()
+      itemId = msg:getU16()
     }
     
-    -- Ler type e converter ASCII para número se necessário
+    -- 3. itemName (String) - NOVO CAMPO!
+    offer.name = msg:getString()
+    print('[MarketProtocol] Item name: ' .. offer.name)
+    
+    -- 4. amount, 5. price
+    offer.amount = msg:getU16()
+    offer.price = msg:getU32()
+    
+    -- 6. Ler type e converter ASCII para número se necessário
     local rawType = msg:getU8()
     if rawType > 10 then
       rawType = rawType - 48  -- Converter ASCII '0'-'9' (48-57) para 0-9
@@ -79,6 +87,7 @@ local function parseMarketOffers(protocol, msg)
     end
     offer.type = rawType
     
+    -- 7. playerName, 8. secondsRemaining
     offer.playerName = msg:getString()
     offer.secondsRemaining = msg:getU32()
     

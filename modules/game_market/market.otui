@@ -1,7 +1,21 @@
-MarketWindow < MainWindow
+MainWindow
+  id: marketWindow
   !text: tr('Market')
-  size: 400 300
+  size: 600 400
+  @onEscape: self:hide()
 
   Label
+    id: testLabel
     !text: tr('Market System Works!')
     anchors.centerIn: parent
+    font: verdana-11px-rounded
+    color: white
+
+  Button
+    id: closeButton
+    !text: tr('Close')
+    width: 100
+    anchors.bottom: parent.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-bottom: 10
+    @onClick: self:getParent():hide()

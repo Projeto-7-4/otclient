@@ -64,6 +64,12 @@ local playerSlots = 0
 local playerMaxSlots = 50
 local playerGold = 99
 local playerPoints = 0
+local playerGUID = 0
+local playerName = ""
+
+-- Filter states
+local filterCreatedBy = "all" -- "all", "yourself", "others"
+local filterSearch = ""
 
 -- Categories
 local categories = {
@@ -416,8 +422,16 @@ function Market.applyFilters()
   for _, offer in ipairs(allOffers) do
     local matchesSearch = searchText == "" or offer.name:lower():find(searchText, 1, true)
     local matchesType = offer.type == selectedOfferType
+    local matchesCreator = true
     
-    if matchesSearch and matchesType then
+    -- Filter by creator
+    if selectedCreator == "yourself" and playerGUID > 0 then
+      matchesCreator = (offer.playerId == playerGUID)
+    elseif selectedCreator == "others" and playerGUID > 0 then
+      matchesCreator = (offer.playerId ~= playerGUID)
+    end
+    
+    if matchesSearch and matchesType and matchesCreator then
       table.insert(filteredOffers, offer)
     end
   end
@@ -483,12 +497,13 @@ function Market.createOfferWidget(offer)
   
   local actionButton = widget:getChildById('actionButton')
   if actionButton then
+    -- FIX: Se offer.type == 'sell', o jogador vai COMPRAR (inverter lógica)
     if offer.type == 'sell' then
-      actionButton:setText('Sell')
-      actionButton:setBackgroundColor('#006600')
-    else
-      actionButton:setText('Buy')
+      actionButton:setText('Buy')  -- Jogador vai comprar dessa oferta de venda
       actionButton:setBackgroundColor('#cc6600')
+    else
+      actionButton:setText('Sell')  -- Jogador vai vender para essa oferta de compra
+      actionButton:setBackgroundColor('#006600')
     end
     
     actionButton.onClick = function()
@@ -711,7 +726,7 @@ function Market.refresh()
 end
 
 -- Callback quando recebe ofertas do servidor
-function Market.onOffersReceived(serverOffers, bankBalance)
+function Market.onOffersReceived(serverOffers, bankBalance, guid)
   print('[Market] ✅ Received ' .. #serverOffers .. ' offers from server!')
   
   -- Atualizar gold do player (bank balance)
@@ -719,6 +734,12 @@ function Market.onOffersReceived(serverOffers, bankBalance)
     playerGold = bankBalance
     print('[Market] Updated player gold: ' .. playerGold .. ' gp')
     Market.updatePlayerInfo()
+  end
+  
+  -- Atualizar GUID do player
+  if guid and guid > 0 then
+    playerGUID = guid
+    print('[Market] Updated player GUID: ' .. playerGUID)
   end
   
   -- Limpar ofertas antigas

@@ -3,7 +3,7 @@ MiniWindow
   !text: tr('Minimap')
   icon: /images/topbuttons/minimap
   @onClose: modules.game_minimap.onMiniWindowClose()
-  &save: true
+  &save: false
   &autoOpen: true
   width: 592
   height: 242

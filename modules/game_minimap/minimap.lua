@@ -14,9 +14,13 @@ function init()
   minimapSection = modules.game_interface.getMinimapHorizontalSection()
   
   if minimapSection then
-    -- Garantir que a section está visível
+    -- FORÇAR visibilidade com TUDO
     minimapSection:setVisible(true)
     minimapSection:show()
+    minimapSection:raise()
+    minimapSection:enable()
+    minimapSection:setOn(true)
+    print('[Minimap] Section forced visible/enabled/raised')
     
     minimapWindow = g_ui.loadUI('minimap', minimapSection)
     print('[Minimap] ✅ Loaded in horizontal section')
@@ -54,6 +58,11 @@ function init()
     print('[Minimap] Calling open()...')
     minimapWindow:open()
     print('[Minimap] AFTER open() - Window visible: ' .. tostring(minimapWindow:isVisible()))
+    
+    -- Forçar dimensões corretas (ignorar save)
+    minimapWindow:setWidth(592)
+    minimapWindow:setHeight(242)
+    print('[Minimap] Dimensions forced to 592x242')
   end
   
   -- Criar botão DEPOIS de abrir
@@ -90,6 +99,22 @@ function init()
   if g_game.isOnline() then
     online()
   end
+  
+  -- FORÇAR visibilidade após tudo carregar
+  scheduleEvent(function()
+    if minimapSection then
+      minimapSection:setVisible(true)
+      minimapSection:show()
+      minimapSection:raise()
+      print('[Minimap] [DELAYED] Section forced visible: ' .. tostring(minimapSection:isVisible()))
+    end
+    if minimapWindow then
+      minimapWindow:setVisible(true)
+      minimapWindow:show()
+      minimapWindow:raise()
+      print('[Minimap] [DELAYED] Window forced visible: ' .. tostring(minimapWindow:isVisible()))
+    end
+  end, 500)
 end
 
 function terminate()

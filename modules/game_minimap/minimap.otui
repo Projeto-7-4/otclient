@@ -29,3 +29,4 @@ MiniWindow
       draggable: true
       focus-scope: true
       phantom: false
+      background-color: #000000

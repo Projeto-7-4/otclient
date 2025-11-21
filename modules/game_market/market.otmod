@@ -1,9 +1,9 @@
 Module
   name: game_market
-  description: Global item market system
-  author: BeniS
-  website: https://github.com/edubart/otclient
+  description: Market system for 7.72
+  author: BeniS (adapted by Projeto 7.4)
+  website: https://github.com/Projeto-7-4
   sandboxed: true
-  scripts: [ offerstatistic, marketoffer, marketprotocol, market ]
+  scripts: [ offerstatistic, marketoffer, marketprotocol, market_772 ]
   @onLoad: init()
   @onUnload: terminate()

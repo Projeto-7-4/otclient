@@ -1,278 +1,189 @@
+-- Market Protocol for 7.72
+-- Adapted from mehah's OTClient for Nostalrius 7.72 protocol
 MarketProtocol = {}
-
--- private functions
 
 local silent
 local protocol
 local statistics = runinsandbox('offerstatistic')
 
+-- Send message to server
 local function send(msg)
   if protocol and not silent then
     protocol:send(msg)
   end
 end
 
-local function readMarketOffer(msg, action, var)
-  local timestamp = msg:getU32()
-  local counter = msg:getU16()
-
-  local itemId = 0
-  if var == MarketRequest.MyOffers or var == MarketRequest.MyHistory then
-    itemId = msg:getU16()
-  else
-    itemId = var
-  end
-
+-- Read market offer from message (simplified for 7.72)
+local function readMarketOffer(msg)
+  local offerId = msg:getU32()
+  local playerId = msg:getU32()
+  local playerName = msg:getString()
+  local itemId = msg:getU16()
+  local itemName = msg:getString()
   local amount = msg:getU16()
   local price = msg:getU32()
-  local playerName
-  local state = MarketOfferState.Active
-  if var == MarketRequest.MyHistory then
-    state = msg:getU8()
-  elseif var == MarketRequest.MyOffers then
-  else
-    playerName = msg:getString()
-  end
-
-  return MarketOffer.new({timestamp, counter}, action, Item.create(itemId), amount, price, playerName, state, var)
-end
-
--- parsing protocols
-local function parseMarketEnter(protocol, msg)
-  local items
-  if g_game.getClientVersion() < 944 then
-    items = {}
-    local itemsCount = msg:getU16()
-    for i = 1, itemsCount do
-      local itemId = msg:getU16()
-      local category = msg:getU8()
-      local name = msg:getString()
-      table.insert(items, {
-        id = itemId,
-        category = category,
-        name = name
-      })
-    end    
-  end
+  local category = msg:getU8()
+  local timestamp = msg:getU32()
   
-  local balance = 0
-  if g_game.getProtocolVersion() <= 1250 or not g_game.getFeature(GameTibia12Protocol) then
-    if g_game.getProtocolVersion() >= 981 or g_game.getProtocolVersion() < 944 then
-      balance = msg:getU64()
-    else
-      balance = msg:getU32()
-    end
-  end
-  
-  local vocation = -1
-  if g_game.getProtocolVersion() >= 944 and g_game.getProtocolVersion() < 950 then
-    vocation = msg:getU8() -- get vocation id
-  end
-  local offers = msg:getU8()
-
-  local depotItems = {}
-  local depotCount = msg:getU16()
-  for i = 1, depotCount do
-    local itemId = msg:getU16() -- item id
-    local itemCount = msg:getU16() -- item count
-
-    depotItems[itemId] = itemCount
-  end
-
-  signalcall(Market.onMarketEnter, depotItems, offers, balance, vocation, items)
-  return true
+  return {
+    id = offerId,
+    playerId = playerId,
+    playerName = playerName,
+    itemId = itemId,
+    itemName = itemName,
+    amount = amount,
+    price = price,
+    category = category,
+    timestamp = timestamp,
+    item = Item.create(itemId)
+  }
 end
 
-local function parseMarketLeave(protocol, msg)
-  Market.onMarketLeave()
-  return true
-end
-
-local function parseMarketDetail(protocol, msg)
-  local itemId = msg:getU16()
-
-  local descriptions = {}
-  for i = MarketItemDescription.First, MarketItemDescription.Last do
-    if msg:peekU16() ~= 0x00 then
-      table.insert(descriptions, {i, msg:getString()}) -- item descriptions
-    else
-      msg:getU16()
-    end
-  end
-
-  if g_game.getProtocolVersion() >= 1100 then -- imbuements
-    if msg:peekU16() ~= 0x00 then
-      table.insert(descriptions, {MarketItemDescription.Last + 1, msg:getString()})
-    else
-      msg:getU16()
-    end  
-  end
-
-  local time = (os.time() / 1000) * statistics.SECONDS_PER_DAY;
-
-  local purchaseStats = {}
-  local count = msg:getU8()
-  for i=1, count do
-    local transactions = msg:getU32() -- transaction count
-    local totalPrice = msg:getU32() -- total price
-    local highestPrice = msg:getU32() -- highest price
-    local lowestPrice = msg:getU32() -- lowest price
-
-    local tmp = time - statistics.SECONDS_PER_DAY
-    table.insert(purchaseStats, OfferStatistic.new(tmp, MarketAction.Buy, transactions, totalPrice, highestPrice, lowestPrice))
-  end
-
-  local saleStats = {}
-  count = msg:getU8()
-  for i=1, count do
-    local transactions = msg:getU32() -- transaction count
-    local totalPrice = msg:getU32() -- total price
-    local highestPrice = msg:getU32() -- highest price
-    local lowestPrice = msg:getU32() -- lowest price
-
-    local tmp = time - statistics.SECONDS_PER_DAY
-    table.insert(saleStats, OfferStatistic.new(tmp, MarketAction.Sell, transactions, totalPrice, highestPrice, lowestPrice))
-  end
-
-  signalcall(Market.onMarketDetail, itemId, descriptions, purchaseStats, saleStats)
-  return true
-end
-
-local function parseMarketBrowse(protocol, msg)
-  local var = msg:getU16()
+-- Parse market offers list (0xF0)
+local function parseMarketOffers(protocol, msg)
+  local count = msg:getU16()
   local offers = {}
-
-  local buyOfferCount = msg:getU32()
-  for i = 1, buyOfferCount do
-    table.insert(offers, readMarketOffer(msg, MarketAction.Buy, var))
+  
+  for i = 1, count do
+    table.insert(offers, readMarketOffer(msg))
   end
-
-  local sellOfferCount = msg:getU32()
-  for i = 1, sellOfferCount do
-    table.insert(offers, readMarketOffer(msg, MarketAction.Sell, var))
-  end
-
-  signalcall(Market.onMarketBrowse, offers, var)
+  
+  print(string.format('[MarketProtocol] Received %d offers from server', count))
+  signalcall(Market.onMarketBrowse, offers)
   return true
 end
 
--- public functions
-function initProtocol()
-  connect(g_game, { onGameStart = MarketProtocol.registerProtocol,
-                    onGameEnd = MarketProtocol.unregisterProtocol })
+-- Parse buy response (0xF1)
+local function parseMarketBuyResponse(protocol, msg)
+  local success = msg:getU8() == 1
+  local message = msg:getString()
+  
+  print(string.format('[MarketProtocol] Buy response: %s - %s', success and 'SUCCESS' or 'FAILED', message))
+  signalcall(Market.onMarketBuyResponse, success, message)
+  return true
+end
 
-  -- reloading module
+-- Parse sell response (0xF2)
+local function parseMarketSellResponse(protocol, msg)
+  local success = msg:getU8() == 1
+  local message = msg:getString()
+  
+  print(string.format('[MarketProtocol] Sell response: %s - %s', success and 'SUCCESS' or 'FAILED', message))
+  signalcall(Market.onMarketSellResponse, success, message)
+  return true
+end
+
+-- Initialize protocol
+function initProtocol()
+  connect(g_game, { 
+    onGameStart = MarketProtocol.registerProtocol,
+    onGameEnd = MarketProtocol.unregisterProtocol 
+  })
+
   if g_game.isOnline() then
     MarketProtocol.registerProtocol()
   end
 
   MarketProtocol.silent(false)
+  print('[MarketProtocol] Initialized for 7.72')
 end
 
+-- Terminate protocol
 function terminateProtocol()
-  disconnect(g_game, { onGameStart = MarketProtocol.registerProtocol,
-                       onGameEnd = MarketProtocol.unregisterProtocol })
+  disconnect(g_game, { 
+    onGameStart = MarketProtocol.registerProtocol,
+    onGameEnd = MarketProtocol.unregisterProtocol 
+  })
 
-  -- reloading module
   MarketProtocol.unregisterProtocol()
   MarketProtocol = nil
+  print('[MarketProtocol] Terminated')
 end
 
+-- Update protocol reference
 function MarketProtocol.updateProtocol(_protocol)
   protocol = _protocol
 end
 
+-- Register opcodes for 7.72
 function MarketProtocol.registerProtocol()
-  if g_game.getFeature(GamePlayerMarket) then
-    ProtocolGame.registerOpcode(GameServerOpcodes.GameServerMarketEnter, parseMarketEnter)
-    ProtocolGame.registerOpcode(GameServerOpcodes.GameServerMarketLeave, parseMarketLeave)
-    ProtocolGame.registerOpcode(GameServerOpcodes.GameServerMarketDetail, parseMarketDetail)
-    ProtocolGame.registerOpcode(GameServerOpcodes.GameServerMarketBrowse, parseMarketBrowse)
-  end
+  -- Using extended opcodes for 7.72
+  ProtocolGame.registerExtendedOpcode(0xF0, parseMarketOffers)
+  ProtocolGame.registerExtendedOpcode(0xF1, parseMarketBuyResponse)
+  ProtocolGame.registerExtendedOpcode(0xF2, parseMarketSellResponse)
+  
   MarketProtocol.updateProtocol(g_game.getProtocolGame())
+  print('[MarketProtocol] Opcodes registered (0xF0-0xF2)')
 end
 
+-- Unregister opcodes
 function MarketProtocol.unregisterProtocol()
-  if g_game.getFeature(GamePlayerMarket) then
-    ProtocolGame.unregisterOpcode(GameServerOpcodes.GameServerMarketEnter, parseMarketEnter)
-    ProtocolGame.unregisterOpcode(GameServerOpcodes.GameServerMarketLeave, parseMarketLeave)
-    ProtocolGame.unregisterOpcode(GameServerOpcodes.GameServerMarketDetail, parseMarketDetail)
-    ProtocolGame.unregisterOpcode(GameServerOpcodes.GameServerMarketBrowse, parseMarketBrowse)
-  end
+  ProtocolGame.unregisterExtendedOpcode(0xF0)
+  ProtocolGame.unregisterExtendedOpcode(0xF1)
+  ProtocolGame.unregisterExtendedOpcode(0xF2)
+  
   MarketProtocol.updateProtocol(nil)
+  print('[MarketProtocol] Opcodes unregistered')
 end
 
+-- Silent mode
 function MarketProtocol.silent(mode)
   silent = mode
 end
 
--- sending protocols
+-- ============================================================================
+-- SENDING PROTOCOLS (Client -> Server)
+-- ============================================================================
 
-function MarketProtocol.sendMarketLeave()
-  if g_game.getFeature(GamePlayerMarket) then
-    local msg = OutputMessage.create()
-    msg:addU8(ClientOpcodes.ClientMarketLeave)
-    send(msg)
-  else
-    g_logger.error('MarketProtocol.sendMarketLeave does not support the current protocol.')
-  end
+-- Request offers list (0xF0)
+function MarketProtocol.sendMarketBrowse(category)
+  local msg = OutputMessage.create()
+  msg:addU8(0xF0)  -- Request offers
+  msg:addU16(category or 0)  -- 0 = all categories
+  send(msg)
+  print(string.format('[MarketProtocol] Requesting offers (category: %d)', category or 0))
 end
 
-function MarketProtocol.sendMarketBrowse(browseId)
-  if g_game.getFeature(GamePlayerMarket) then
-    local msg = OutputMessage.create()
-    msg:addU8(ClientOpcodes.ClientMarketBrowse)
-    msg:addU16(browseId)
-    send(msg)
-  else
-    g_logger.error('MarketProtocol.sendMarketBrowse does not support the current protocol.')
-  end
+-- Buy offer (0xF1)
+function MarketProtocol.sendMarketAcceptOffer(offerId, amount)
+  local msg = OutputMessage.create()
+  msg:addU8(0xF1)  -- Buy offer
+  msg:addU32(offerId)
+  msg:addU16(amount)
+  send(msg)
+  print(string.format('[MarketProtocol] Buying offer %d (amount: %d)', offerId, amount))
 end
 
+-- Create sell offer (0xF2)
+function MarketProtocol.sendMarketCreateOffer(itemId, amount, price)
+  local msg = OutputMessage.create()
+  msg:addU8(0xF2)  -- Create offer
+  msg:addU16(itemId)
+  msg:addU16(amount)
+  msg:addU32(price)
+  send(msg)
+  print(string.format('[MarketProtocol] Creating offer (item: %d, amount: %d, price: %d)', itemId, amount, price))
+end
+
+-- Cancel offer (0xF3)
+function MarketProtocol.sendMarketCancelOffer(offerId)
+  local msg = OutputMessage.create()
+  msg:addU8(0xF3)  -- Cancel offer
+  msg:addU32(offerId)
+  send(msg)
+  print(string.format('[MarketProtocol] Cancelling offer %d', offerId))
+end
+
+-- Request my offers (0xF4)
 function MarketProtocol.sendMarketBrowseMyOffers()
-  MarketProtocol.sendMarketBrowse(MarketRequest.MyOffers)
+  local msg = OutputMessage.create()
+  msg:addU8(0xF4)  -- My offers
+  send(msg)
+  print('[MarketProtocol] Requesting my offers')
 end
 
-function MarketProtocol.sendMarketBrowseMyHistory()
-  MarketProtocol.sendMarketBrowse(MarketRequest.MyHistory)
-end
+-- Compatibility aliases for existing Market module
+MarketProtocol.sendMarketBrowseMyHistory = MarketProtocol.sendMarketBrowseMyOffers
+MarketProtocol.sendMarketLeave = function() end -- Not needed for 7.72
 
-function MarketProtocol.sendMarketCreateOffer(type, spriteId, amount, price, anonymous)
-  if g_game.getFeature(GamePlayerMarket) then
-    local msg = OutputMessage.create()
-    msg:addU8(ClientOpcodes.ClientMarketCreate)
-    msg:addU8(type)
-    msg:addU16(spriteId)
-    msg:addU16(amount)
-    msg:addU32(price)
-    msg:addU8(anonymous)
-    send(msg)
-  else
-    g_logger.error('MarketProtocol.sendMarketCreateOffer does not support the current protocol.')
-  end
-end
-
-function MarketProtocol.sendMarketCancelOffer(timestamp, counter)
-  if g_game.getFeature(GamePlayerMarket) then
-    local msg = OutputMessage.create()
-    msg:addU8(ClientOpcodes.ClientMarketCancel)
-    msg:addU32(timestamp)
-    msg:addU16(counter)
-    send(msg)
-  else
-    g_logger.error('MarketProtocol.sendMarketCancelOffer does not support the current protocol.')
-  end
-end
-
-function MarketProtocol.sendMarketAcceptOffer(timestamp, counter, amount)
-  if g_game.getFeature(GamePlayerMarket) then
-    local msg = OutputMessage.create()
-    msg:addU8(ClientOpcodes.ClientMarketAccept)
-    msg:addU32(timestamp)
-    msg:addU16(counter)
-    msg:addU16(amount)
-    send(msg)
-  else
-    g_logger.error('MarketProtocol.sendMarketAcceptOffer does not support the current protocol.')
-  end
-end
+print('[MarketProtocol] Module loaded for 7.72')

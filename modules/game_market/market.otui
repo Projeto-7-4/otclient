@@ -1,62 +1,245 @@
 MarketWindow < MainWindow
   id: marketWindow
-  !text: tr('Market')
-  size: 700 530
+  !text: tr('Market - Buy & Sell Items')
+  size: 800 500
+  @onEscape: self:hide()
 
-  @onEscape: Market.close()
-
-  // Main Panel Window
-
-  MarketTabBar
-    id: mainTabBar
-    width: 164
-    height: 25
-    anchors.top: parent.top
-    anchors.left: parent.left
-
+  // Left Panel - Categories
   Panel
-    id: mainTabContent
-    anchors.top: prev.bottom
+    id: leftPanel
+    width: 150
+    anchors.top: parent.top
     anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    padding: 3
+    anchors.bottom: buttonsPanel.top
+    margin: 5
+    margin-bottom: 10
     border-width: 1
-    border-color: #000000
-    margin-bottom: 20
+    border-color: #00000088
+    background-color: #00000044
 
-  Label
-    id: balanceLabel
-    !text: tr('Balance') .. ':'
-    font: verdana-11px-rounded
-    text-offset: 0 2
+    Label
+      id: categoriesTitle
+      !text: tr('Categories')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
+
+    ScrollablePanel
+      id: categoryScrollPanel
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-top: 3
+      vertical-scrollbar: categoryScrollBar
+
+      VerticalScrollBar
+        id: categoryScrollBar
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        step: 14
+        pixels-scroll: true
+
+      Panel
+        id: categoryList
+        anchors.left: parent.left
+        anchors.right: prev.left
+        anchors.top: parent.top
+        layout:
+          type: verticalBox
+          spacing: 1
+
+  // Center Panel - Offers List
+  Panel
+    id: centerPanel
+    anchors.top: parent.top
+    anchors.left: leftPanel.right
+    anchors.right: rightPanel.left
+    anchors.bottom: buttonsPanel.top
+    margin: 5
+    margin-bottom: 10
+    border-width: 1
+    border-color: #00000088
+    background-color: #00000044
+
+    Label
+      id: offersTitle
+      !text: tr('Available Offers')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
+
+    TextEdit
+      id: searchEdit
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin: 3
+      placeholder: Search items...
+      height: 20
+
+    ScrollablePanel
+      id: offersScrollPanel
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-top: 3
+      vertical-scrollbar: offersScrollBar
+
+      VerticalScrollBar
+        id: offersScrollBar
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        step: 14
+        pixels-scroll: true
+
+      Panel
+        id: offersList
+        anchors.left: parent.left
+        anchors.right: prev.left
+        anchors.top: parent.top
+        layout:
+          type: verticalBox
+          spacing: 1
+
+  // Right Panel - Item Details
+  Panel
+    id: rightPanel
+    width: 200
     anchors.top: parent.top
     anchors.right: parent.right
+    anchors.bottom: buttonsPanel.top
+    margin: 5
+    margin-bottom: 10
+    border-width: 1
+    border-color: #00000088
+    background-color: #00000044
 
-  Button
-    id: closeButton
-    !text: tr('Close')
-    anchors.top: mainTabContent.bottom
-    anchors.horizontalCenter: mainTabContent.horizontalCenter
-    margin-top: 5
-    width: 110
-    @onClick: Market.close()
+    Label
+      id: detailsTitle
+      !text: tr('Item Details')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 20
+      text-offset: 0 3
 
-  Button
-    id: refreshOffersButton
-    !text: tr('Refresh Offers')
-    anchors.top: mainTabContent.bottom
-    anchors.right: mainTabContent.right
-    margin-top: 5
-    width: 110
-    @onClick: Market.refreshOffers()
+    Item
+      id: itemPreview
+      anchors.top: prev.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 20
+      size: 64 64
+      image-source: /images/ui/item
+      image-border: 1
 
-  Button
-    id: resetButton
-    !text: tr('Reset Market')
-    !tooltip: tr('Reset selection, filters & search')
-    anchors.top: mainTabContent.bottom
-    anchors.left: mainTabContent.left
-    margin-top: 5
-    width: 110
-    @onClick: Market.reset()
+    Label
+      id: itemNameLabel
+      !text: tr('Select an offer')
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      margin-top: 10
+      text-wrap: true
+      height: 30
+
+    HorizontalSeparator
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+
+    Label
+      id: priceLabel
+      !text: tr('Price: -')
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 10
+
+    Label
+      id: amountLabel
+      !text: tr('Amount: -')
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 5
+
+    Label
+      id: sellerLabel
+      !text: tr('Seller: -')
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      margin-top: 5
+      color: #aaaaaa
+
+  // Bottom Panel - Buttons
+  Panel
+    id: buttonsPanel
+    height: 40
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    margin-top: 0
+
+    Button
+      id: refreshButton
+      !text: tr('Refresh')
+      width: 100
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+
+    Button
+      id: myOffersButton
+      !text: tr('My Offers')
+      width: 100
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 5
+
+    Button
+      id: buyButton
+      !text: tr('Buy')
+      width: 100
+      anchors.right: sellButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 5
+
+    Button
+      id: sellButton
+      !text: tr('Sell')
+      width: 100
+      anchors.right: closeButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 5
+
+    Button
+      id: closeButton
+      !text: tr('Close')
+      width: 100
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      @onClick: self:getParent():getParent():hide()

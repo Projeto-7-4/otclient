@@ -1,140 +1,423 @@
 MainWindow
   id: marketWindow
-  !text: tr('Market Store')
-  size: 800 550
+  !text: tr('Rarity Market')
+  size: 900 600
   @onEscape: self:hide()
+  background-color: #1a1a1a
 
-  // Top Panel - Balance
+  // Header Tabs
   Panel
-    id: topPanel
-    height: 60
+    id: headerPanel
+    height: 35
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
     margin: 5
+    background-color: #2d2d2d
     border-width: 1
-    border-color: #00000088
-    background-color: #00000044
+    border-color: #404040
 
-    Label
-      id: balanceLabel
-      !text: tr('You have: 0 gold')
+    Button
+      id: offersTab
+      !text: tr('Offers')
+      width: 100
+      height: 28
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
-      margin-left: 20
+      margin-left: 10
+      color: #ff9900
+
+    Button
+      id: historyTab
+      !text: tr('History')
+      width: 100
+      height: 28
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 5
+      color: #ff9900
+
+  // Top Indicators Bar
+  Panel
+    id: indicatorsPanel
+    height: 35
+    anchors.top: headerPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    margin-top: 2
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
+
+    Label
+      id: slotsLabel
+      !text: tr('🎒 0 / 50')
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 15
       font: verdana-11px-rounded
-      color: #ffdd00
+      color: #ff9900
+
+    Label
+      id: goldLabel
+      !text: tr('💰 99')
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      font: verdana-11px-rounded
+      color: #ffcc00
+
+    Label
+      id: pointsLabel
+      !text: tr('💎 0')
+      anchors.right: refreshButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 20
+      font: verdana-11px-rounded
+      color: #00ccff
 
     Button
       id: refreshButton
-      !text: tr('Refresh')
-      width: 120
+      !text: tr('⟳ Refresh')
+      width: 90
+      height: 28
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
-      margin-right: 20
+      margin-right: 10
+      background-color: #3d3d3d
+      color: white
 
-  // Left Panel - Categories Menu
+  // Left Panel - Filters
   Panel
-    id: leftMenuPanel
-    width: 180
-    anchors.top: topPanel.bottom
+    id: leftPanel
+    width: 200
+    anchors.top: indicatorsPanel.bottom
     anchors.left: parent.left
-    anchors.bottom: parent.bottom
+    anchors.bottom: bottomPanel.top
     margin: 5
     margin-top: 10
+    background-color: #2d2d2d
     border-width: 1
-    border-color: #00000088
-    background-color: #00000044
+    border-color: #404040
 
     VerticalScrollBar
-      id: categoryScrollBar
+      id: filtersScrollBar
       anchors.top: parent.top
       anchors.bottom: parent.bottom
       anchors.right: parent.right
-      step: 14
+      step: 20
       pixels-scroll: true
 
     Panel
-      id: categoryList
+      id: filtersContent
       anchors.top: parent.top
       anchors.left: parent.left
-      anchors.right: categoryScrollBar.left
+      anchors.right: filtersScrollBar.left
       anchors.bottom: parent.bottom
+      padding: 10
       layout:
         type: verticalBox
-        spacing: 2
+        spacing: 8
 
-  // Center Panel - Items Grid
+      Label
+        !text: tr('Category:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+
+      ComboBox
+        id: categoryFilter
+        width: 170
+        height: 25
+
+      Label
+        !text: tr('Offer Type:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: buyFilter
+          !text: tr('Buy')
+          width: 80
+          height: 28
+          background-color: #cc6600
+          color: white
+
+        Button
+          id: sellFilter
+          !text: tr('Sell')
+          width: 80
+          height: 28
+          margin-left: 10
+          background-color: #006600
+          color: white
+
+      Label
+        !text: tr('Transaction Type:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: directFilter
+          !text: tr('Direct')
+          width: 80
+          height: 28
+
+        Button
+          id: auctionFilter
+          !text: tr('Auction')
+          width: 80
+          height: 28
+          margin-left: 10
+
+      Label
+        !text: tr('Created by:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: yourselfFilter
+          !text: tr('Yourself')
+          width: 80
+          height: 28
+
+        Button
+          id: othersFilter
+          !text: tr('Others')
+          width: 80
+          height: 28
+          margin-left: 10
+
+      Label
+        !text: tr('Search by name:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      TextEdit
+        id: searchEdit
+        height: 28
+
+      Button
+        id: applySearchButton
+        !text: tr('Apply & Search ✓')
+        height: 32
+        margin-top: 10
+        background-color: #006600
+        color: white
+
+  // Center Panel - Offers List
   Panel
     id: centerPanel
-    anchors.top: topPanel.bottom
-    anchors.left: leftMenuPanel.right
+    anchors.top: indicatorsPanel.bottom
+    anchors.left: leftPanel.right
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
+    anchors.bottom: bottomPanel.top
     margin: 5
     margin-top: 10
     margin-left: 10
+    background-color: #2d2d2d
     border-width: 1
-    border-color: #00000088
-    background-color: #00000044
+    border-color: #404040
 
-    Label
-      id: categoryTitle
-      !text: tr('All Items')
+    Panel
+      id: offersHeader
+      height: 30
       anchors.top: parent.top
       anchors.left: parent.left
       anchors.right: parent.right
-      text-align: center
-      font: verdana-11px-rounded
-      background-color: #00000088
-      height: 25
-      text-offset: 0 5
-      color: #ffdd00
+      background-color: #1a1a1a
+      border-width-bottom: 1
+      border-color: #404040
+
+      Label
+        id: offersTitle
+        !text: tr('Offers List (39 items)')
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+        font: verdana-11px-rounded
+        color: #ff9900
+
+      Label
+        !text: tr('Sort By:')
+        anchors.right: sortTimeButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+        font: verdana-11px-rounded
+        color: white
+
+      Button
+        id: sortTimeButton
+        !text: tr('⏱ Expire Time')
+        width: 110
+        height: 24
+        anchors.right: sortValueButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 5
+
+      Button
+        id: sortValueButton
+        !text: tr('💰 Value')
+        width: 90
+        height: 24
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
 
     VerticalScrollBar
-      id: itemsScrollBar
-      anchors.top: categoryTitle.bottom
-      anchors.bottom: parent.bottom
+      id: offersScrollBar
+      anchors.top: offersHeader.bottom
+      anchors.bottom: paginationPanel.top
       anchors.right: parent.right
-      step: 100
+      step: 85
       pixels-scroll: true
       margin-top: 5
+      margin-bottom: 5
 
     Panel
-      id: itemsPanel
-      anchors.top: categoryTitle.bottom
+      id: offersList
+      anchors.top: offersHeader.bottom
       anchors.left: parent.left
-      anchors.right: itemsScrollBar.left
-      anchors.bottom: parent.bottom
+      anchors.right: offersScrollBar.left
+      anchors.bottom: paginationPanel.top
       margin-top: 5
       margin-left: 5
       margin-right: 5
+      margin-bottom: 5
       layout:
         type: verticalBox
-        spacing: 5
+        spacing: 3
 
-// Category Button Style
-CategoryButton < Panel
-  height: 36
-  background-color: #00000055
-  $focus:
-    background-color: #ffffff22
-  
-  Label
-    id: categoryName
+    Panel
+      id: paginationPanel
+      height: 35
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      background-color: #1a1a1a
+      border-width-top: 1
+      border-color: #404040
+
+      Button
+        id: firstPageButton
+        !text: tr('<<')
+        width: 40
+        height: 28
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+
+      Button
+        id: prevPageButton
+        !text: tr('<')
+        width: 40
+        height: 28
+        anchors.left: prev.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 5
+
+      Label
+        id: pageLabel
+        !text: tr('Page 1 of 5')
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        font: verdana-11px-rounded
+        color: white
+
+      Button
+        id: nextPageButton
+        !text: tr('>')
+        width: 40
+        height: 28
+        anchors.right: lastPageButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 5
+
+      Button
+        id: lastPageButton
+        !text: tr('>>')
+        width: 40
+        height: 28
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+
+  // Bottom Panel
+  Panel
+    id: bottomPanel
+    height: 50
+    anchors.bottom: parent.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.verticalCenter: parent.verticalCenter
-    text-align: center
-    font: verdana-11px-rounded
-    color: white
+    margin: 5
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
 
-// Item Offer Style
-ItemOffer < Panel
+    Button
+      id: sellItemButton
+      !text: tr('Sell Item')
+      width: 130
+      height: 38
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 15
+      background-color: #006600
+      color: white
+      font: verdana-11px-rounded
+
+    Button
+      id: buyItemButton
+      !text: tr('Buy Item')
+      width: 130
+      height: 38
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 10
+      background-color: #cc6600
+      color: white
+      font: verdana-11px-rounded
+
+    Button
+      id: closeButton
+      !text: tr('Close')
+      width: 100
+      height: 38
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 15
+      background-color: #3d3d3d
+      color: white
+
+MarketOffer < Panel
   height: 80
-  background-color: #00000055
+  background-color: #1a1a1a
   border-width: 1
-  border-color: #00000088
+  border-color: #404040
+
+  $focus:
+    background-color: #2d2d2d
+    border-color: #ff9900
 
   Item
     id: itemIcon
@@ -148,37 +431,383 @@ ItemOffer < Panel
     id: itemName
     anchors.top: parent.top
     anchors.left: prev.right
-    anchors.right: buyButton.left
-    margin-top: 5
-    margin-left: 10
+    margin-top: 10
+    margin-left: 15
     font: verdana-11px-rounded
-    color: #ffdd00
+    color: white
     text-auto-resize: true
 
   Label
-    id: itemDescription
+    id: itemExpire
     anchors.top: prev.bottom
     anchors.left: itemIcon.right
-    anchors.right: buyButton.left
-    margin-top: 3
-    margin-left: 10
-    margin-right: 10
+    margin-top: 5
+    margin-left: 15
     font: verdana-11px-antialised
-    color: #cccccc
-    text-wrap: true
+    color: #ff6666
+    text-auto-resize: true
 
   Label
     id: itemPrice
     anchors.bottom: parent.bottom
     anchors.left: itemIcon.right
+    margin-bottom: 10
+    margin-left: 15
+    font: verdana-11px-rounded
+    color: #ffcc00
+    text-auto-resize: true
+
+  Button
+    id: actionButton
+    !text: tr('Sell')
+    width: 75
+    height: 32
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 10
+    background-color: #006600
+    color: white
+
+      font: verdana-11px-rounded
+      color: #ffdd00
+
+    Label
+      id: pointsLabel
+      !text: tr('Points: 0')
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 30
+      font: verdana-11px-rounded
+      color: #00ddff
+
+    Button
+      id: refreshButton
+      !text: tr('⟳ Refresh')
+      width: 90
+      height: 25
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 10
+
+  // Left Panel - Filters
+  Panel
+    id: leftPanel
+    width: 200
+    anchors.top: indicatorsPanel.bottom
+    anchors.left: parent.left
+    anchors.bottom: bottomPanel.top
+    margin: 5
+    margin-top: 10
+    background-color: #00000044
+    border-width: 1
+    border-color: #00000088
+
+    VerticalScrollBar
+      id: filtersScrollBar
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      step: 20
+      pixels-scroll: true
+
+    Panel
+      id: filtersContent
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: filtersScrollBar.left
+      anchors.bottom: parent.bottom
+      layout:
+        type: verticalBox
+        spacing: 5
+        fit-children: true
+
+      // Category Filter
+      Label
+        !text: tr('Category:')
+        font: verdana-11px-rounded
+        color: #ffdd00
+        margin-left: 10
+        margin-top: 10
+        height: 15
+
+      ComboBox
+        id: categoryFilter
+        width: 170
+        margin-left: 10
+        margin-right: 10
+
+      // Offer Type Filter
+      Label
+        !text: tr('Offer Type:')
+        font: verdana-11px-rounded
+        color: #ffdd00
+        margin-left: 10
+        margin-top: 10
+        height: 15
+
+      Panel
+        height: 25
+        margin-left: 10
+        margin-right: 10
+
+        Button
+          id: buyFilter
+          !text: tr('Buy')
+          width: 75
+          height: 25
+          anchors.left: parent.left
+
+        Button
+          id: sellFilter
+          !text: tr('Sell')
+          width: 75
+          height: 25
+          anchors.right: parent.right
+
+      // Search Filter
+      Label
+        !text: tr('Search by name:')
+        font: verdana-11px-rounded
+        color: #ffdd00
+        margin-left: 10
+        margin-top: 10
+        height: 15
+
+      TextEdit
+        id: searchEdit
+        margin-left: 10
+        margin-right: 10
+        height: 25
+
+      Button
+        id: applySearchButton
+        !text: tr('Apply & Search ✓')
+        margin-left: 10
+        margin-right: 10
+        height: 30
+        margin-top: 10
+
+  // Center Panel - Offers List
+  Panel
+    id: centerPanel
+    anchors.top: indicatorsPanel.bottom
+    anchors.left: leftPanel.right
+    anchors.right: parent.right
+    anchors.bottom: bottomPanel.top
+    margin: 5
+    margin-top: 10
+    margin-left: 10
+    background-color: #00000044
+    border-width: 1
+    border-color: #00000088
+
+    Label
+      id: offersTitle
+      !text: tr('Offers List (0 items)')
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      text-align: center
+      font: verdana-11px-rounded
+      background-color: #00000088
+      height: 25
+      text-offset: 0 5
+      color: #ffdd00
+
+    Label
+      id: sortLabel
+      !text: tr('Sort By:')
+      anchors.top: offersTitle.bottom
+      anchors.left: parent.left
+      margin-top: 5
+      margin-left: 10
+      font: verdana-11px-rounded
+      color: white
+
+    Button
+      id: sortTimeButton
+      !text: tr('⏱ Expire Time')
+      width: 110
+      height: 22
+      anchors.top: offersTitle.bottom
+      anchors.left: sortLabel.right
+      margin-top: 5
+      margin-left: 10
+
+    Button
+      id: sortValueButton
+      !text: tr('💰 Value')
+      width: 90
+      height: 22
+      anchors.top: offersTitle.bottom
+      anchors.left: sortTimeButton.right
+      margin-top: 5
+      margin-left: 5
+
+    VerticalScrollBar
+      id: offersScrollBar
+      anchors.top: sortTimeButton.bottom
+      anchors.bottom: paginationPanel.top
+      anchors.right: parent.right
+      step: 80
+      pixels-scroll: true
+      margin-top: 5
+      margin-bottom: 5
+
+    Panel
+      id: offersList
+      anchors.top: sortTimeButton.bottom
+      anchors.left: parent.left
+      anchors.right: offersScrollBar.left
+      anchors.bottom: paginationPanel.top
+      margin-top: 5
+      margin-left: 5
+      margin-right: 5
+      margin-bottom: 5
+      layout:
+        type: verticalBox
+        spacing: 3
+
+    // Pagination
+    Panel
+      id: paginationPanel
+      height: 30
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      background-color: #00000088
+
+      Button
+        id: firstPageButton
+        !text: tr('<<')
+        width: 40
+        height: 25
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+
+      Button
+        id: prevPageButton
+        !text: tr('<')
+        width: 40
+        height: 25
+        anchors.left: prev.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 5
+
+      Label
+        id: pageLabel
+        !text: tr('Page 1 of 5')
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        font: verdana-11px-rounded
+        color: white
+
+      Button
+        id: nextPageButton
+        !text: tr('>')
+        width: 40
+        height: 25
+        anchors.right: lastPageButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 5
+
+      Button
+        id: lastPageButton
+        !text: tr('>>')
+        width: 40
+        height: 25
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+
+  // Bottom Panel - Action Buttons
+  Panel
+    id: bottomPanel
+    height: 45
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    background-color: #00000088
+
+    Button
+      id: sellItemButton
+      !text: tr('Sell Item')
+      width: 120
+      height: 35
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 15
+      background-color: #00aa00
+
+    Button
+      id: buyItemButton
+      !text: tr('Buy Item')
+      width: 120
+      height: 35
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 10
+      background-color: #cc8800
+
+    Button
+      id: closeButton
+      !text: tr('Close')
+      width: 100
+      height: 35
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 15
+
+// Offer Item Widget Style
+MarketOffer < Panel
+  height: 75
+  background-color: #00000055
+  border-width: 1
+  border-color: #00000088
+
+  $focus:
+    background-color: #ffffff22
+
+  Item
+    id: itemIcon
+    anchors.left: parent.left
+    anchors.top: parent.top
+    margin: 8
+    size: 60 60
+    virtual: true
+
+  Label
+    id: itemName
+    anchors.top: parent.top
+    anchors.left: prev.right
+    margin-top: 8
+    margin-left: 10
+    font: verdana-11px-rounded
+    color: #ffdd00
+
+  Label
+    id: itemExpire
+    anchors.top: prev.bottom
+    anchors.left: itemIcon.right
+    margin-top: 3
+    margin-left: 10
+    font: verdana-11px-antialised
+    color: #ff9999
+
+  Label
+    id: itemCurrency
+    anchors.bottom: parent.bottom
+    anchors.left: itemIcon.right
     margin-bottom: 8
     margin-left: 10
     font: verdana-11px-rounded
-    color: white
+    color: #ffdd00
 
   Button
-    id: buyButton
-    !text: tr('Buy')
+    id: actionButton
+    !text: tr('Sell')
     width: 70
     height: 30
     anchors.right: parent.right

@@ -4,160 +4,69 @@ local protocol = runinsandbox('marketprotocol')
 
 -- UI Components
 local marketWindow
-local categoryList
-local itemsPanel
-local categoryTitle
-local balanceLabel
-local refreshButton
+local offersList
+local offersTitle
+local slotsLabel
+local goldLabel
+local pointsLabel
+local categoryFilter
+local buyFilter
+local sellFilter
+local directFilter
+local auctionFilter
+local yourselfFilter
+local othersFilter
+local searchEdit
+local pageLabel
+local offersTab
+local historyTab
 
 -- State
-local selectedCategory = 0
-local selectedCategoryWidget = nil
-local playerBalance = 0
+local currentTab = "offers" -- "offers" or "history"
+local selectedCategory = "All"
+local selectedOfferType = "buy" -- "buy" or "sell"
+local selectedTransactionType = "direct" -- "direct" or "auction"
+local selectedCreator = "all" -- "all", "yourself", "others"
+local searchText = ""
+local currentPage = 1
+local itemsPerPage = 6
+local totalPages = 1
+local allOffers = {}
+local filteredOffers = {}
+local selectedOfferWidget = nil
 
--- Categories (estilo Store)
+-- Player data
+local playerSlots = 0
+local playerMaxSlots = 50
+local playerGold = 99
+local playerPoints = 0
+
+-- Categories
 local categories = {
-  {id = 0, name = "All Items"},
-  {id = 1, name = "Weapons"},
-  {id = 2, name = "Armors"},
-  {id = 3, name = "Shields"},
-  {id = 4, name = "Helmets"},
-  {id = 5, name = "Potions"},
-  {id = 6, name = "Runes"},
-  {id = 7, name = "Tools"},
-  {id = 8, name = "Special Items"}
-}
-
--- Store Items (produtos da loja)
-local storeItems = {
-  -- Weapons
-  {
-    name = "Sword",
-    description = "A basic sword for warriors. Good for beginners.",
-    price = 500,
-    itemId = 2376,
-    category = 1
-  },
-  {
-    name = "Two Handed Sword",
-    description = "Powerful two-handed sword. High damage output.",
-    price = 950,
-    itemId = 2377,
-    category = 1
-  },
-  {
-    name = "Axe",
-    description = "Standard battle axe. Balanced weapon.",
-    price = 500,
-    itemId = 2386,
-    category = 1
-  },
-  
-  -- Armors
-  {
-    name = "Plate Armor",
-    description = "Heavy plate armor. Excellent protection.",
-    price = 4000,
-    itemId = 2463,
-    category = 2
-  },
-  {
-    name = "Chain Armor",
-    description = "Medium armor with good defense.",
-    price = 700,
-    itemId = 2464,
-    category = 2
-  },
-  {
-    name = "Leather Armor",
-    description = "Light armor for mobility.",
-    price = 300,
-    itemId = 2467,
-    category = 2
-  },
-  
-  -- Shields
-  {
-    name = "Wooden Shield",
-    description = "Basic wooden shield for protection.",
-    price = 150,
-    itemId = 2512,
-    category = 3
-  },
-  {
-    name = "Steel Shield",
-    description = "Durable steel shield. Great defense.",
-    price = 800,
-    itemId = 2509,
-    category = 3
-  },
-  
-  -- Helmets
-  {
-    name = "Helmet",
-    description = "Standard helmet for head protection.",
-    price = 580,
-    itemId = 2458,
-    category = 4
-  },
-  {
-    name = "Chain Helmet",
-    description = "Chain helmet with moderate defense.",
-    price = 350,
-    itemId = 2457,
-    category = 4
-  },
-  
-  -- Potions
-  {
-    name = "Health Potion (100x)",
-    description = "Restores health. Essential for hunting.",
-    price = 5000,
-    itemId = 236,
-    category = 5
-  },
-  {
-    name = "Mana Potion (100x)",
-    description = "Restores mana. Perfect for mages.",
-    price = 5000,
-    itemId = 268,
-    category = 5
-  },
-  
-  -- Tools
-  {
-    name = "Rope (10x)",
-    description = "Used to climb up. Essential tool.",
-    price = 200,
-    itemId = 2120,
-    category = 7
-  },
-  {
-    name = "Shovel",
-    description = "Dig holes and find treasures.",
-    price = 100,
-    itemId = 2554,
-    category = 7
-  }
+  "All",
+  "Ammunition (39)",
+  "Weapons",
+  "Armors",
+  "Shields",
+  "Helmets",
+  "Legs",
+  "Boots",
+  "Rings",
+  "Amulets",
+  "Runes",
+  "Potions",
+  "Tools",
+  "Special Items"
 }
 
 function init()
-  print('[Market] init() starting...')
+  print('[Market] Initializing Rarity Market...')
   
   connect(g_game, {
     onGameStart = Market.online,
     onGameEnd = Market.offline
   })
-  print('[Market] Connected game events')
 
-  -- Load UI using displayUI
-  print('[Market] Loading market.otui with displayUI...')
-  
-  if marketWindow then
-    print('[Market] Window already exists, skipping')
-    return
-  end
-  
   marketWindow = g_ui.displayUI('market')
   
   if not marketWindow then
@@ -165,43 +74,126 @@ function init()
     return
   end
   
-  print('[Market] ✅ UI loaded successfully with displayUI!')
-  
   marketWindow:hide()
-  print('[Market] Window hidden')
 
   -- Get components
-  categoryList = marketWindow:recursiveGetChildById('categoryList')
-  itemsPanel = marketWindow:recursiveGetChildById('itemsPanel')
-  categoryTitle = marketWindow:recursiveGetChildById('categoryTitle')
-  balanceLabel = marketWindow:recursiveGetChildById('balanceLabel')
-  refreshButton = marketWindow:recursiveGetChildById('refreshButton')
+  offersList = marketWindow:recursiveGetChildById('offersList')
+  offersTitle = marketWindow:recursiveGetChildById('offersTitle')
+  slotsLabel = marketWindow:recursiveGetChildById('slotsLabel')
+  goldLabel = marketWindow:recursiveGetChildById('goldLabel')
+  pointsLabel = marketWindow:recursiveGetChildById('pointsLabel')
+  categoryFilter = marketWindow:recursiveGetChildById('categoryFilter')
+  buyFilter = marketWindow:recursiveGetChildById('buyFilter')
+  sellFilter = marketWindow:recursiveGetChildById('sellFilter')
+  directFilter = marketWindow:recursiveGetChildById('directFilter')
+  auctionFilter = marketWindow:recursiveGetChildById('auctionFilter')
+  yourselfFilter = marketWindow:recursiveGetChildById('yourselfFilter')
+  othersFilter = marketWindow:recursiveGetChildById('othersFilter')
+  searchEdit = marketWindow:recursiveGetChildById('searchEdit')
+  pageLabel = marketWindow:recursiveGetChildById('pageLabel')
+  offersTab = marketWindow:recursiveGetChildById('offersTab')
+  historyTab = marketWindow:recursiveGetChildById('historyTab')
   
-  if not categoryList then print('[Market] WARNING: categoryList not found') end
-  if not itemsPanel then print('[Market] WARNING: itemsPanel not found') end
-  
-  print('[Market] Components loaded')
-
-  -- Connect button events
-  if refreshButton then
-    refreshButton.onClick = Market.onRefreshClick
+  -- Setup category filter
+  if categoryFilter then
+    for _, cat in ipairs(categories) do
+      categoryFilter:addOption(cat)
+    end
+    categoryFilter.onOptionChange = Market.onCategoryChange
   end
   
-  print('[Market] Button events connected')
-
-  -- Populate categories
-  print('[Market] Calling populateCategories()...')
-  Market.populateCategories()
+  -- Setup buttons
+  if buyFilter then
+    buyFilter.onClick = function() Market.setOfferType('buy') end
+    Market.setButtonActive(buyFilter, true)
+  end
   
-  -- Show all items by default
-  print('[Market] Calling showStoreItems()...')
-  Market.showStoreItems()
-
+  if sellFilter then
+    sellFilter.onClick = function() Market.setOfferType('sell') end
+  end
+  
+  if directFilter then
+    directFilter.onClick = function() Market.setTransactionType('direct') end
+    Market.setButtonActive(directFilter, true)
+  end
+  
+  if auctionFilter then
+    auctionFilter.onClick = function() Market.setTransactionType('auction') end
+  end
+  
+  if yourselfFilter then
+    yourselfFilter.onClick = function() Market.setCreator('yourself') end
+  end
+  
+  if othersFilter then
+    othersFilter.onClick = function() Market.setCreator('others') end
+    Market.setButtonActive(othersFilter, true)
+  end
+  
+  local applyButton = marketWindow:recursiveGetChildById('applySearchButton')
+  if applyButton then
+    applyButton.onClick = Market.applyFilters
+  end
+  
+  local refreshButton = marketWindow:recursiveGetChildById('refreshButton')
+  if refreshButton then
+    refreshButton.onClick = Market.refresh
+  end
+  
+  -- Pagination
+  local firstPageButton = marketWindow:recursiveGetChildById('firstPageButton')
+  if firstPageButton then
+    firstPageButton.onClick = function() Market.goToPage(1) end
+  end
+  
+  local prevPageButton = marketWindow:recursiveGetChildById('prevPageButton')
+  if prevPageButton then
+    prevPageButton.onClick = function() Market.goToPage(currentPage - 1) end
+  end
+  
+  local nextPageButton = marketWindow:recursiveGetChildById('nextPageButton')
+  if nextPageButton then
+    nextPageButton.onClick = function() Market.goToPage(currentPage + 1) end
+  end
+  
+  local lastPageButton = marketWindow:recursiveGetChildById('lastPageButton')
+  if lastPageButton then
+    lastPageButton.onClick = function() Market.goToPage(totalPages) end
+  end
+  
+  -- Tabs
+  if offersTab then
+    offersTab.onClick = function() Market.switchTab('offers') end
+    Market.setButtonActive(offersTab, true)
+  end
+  
+  if historyTab then
+    historyTab.onClick = function() Market.switchTab('history') end
+  end
+  
+  -- Bottom buttons
+  local sellItemButton = marketWindow:recursiveGetChildById('sellItemButton')
+  if sellItemButton then
+    sellItemButton.onClick = Market.onSellItem
+  end
+  
+  local buyItemButton = marketWindow:recursiveGetChildById('buyItemButton')
+  if buyItemButton then
+    buyItemButton.onClick = Market.onBuyItem
+  end
+  
+  local closeButton = marketWindow:recursiveGetChildById('closeButton')
+  if closeButton then
+    closeButton.onClick = function() marketWindow:hide() end
+  end
+  
+  -- Generate demo offers
+  Market.generateDemoOffers()
+  
   -- Register hotkey
   g_keyboard.bindKeyDown('Ctrl+M', Market.toggle)
-  print('[Market] Hotkey registered (Ctrl+M)')
-
-  print('[Market] ✅ Initialization complete!')
+  
+  print('[Market] ✅ Rarity Market initialized!')
 end
 
 function terminate()
@@ -218,191 +210,281 @@ function terminate()
   end
 
   Market = nil
-  print('[Market] Terminated')
 end
 
 function Market.online()
-  print('[Market] Player online, ready to use store')
-  Market.updateBalance()
+  Market.updatePlayerInfo()
 end
 
 function Market.offline()
   if marketWindow then
     marketWindow:hide()
   end
-  print('[Market] Player offline')
 end
 
 function Market.toggle()
-  print('[Market] toggle() called')
-  
-  if not marketWindow then 
-    print('[Market] ERROR: marketWindow is nil!')
-    return 
-  end
-  
-  print('[Market] marketWindow exists, checking visibility...')
+  if not marketWindow then return end
   
   if marketWindow:isVisible() then
-    print('[Market] Window is visible, hiding...')
     marketWindow:hide()
   else
-    print('[Market] Window is hidden, showing...')
     marketWindow:show()
     marketWindow:raise()
     marketWindow:focus()
-    Market.updateBalance()
-    print('[Market] ✅ Window should be visible now!')
+    Market.updatePlayerInfo()
+    Market.applyFilters()
   end
 end
 
-function Market.updateBalance()
-  -- Demo: pegar gold do player (quando integrar com servidor)
-  playerBalance = 10000 -- Demo value
+function Market.updatePlayerInfo()
+  if slotsLabel then
+    slotsLabel:setText('🎒 ' .. playerSlots .. ' / ' .. playerMaxSlots)
+  end
   
-  if balanceLabel then
-    balanceLabel:setText('You have: ' .. playerBalance .. ' gold')
+  if goldLabel then
+    goldLabel:setText('💰 ' .. playerGold)
+  end
+  
+  if pointsLabel then
+    pointsLabel:setText('💎 ' .. playerPoints)
   end
 end
 
-function Market.populateCategories()
-  print('[Market] populateCategories() called')
+function Market.setButtonActive(button, active)
+  if not button then return end
   
-  if not categoryList then 
-    print('[Market] ERROR: categoryList is nil!')
-    return 
+  if active then
+    button:setBackgroundColor('#4d4d4d')
+  else
+    button:setBackgroundColor('#2d2d2d')
   end
-  
-  print('[Market] Destroying old children...')
-  categoryList:destroyChildren()
-  
-  print('[Market] Adding ' .. #categories .. ' categories...')
-  for i, category in ipairs(categories) do
-    -- Create category button
-    local button = g_ui.createWidget('CategoryButton', categoryList)
-    local label = button:getChildById('categoryName')
-    if label then
-      label:setText(category.name)
-    end
-    
-    button:setPhantom(false)
-    button.categoryId = category.id
-    button:setFocusable(true)
-    
-    -- Click handler with visual selection
-    button.onClick = function()
-      -- Remove highlight from previous
-      if selectedCategoryWidget then
-        selectedCategoryWidget:setBackgroundColor('#00000055')
-      end
-      
-      -- Highlight this one
-      button:setBackgroundColor('#ffffff22')
-      selectedCategoryWidget = button
-      
-      selectedCategory = category.id
-      
-      -- Update title
-      if categoryTitle then
-        categoryTitle:setText(category.name)
-      end
-      
-      print('[Market] Category clicked: ' .. category.name)
-      Market.showStoreItems()
-    end
-    
-    -- Select first category by default
-    if i == 1 then
-      button:setBackgroundColor('#ffffff22')
-      selectedCategoryWidget = button
-    end
-    
-    print('[Market] Added category: ' .. category.name)
-  end
-  
-  print('[Market] ✅ ' .. #categories .. ' categories populated!')
 end
 
-function Market.showStoreItems()
-  if not itemsPanel then return end
+function Market.setOfferType(type)
+  selectedOfferType = type
   
-  itemsPanel:destroyChildren()
+  Market.setButtonActive(buyFilter, type == 'buy')
+  Market.setButtonActive(sellFilter, type == 'sell')
   
-  -- Filter items by category
-  local filteredItems = {}
-  for _, item in ipairs(storeItems) do
-    if selectedCategory == 0 or item.category == selectedCategory then
-      table.insert(filteredItems, item)
+  Market.applyFilters()
+end
+
+function Market.setTransactionType(type)
+  selectedTransactionType = type
+  
+  Market.setButtonActive(directFilter, type == 'direct')
+  Market.setButtonActive(auctionFilter, type == 'auction')
+  
+  Market.applyFilters()
+end
+
+function Market.setCreator(creator)
+  selectedCreator = creator
+  
+  Market.setButtonActive(yourselfFilter, creator == 'yourself')
+  Market.setButtonActive(othersFilter, creator == 'others')
+  
+  Market.applyFilters()
+end
+
+function Market.onCategoryChange(combobox, option)
+  selectedCategory = option
+  Market.applyFilters()
+end
+
+function Market.switchTab(tab)
+  currentTab = tab
+  
+  Market.setButtonActive(offersTab, tab == 'offers')
+  Market.setButtonActive(historyTab, tab == 'history')
+  
+  if tab == 'offers' then
+    Market.applyFilters()
+  else
+    Market.showHistory()
+  end
+end
+
+function Market.generateDemoOffers()
+  allOffers = {
+    {name = "9999x Bolt", itemId = 2543, expire = "Expires in 13h 58min", price = 2, currency = "Gold Coins", type = "sell"},
+    {name = "2000x Bolt", itemId = 2543, expire = "Expires in 6 days 15h", price = 2, currency = "Gold Coins", type = "sell"},
+    {name = "120x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 5, currency = "Gold Coins", type = "buy"},
+    {name = "1000x Bolt", itemId = 2543, expire = "Expires in 4 days 18h", price = 5, currency = "Gold Coins", type = "buy"},
+    {name = "102x Sniper Arrow", itemId = 2456, expire = "Expires in 5 days 22h", price = 8, currency = "Gold Coins", type = "sell"},
+    {name = "1000x Sniper Arrow", itemId = 2456, expire = "Expires in 6 days 22h", price = 5, currency = "Gold Coins", type = "sell"},
+    {name = "854x Power Bolt", itemId = 2547, expire = "Expires in 17h 46min", price = 9, currency = "Gold Coins", type = "sell"},
+    {name = "95x Bolt", itemId = 2543, expire = "Expires in 2 days 7h", price = 14, currency = "Gold Coins", type = "buy"},
+    {name = "Sword", itemId = 2376, expire = "Expires in 5 days", price = 500, currency = "Gold Coins", type = "sell"},
+    {name = "Two Handed Sword", itemId = 2377, expire = "Expires in 3 days", price = 950, currency = "Gold Coins", type = "sell"},
+    {name = "Axe", itemId = 2386, expire = "Expires in 4 days", price = 500, currency = "Gold Coins", type = "buy"},
+    {name = "Club", itemId = 2382, expire = "Expires in 2 days", price = 500, currency = "Gold Coins", type = "sell"},
+    {name = "Plate Armor", itemId = 2463, expire = "Expires in 6 days", price = 4000, currency = "Gold Coins", type = "sell"},
+    {name = "Chain Armor", itemId = 2464, expire = "Expires in 1 day", price = 700, currency = "Gold Coins", type = "buy"},
+    {name = "Wooden Shield", itemId = 2512, expire = "Expires in 3 days", price = 150, currency = "Gold Coins", type = "sell"},
+    {name = "Steel Shield", itemId = 2509, expire = "Expires in 5 days", price = 800, currency = "Gold Coins", type = "sell"},
+    {name = "Helmet", itemId = 2458, expire = "Expires in 2 days", price = 580, currency = "Gold Coins", type = "buy"},
+    {name = "Plate Legs", itemId = 2647, expire = "Expires in 4 days", price = 1200, currency = "Gold Coins", type = "sell"},
+    {name = "Leather Boots", itemId = 2643, expire = "Expires in 1 day", price = 200, currency = "Gold Coins", type = "buy"},
+    {name = "Health Potion (100x)", itemId = 236, expire = "Expires in 6 days", price = 5000, currency = "Gold Coins", type = "sell"},
+  }
+end
+
+function Market.applyFilters()
+  if not searchEdit then return end
+  
+  searchText = searchEdit:getText():lower()
+  
+  -- Filter offers
+  filteredOffers = {}
+  for _, offer in ipairs(allOffers) do
+    local matchesSearch = searchText == "" or offer.name:lower():find(searchText, 1, true)
+    local matchesType = offer.type == selectedOfferType
+    
+    if matchesSearch and matchesType then
+      table.insert(filteredOffers, offer)
     end
   end
   
-  -- Create item widgets
-  for _, item in ipairs(filteredItems) do
-    Market.createItemOffer(item)
-  end
+  -- Update pagination
+  totalPages = math.max(1, math.ceil(#filteredOffers / itemsPerPage))
+  currentPage = math.min(currentPage, totalPages)
   
-  print('[Market] ' .. #filteredItems .. ' items displayed')
+  -- Update UI
+  Market.updateOffersList()
+  Market.updatePagination()
+  
+  if offersTitle then
+    offersTitle:setText('Offers List (' .. #filteredOffers .. ' items)')
+  end
 end
 
-function Market.createItemOffer(item)
-  local offer = g_ui.createWidget('ItemOffer', itemsPanel)
+function Market.updateOffersList()
+  if not offersList then return end
   
-  -- Set item icon
-  local itemIcon = offer:getChildById('itemIcon')
+  offersList:destroyChildren()
+  
+  local startIdx = (currentPage - 1) * itemsPerPage + 1
+  local endIdx = math.min(startIdx + itemsPerPage - 1, #filteredOffers)
+  
+  for i = startIdx, endIdx do
+    local offer = filteredOffers[i]
+    if offer then
+      Market.createOfferWidget(offer)
+    end
+  end
+end
+
+function Market.createOfferWidget(offer)
+  local widget = g_ui.createWidget('MarketOffer', offersList)
+  
+  local itemIcon = widget:getChildById('itemIcon')
   if itemIcon then
-    itemIcon:setItemId(item.itemId)
+    itemIcon:setItemId(offer.itemId)
   end
   
-  -- Set item name
-  local itemName = offer:getChildById('itemName')
+  local itemName = widget:getChildById('itemName')
   if itemName then
-    itemName:setText(item.name)
+    itemName:setText(offer.name)
   end
   
-  -- Set description
-  local itemDescription = offer:getChildById('itemDescription')
-  if itemDescription then
-    itemDescription:setText(item.description)
+  local itemExpire = widget:getChildById('itemExpire')
+  if itemExpire then
+    itemExpire:setText(offer.expire)
   end
   
-  -- Set price
-  local itemPrice = offer:getChildById('itemPrice')
+  local itemPrice = widget:getChildById('itemPrice')
   if itemPrice then
-    itemPrice:setText('Price: ' .. item.price .. ' gold')
+    itemPrice:setText(offer.price .. ' ' .. offer.currency)
   end
   
-  -- Set buy button
-  local buyButton = offer:getChildById('buyButton')
-  if buyButton then
-    buyButton.onClick = function()
-      Market.onBuyItem(item)
+  local actionButton = widget:getChildById('actionButton')
+  if actionButton then
+    if offer.type == 'sell' then
+      actionButton:setText('Sell')
+      actionButton:setBackgroundColor('#006600')
+    else
+      actionButton:setText('Buy')
+      actionButton:setBackgroundColor('#cc6600')
     end
+    
+    actionButton.onClick = function()
+      Market.onOfferClick(offer, widget)
+    end
+  end
+  
+  widget:setPhantom(false)
+  widget:setFocusable(true)
+  
+  widget.onClick = function()
+    if selectedOfferWidget then
+      selectedOfferWidget:setBackgroundColor('#1a1a1a')
+      selectedOfferWidget:setBorderColor('#404040')
+    end
+    
+    widget:setBackgroundColor('#2d2d2d')
+    widget:setBorderColor('#ff9900')
+    selectedOfferWidget = widget
   end
 end
 
-function Market.onBuyItem(item)
-  print('[Market] Buy clicked: ' .. item.name)
-  
-  if playerBalance < item.price then
-    displayErrorBox('Market Store', 'You don\'t have enough gold!\n\nPrice: ' .. item.price .. ' gold\nYou have: ' .. playerBalance .. ' gold')
-    return
+function Market.updatePagination()
+  if pageLabel then
+    pageLabel:setText('Page ' .. currentPage .. ' of ' .. totalPages)
   end
+end
+
+function Market.goToPage(page)
+  if page < 1 or page > totalPages then return end
+  
+  currentPage = page
+  Market.updateOffersList()
+  Market.updatePagination()
+end
+
+function Market.onOfferClick(offer, widget)
+  print('[Market] Offer clicked: ' .. offer.name)
   
   local message = string.format(
-    'Buy %s for %d gold?\n\n%s\n\nThis is a DEMO. Server integration coming soon!',
-    item.name,
-    item.price,
-    item.description
+    '%s\n\n%s\nPrice: %d %s\n\nType: %s\n\nDEMO MODE - Server integration coming soon!',
+    offer.name,
+    offer.expire,
+    offer.price,
+    offer.currency,
+    offer.type:upper()
   )
   
-  displayInfoBox('Market Store - Buy Item', message)
+  displayInfoBox('Rarity Market - Offer Details', message)
 end
 
-function Market.onRefreshClick()
-  print('[Market] Refresh clicked')
-  Market.showStoreItems()
-  Market.updateBalance()
-  displayInfoBox('Market Store', 'Store refreshed!')
+function Market.showHistory()
+  if not offersList then return end
+  
+  offersList:destroyChildren()
+  
+  if offersTitle then
+    offersTitle:setText('History')
+  end
+  
+  local label = g_ui.createWidget('Label', offersList)
+  label:setText('No transaction history yet.')
+  label:setTextAlign(AlignCenter)
+  label:setColor('#ffffff')
+  label:setMarginTop(100)
 end
 
-print('[Market 7.72] Module loaded')
+function Market.onSellItem()
+  displayInfoBox('Rarity Market', 'Sell Item\n\nSelect an item from your inventory to create a sell offer.\n\nDEMO MODE - Server integration coming soon!')
+end
+
+function Market.onBuyItem()
+  displayInfoBox('Rarity Market', 'Buy Item\n\nPlace a buy order for an item you want.\n\nDEMO MODE - Server integration coming soon!')
+end
+
+function Market.refresh()
+  Market.updatePlayerInfo()
+  Market.applyFilters()
+  displayInfoBox('Rarity Market', 'Market refreshed!')
+end
+
+print('[Market 7.72] Rarity Market module loaded')

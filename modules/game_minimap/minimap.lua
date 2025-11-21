@@ -36,7 +36,10 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  minimapWindow:setup()
+  -- Só chamar setup() se for MiniWindow (modo antigo)
+  if minimapWindow.setup then
+    minimapWindow:setup()
+  end
 
   connect(g_game, {
     onGameStart = online,

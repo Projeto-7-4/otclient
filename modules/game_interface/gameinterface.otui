@@ -46,7 +46,7 @@ UIWidget
   GameMapPanel
     id: gameMapPanel
     anchors.left: gameLeftPanels.right
-    anchors.right: minimapSection.left
+    anchors.right: gameRightPanels.left
     anchors.top: parent.top
     anchors.bottom: gameBottomPanel.top
     focusable: false    
@@ -83,40 +83,6 @@ UIWidget
       @onSetup: self.image:setImageSource("/images/game/mobile/chat")
     
   Panel
-    id: minimapSection
-    focusable: false
-    anchors.top: parent.top
-    anchors.right: parent.right
-    height: 180
-    width: 350
-    image-source: /images/ui/panel_side
-    image-border: 4
-    padding: 3
-    
-    $mobile:
-      visible: false
-    
-    ResizeBorder
-      id: minimapResizeLeft
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      anchors.left: parent.left
-      width: 3
-      minimum: 250
-      maximum: 800
-      background: #ffffff44
-      
-    ResizeBorder
-      id: minimapResizeBottom
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.bottom: parent.bottom
-      height: 3
-      minimum: 100
-      maximum: 600
-      background: #ffffff44
-
-  Panel
     id: gameLeftPanels
     focusable: false
     anchors.top: parent.top
@@ -150,7 +116,7 @@ UIWidget
   Panel
     id: gameRightPanels
     anchors.right: parent.right
-    anchors.top: minimapSection.bottom
+    anchors.top: parent.top
     anchors.bottom: parent.bottom
     focusable: false
     layout:

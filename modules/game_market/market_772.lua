@@ -703,8 +703,15 @@ function Market.refresh()
 end
 
 -- Callback quando recebe ofertas do servidor
-function Market.onOffersReceived(serverOffers)
+function Market.onOffersReceived(serverOffers, bankBalance)
   print('[Market] ✅ Received ' .. #serverOffers .. ' offers from server!')
+  
+  -- Atualizar gold do player (bank balance)
+  if bankBalance then
+    playerGold = bankBalance
+    print('[Market] Updated player gold: ' .. playerGold .. ' gp')
+    Market.updatePlayerInfo()
+  end
   
   -- Limpar ofertas antigas
   allOffers = {}

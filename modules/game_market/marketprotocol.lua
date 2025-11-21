@@ -53,6 +53,10 @@ local function parseMarketOffers(protocol, msg)
   local offers = {}
   local offerCount = msg:getU8()
   
+  -- Read player's bank balance (sent by server)
+  local bankBalance = msg:getU64()
+  print('[MarketProtocol] Player bank balance: ' .. bankBalance .. ' gp')
+  
   print('[MarketProtocol] Received ' .. offerCount .. ' offers')
   
   for i = 1, offerCount do
@@ -92,7 +96,7 @@ local function parseMarketOffers(protocol, msg)
     table.insert(offers, offer)
   end
   
-  signalcall(Market.onOffersReceived, offers)
+  signalcall(Market.onOffersReceived, offers, bankBalance)
   return true
 end
 

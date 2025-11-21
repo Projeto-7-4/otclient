@@ -1,73 +1,62 @@
 MarketWindow < MainWindow
   id: marketWindow
-  !text: tr('Market System')
-  size: 600 400
-  @onEscape: self:hide()
+  !text: tr('Market')
+  size: 700 530
 
-  Label
-    id: titleLabel
-    text: Market - Compre e Venda Items
+  @onEscape: Market.close()
+
+  // Main Panel Window
+
+  MarketTabBar
+    id: mainTabBar
+    width: 164
+    height: 25
     anchors.top: parent.top
     anchors.left: parent.left
-    anchors.right: parent.right
-    text-align: center
-    margin-top: 10
-    font: verdana-11px-rounded
-
-  HorizontalSeparator
-    anchors.top: prev.bottom
-    anchors.left: parent.left
-    anchors.right: parent.right
-    margin-top: 5
-
-  TextList
-    id: offersList
-    anchors.top: prev.bottom
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: buttonsPanel.top
-    margin-top: 10
-    margin-left: 10
-    margin-right: 10
-    margin-bottom: 10
-    focusable: true
 
   Panel
-    id: buttonsPanel
-    anchors.bottom: parent.bottom
+    id: mainTabContent
+    anchors.top: prev.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    height: 40
-    margin-bottom: 10
+    anchors.bottom: parent.bottom
+    padding: 3
+    border-width: 1
+    border-color: #000000
+    margin-bottom: 20
 
-    Button
-      id: refreshButton
-      text: Atualizar
-      width: 100
-      anchors.left: parent.left
-      anchors.bottom: parent.bottom
-      margin-left: 10
+  Label
+    id: balanceLabel
+    !text: tr('Balance') .. ':'
+    font: verdana-11px-rounded
+    text-offset: 0 2
+    anchors.top: parent.top
+    anchors.right: parent.right
 
-    Button
-      id: buyButton
-      text: Comprar
-      width: 100
-      anchors.left: prev.right
-      anchors.bottom: parent.bottom
-      margin-left: 10
+  Button
+    id: closeButton
+    !text: tr('Close')
+    anchors.top: mainTabContent.bottom
+    anchors.horizontalCenter: mainTabContent.horizontalCenter
+    margin-top: 5
+    width: 110
+    @onClick: Market.close()
 
-    Button
-      id: sellButton
-      text: Vender
-      width: 100
-      anchors.left: prev.right
-      anchors.bottom: parent.bottom
-      margin-left: 10
+  Button
+    id: refreshOffersButton
+    !text: tr('Refresh Offers')
+    anchors.top: mainTabContent.bottom
+    anchors.right: mainTabContent.right
+    margin-top: 5
+    width: 110
+    @onClick: Market.refreshOffers()
 
-    Button
-      id: closeButton
-      text: Fechar
-      width: 100
-      anchors.right: parent.right
-      anchors.bottom: parent.bottom
-      margin-right: 10
+  Button
+    id: resetButton
+    !text: tr('Reset Market')
+    !tooltip: tr('Reset selection, filters & search')
+    anchors.top: mainTabContent.bottom
+    anchors.left: mainTabContent.left
+    margin-top: 5
+    width: 110
+    @onClick: Market.reset()

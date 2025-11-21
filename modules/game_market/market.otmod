@@ -1,17 +1,9 @@
 Module
   name: game_market
-  description: Market system for buying and selling items
-  author: Projeto 7.4
-  version: 1.0
-  autoload: true
-  autoload-priority: 100
-  
-  onLoad: |
-    dofile 'market'
-    return true
-  
-  onUnload: |
-    if Market then
-      Market.terminate()
-    end
-    return true
+  description: Global item market system
+  author: BeniS
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  scripts: [ offerstatistic, marketoffer, marketprotocol, market ]
+  @onLoad: init()
+  @onUnload: terminate()

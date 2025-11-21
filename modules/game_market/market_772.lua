@@ -58,6 +58,7 @@ local totalPages = 1
 local allOffers = {}
 local filteredOffers = {}
 local selectedOfferWidget = nil
+local lastPurchasedOfferId = nil  -- Para remover oferta apenas se compra for bem-sucedida
 
 -- Player data
 local playerSlots = 0
@@ -606,17 +607,20 @@ function Market.buyOffer(offer)
     return
   end
   
+  -- Armazenar o ID para remoção posterior (só se a compra for bem-sucedida)
+  lastPurchasedOfferId = offerId
+  
   -- Enviar ao servidor (servidor vai validar gold e processar)
   if protocol and protocol.sendMarketAccept then
     protocol.sendMarketAccept(offerId, offer.amount or 1)
-    
-    -- Remover apenas esta oferta da lista após 0.5s (otimizado, sem reload completo)
-    scheduleEvent(function()
-      Market.removeOfferById(offerId)
-    end, 500)
+    -- NÃO remover automaticamente! Só remover se o servidor responder com sucesso
   else
     displayErrorBox('Error', 'Market protocol not initialized. Please reconnect.')
   end
+end
+
+function Market.getLastPurchasedOfferId()
+  return lastPurchasedOfferId
 end
 
 function Market.removeOfferById(offerId)
@@ -645,6 +649,10 @@ function Market.removeOfferById(offerId)
       if child.offerId == offerId then
         child:destroy()
         print('[Market] ✅ Offer removed successfully')
+        -- Limpar o ID armazenado após remoção bem-sucedida
+        if lastPurchasedOfferId == offerId then
+          lastPurchasedOfferId = nil
+        end
         return
       end
     end

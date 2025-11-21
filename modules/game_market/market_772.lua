@@ -82,16 +82,43 @@ function init()
   amountLabel = marketWindow.amountLabel
   sellerLabel = marketWindow.sellerLabel
   
+  -- Debug: check which components exist
+  if not categoryList then print('[Market] WARNING: categoryList not found') end
+  if not offersList then print('[Market] WARNING: offersList not found') end
+  if not buyButton then print('[Market] WARNING: buyButton not found') end
+  if not sellButton then print('[Market] WARNING: sellButton not found') end
+  if not refreshButton then print('[Market] WARNING: refreshButton not found') end
+  
   print('[Market] Components loaded (modern syntax)')
 
-  -- Connect events
-  connect(categoryList, { onChildFocusChange = Market.onCategorySelect })
-  connect(offersList, { onChildFocusChange = Market.onOfferSelect })
-  connect(buyButton, { onClick = Market.onBuyClick })
-  connect(sellButton, { onClick = Market.onSellClick })
-  connect(refreshButton, { onClick = Market.onRefreshClick })
-  connect(myOffersButton, { onClick = Market.onMyOffersClick })
-  connect(searchEdit, { onTextChange = Market.onSearchChange })
+  -- Connect events (only if widgets exist)
+  if categoryList then
+    connect(categoryList, { onChildFocusChange = Market.onCategorySelect })
+  end
+  
+  if offersList then
+    connect(offersList, { onChildFocusChange = Market.onOfferSelect })
+  end
+  
+  if buyButton then
+    connect(buyButton, { onClick = Market.onBuyClick })
+  end
+  
+  if sellButton then
+    connect(sellButton, { onClick = Market.onSellClick })
+  end
+  
+  if refreshButton then
+    connect(refreshButton, { onClick = Market.onRefreshClick })
+  end
+  
+  if myOffersButton then
+    connect(myOffersButton, { onClick = Market.onMyOffersClick })
+  end
+  
+  if searchEdit then
+    connect(searchEdit, { onTextChange = Market.onSearchChange })
+  end
   
   print('[Market] Events connected')
 

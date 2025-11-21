@@ -43,25 +43,11 @@ UIWidget
   id: gameRootPanel
   anchors.fill: parent
   
-  Panel
-    id: minimapSection
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    height: 200
-    image-source: /images/ui/panel_side
-    image-border: 4
-    padding: 4
-    focusable: false
-    
-    $mobile:
-      visible: false
-  
   GameMapPanel
     id: gameMapPanel
     anchors.left: gameLeftPanels.right
     anchors.right: gameRightPanels.left
-    anchors.top: minimapSection.bottom
+    anchors.top: parent.top
     anchors.bottom: gameBottomPanel.top
     focusable: false    
     
@@ -99,7 +85,7 @@ UIWidget
   Panel
     id: gameLeftPanels
     focusable: false
-    anchors.top: minimapSection.bottom
+    anchors.top: parent.top
     anchors.bottom: parent.bottom    
     $!mobile:
       anchors.left: parent.left
@@ -130,7 +116,7 @@ UIWidget
   Panel
     id: gameRightPanels
     anchors.right: parent.right
-    anchors.top: minimapSection.bottom
+    anchors.top: parent.top
     anchors.bottom: parent.bottom
     focusable: false
     layout:

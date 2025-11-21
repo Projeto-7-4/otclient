@@ -5,8 +5,10 @@ MiniWindow
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
   &autoOpen: 1
-  height: 180
-  width: 350
+  height: 200
+  width: 450
+  &minWidth: 250
+  &maxWidth: 600
   
   MiniWindowContents
     padding: 3

@@ -9,16 +9,7 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  -- Carregar na section horizontal no topo
-  local minimapSection = modules.game_interface.getMinimapSection()
-  if minimapSection then
-    minimapWindow = g_ui.loadUI('minimap_horizontal', minimapSection)
-    print('[Minimap] Loaded in horizontal section')
-  else
-    -- Fallback para o painel direito
-    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-    print('[Minimap] Loaded in right panel (fallback)')
-  end
+  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
 
   if not minimapWindow.forceOpen then
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
@@ -27,13 +18,6 @@ function init()
   end
 
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
-  
-  if not minimapWidget then
-    print('[Minimap] ERROR: Could not find minimap widget!')
-    return
-  end
-  
-  print('[Minimap] Widget found: ' .. tostring(minimapWidget))
 
   local gameRootPanel = modules.game_interface.getRootPanel()
   g_keyboard.bindKeyPress('Alt+Left', function() minimapWidget:move(1,0) end, gameRootPanel)
@@ -43,18 +27,7 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  if minimapWindow.setup then
-    minimapWindow:setup()
-  end
-  
-  -- Forçar carregamento se já estiver online
-  if g_game.isOnline() then
-    scheduleEvent(function()
-      minimapWidget:load()
-      updateCameraPosition()
-      print('[Minimap] Loaded and positioned')
-    end, 100)
-  end
+  minimapWindow:setup()
 
   connect(g_game, {
     onGameStart = online,
@@ -100,26 +73,12 @@ end
 
 function toggle()
   if not minimapButton then return end
-  local minimapSection = modules.game_interface.getMinimapSection()
-  
-  if minimapSection then
-    -- Modo section: mostrar/esconder a section inteira
-    if minimapButton:isOn() then
-      minimapSection:hide()
-      minimapButton:setOn(false)
-    else
-      minimapSection:show()
-      minimapButton:setOn(true)
-    end
+  if minimapButton:isOn() then
+    minimapWindow:close()
+    minimapButton:setOn(false)
   else
-    -- Modo MiniWindow: abrir/fechar
-    if minimapButton:isOn() then
-      minimapWindow:close()
-      minimapButton:setOn(false)
-    else
-      minimapWindow:open()
-      minimapButton:setOn(true)
-    end
+    minimapWindow:open()
+    minimapButton:setOn(true)
   end
 end
 

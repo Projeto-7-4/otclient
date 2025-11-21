@@ -123,9 +123,11 @@ function init()
   print('[Market] Events connected')
 
   -- Populate categories
+  print('[Market] Calling populateCategories()...')
   Market.populateCategories()
   
   -- Show demo offers on first category
+  print('[Market] Calling showDemoOffers()...')
   Market.showDemoOffers()
 
   -- Register hotkey
@@ -188,16 +190,25 @@ function Market.toggle()
 end
 
 function Market.populateCategories()
-  if not categoryList then return end
+  print('[Market] populateCategories() called')
+  print('[Market] categoryList =', categoryList)
   
-  categoryList:destroyChildren()
-  
-  for _, category in ipairs(categories) do
-    local label = categoryList:addItem(category.name)
-    label.categoryId = category.id
+  if not categoryList then 
+    print('[Market] ERROR: categoryList is nil!')
+    return 
   end
   
-  print('[Market] ' .. #categories .. ' categories populated')
+  print('[Market] Destroying old children...')
+  categoryList:destroyChildren()
+  
+  print('[Market] Adding ' .. #categories .. ' categories...')
+  for i, category in ipairs(categories) do
+    local label = categoryList:addItem(category.name)
+    label.categoryId = category.id
+    print('[Market] Added category: ' .. category.name .. ' (id=' .. category.id .. ')')
+  end
+  
+  print('[Market] ✅ ' .. #categories .. ' categories populated!')
 end
 
 function Market.onCategorySelect(categoryList, focusedChild)

@@ -35,9 +35,15 @@ local function parseMarketBuyResponse(protocol, msg)
   
   local success = msg:getU8()
   local message = msg:getString()
+  local updatedGold = msg:getU64()  -- Gold atualizado do servidor
   
   if success == 1 then
-    print('[MarketProtocol] ✅ Buy success: ' .. message)
+    print('[MarketProtocol] ✅ Buy success: ' .. message .. ' (new gold: ' .. updatedGold .. ')')
+    
+    -- Atualizar gold instantaneamente
+    if Market and Market.updatePlayerGold then
+      Market.updatePlayerGold(updatedGold)
+    end
     
     -- Remover oferta da lista INSTANTANEAMENTE se a compra foi bem-sucedida
     if Market and Market.removeOfferById and Market.getLastPurchasedOfferId then
@@ -47,7 +53,7 @@ local function parseMarketBuyResponse(protocol, msg)
       end
     end
   else
-    print('[MarketProtocol] ❌ Buy failed: ' .. message)
+    print('[MarketProtocol] ❌ Buy failed: ' .. message .. ' (gold: ' .. updatedGold .. ')')
     displayErrorBox('Market - Error', message)
   end
   

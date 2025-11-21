@@ -292,6 +292,12 @@ function Market.toggle()
   end
 end
 
+function Market.updatePlayerGold(newGold)
+  playerGold = newGold
+  print('[Market] Gold updated: ' .. playerGold .. ' gp')
+  Market.updatePlayerInfo()
+end
+
 function Market.updatePlayerInfo()
   if slotsLabel then
     slotsLabel:setText('Slots: ' .. playerSlots .. ' / ' .. playerMaxSlots)

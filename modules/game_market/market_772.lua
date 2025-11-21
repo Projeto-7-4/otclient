@@ -413,18 +413,9 @@ function Market.generateDemoOffers()
 end
 
 function Market.applyFilters()
-  print('[Market] 🔍 applyFilters() CALLED')
-  print('[Market] allOffers count: ' .. #allOffers)
-  
-  if not searchEdit then 
-    print('[Market] ⚠️ searchEdit is NIL, returning')
-    return 
-  end
+  if not searchEdit then return end
   
   searchText = searchEdit:getText():lower()
-  print('[Market] searchText: "' .. searchText .. '"')
-  print('[Market] selectedOfferType: ' .. tostring(selectedOfferType))
-  print('[Market] selectedCreator: ' .. tostring(selectedCreator))
   
   -- Filter offers
   filteredOffers = {}
@@ -445,13 +436,10 @@ function Market.applyFilters()
     end
   end
   
-  print('[Market] filteredOffers count AFTER filtering: ' .. #filteredOffers)
-  
   -- Update pagination
   totalPages = math.max(1, math.ceil(#filteredOffers / itemsPerPage))
   currentPage = math.min(currentPage, totalPages)
   
-  print('[Market] Calling updateOffersList()...')
   -- Update UI
   Market.updateOffersList()
   Market.updatePagination()
@@ -459,39 +447,22 @@ function Market.applyFilters()
   if offersTitle then
     offersTitle:setText('Offers List (' .. #filteredOffers .. ' items)')
   end
-  
-  print('[Market] ✅ applyFilters() DONE')
 end
 
 function Market.updateOffersList()
-  print('[Market] 📝 updateOffersList() CALLED')
-  
-  if not offersList then 
-    print('[Market] ⚠️ offersList is NIL, returning')
-    return 
-  end
-  
-  local childrenBefore = offersList:getChildren()
-  print('[Market] Widgets BEFORE destroyChildren: ' .. #childrenBefore)
+  if not offersList then return end
   
   offersList:destroyChildren()
-  print('[Market] ⚠️⚠️⚠️ destroyChildren() EXECUTED - ALL WIDGETS DESTROYED!')
   
   local startIdx = (currentPage - 1) * itemsPerPage + 1
   local endIdx = math.min(startIdx + itemsPerPage - 1, #filteredOffers)
   
-  print('[Market] Creating widgets from index ' .. startIdx .. ' to ' .. endIdx .. ' (filteredOffers: ' .. #filteredOffers .. ')')
-  
-  local widgetsCreated = 0
   for i = startIdx, endIdx do
     local offer = filteredOffers[i]
     if offer then
       Market.createOfferWidget(offer)
-      widgetsCreated = widgetsCreated + 1
     end
   end
-  
-  print('[Market] ✅ Created ' .. widgetsCreated .. ' widgets')
 end
 
 function Market.createOfferWidget(offer)
@@ -627,17 +598,7 @@ end
 
 function Market.buyOffer(offer)
   local offerId = offer.id or 0
-  print('[Market] ========================================')
-  print('[Market] 🛒 BUY OFFER CLICKED - ID: ' .. tostring(offerId))
-  print('[Market] allOffers count BEFORE: ' .. #allOffers)
-  print('[Market] filteredOffers count BEFORE: ' .. #filteredOffers)
-  
-  if offersList then
-    local childrenBefore = offersList:getChildren()
-    print('[Market] offersList widgets BEFORE: ' .. #childrenBefore)
-  else
-    print('[Market] ⚠️ offersList is NIL!')
-  end
+  print('[Market] Buying offer ID: ' .. tostring(offerId))
   
   -- Verificar se é oferta DEMO (IDs fictícios >= 9000)
   if offerId >= 9000 then
@@ -649,76 +610,44 @@ function Market.buyOffer(offer)
   if protocol and protocol.sendMarketAccept then
     protocol.sendMarketAccept(offerId, offer.amount or 1)
     
-    print('[Market] Purchase request sent to server (ID: ' .. offerId .. ', amount: ' .. (offer.amount or 1) .. ')')
-    print('[Market] Scheduling removeOfferById in 1.5s...')
-    
-    -- Aguardar resposta do servidor (sem modal - feedback silencioso)
-    -- displayInfoBox('Market', 'Processing your purchase...\n\nThe server will validate your gold and complete the transaction.')
-    
-    -- Remover apenas esta oferta da lista (otimizado, sem reload completo)
+    -- Remover apenas esta oferta da lista após 0.5s (otimizado, sem reload completo)
     scheduleEvent(function()
-      print('[Market] ⏰ Executing scheduled removeOfferById for ID: ' .. offerId)
       Market.removeOfferById(offerId)
-    end, 1500)
+    end, 500)
   else
     displayErrorBox('Error', 'Market protocol not initialized. Please reconnect.')
   end
-  
-  print('[Market] ========================================')
 end
 
 function Market.removeOfferById(offerId)
-  print('[Market] Removing offer ID ' .. offerId .. ' from lists...')
-  print('[Market] allOffers count: ' .. #allOffers)
-  print('[Market] filteredOffers count: ' .. #filteredOffers)
+  print('[Market] Removing offer ID ' .. offerId)
   
   -- 1. Remover de allOffers
-  local removedFromAll = false
   for i = #allOffers, 1, -1 do
     if allOffers[i].id == offerId then
       table.remove(allOffers, i)
-      removedFromAll = true
-      print('[Market] ✅ Removed from allOffers (now ' .. #allOffers .. ' offers)')
       break
     end
-  end
-  
-  if not removedFromAll then
-    print('[Market] ⚠️ Offer ' .. offerId .. ' NOT FOUND in allOffers')
   end
   
   -- 2. Remover de filteredOffers
-  local removedFromFiltered = false
   for i = #filteredOffers, 1, -1 do
     if filteredOffers[i].id == offerId then
       table.remove(filteredOffers, i)
-      removedFromFiltered = true
-      print('[Market] ✅ Removed from filteredOffers (now ' .. #filteredOffers .. ' offers)')
       break
     end
-  end
-  
-  if not removedFromFiltered then
-    print('[Market] ⚠️ Offer ' .. offerId .. ' NOT FOUND in filteredOffers')
   end
   
   -- 3. Remover o widget da tela
   if offersList then
     local children = offersList:getChildren()
-    print('[Market] offersList has ' .. #children .. ' children')
-    
     for _, child in ipairs(children) do
-      local childOfferId = child.offerId
-      if childOfferId == offerId then
+      if child.offerId == offerId then
         child:destroy()
-        print('[Market] ✅ Removed widget from screen (now ' .. (#children - 1) .. ' widgets)')
-        return -- Sair da função após remover
+        print('[Market] ✅ Offer removed successfully')
+        return
       end
     end
-    
-    print('[Market] ⚠️ Widget with offer ID ' .. offerId .. ' NOT FOUND in offersList')
-  else
-    print('[Market] ⚠️ offersList is NIL!')
   end
 end
 

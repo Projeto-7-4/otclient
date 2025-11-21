@@ -238,15 +238,15 @@ end
 
 function Market.updatePlayerInfo()
   if slotsLabel then
-    slotsLabel:setText('🎒 ' .. playerSlots .. ' / ' .. playerMaxSlots)
+    slotsLabel:setText('Slots: ' .. playerSlots .. ' / ' .. playerMaxSlots)
   end
   
   if goldLabel then
-    goldLabel:setText('💰 ' .. playerGold)
+    goldLabel:setText('Gold: ' .. playerGold)
   end
   
   if pointsLabel then
-    pointsLabel:setText('💎 ' .. playerPoints)
+    pointsLabel:setText('Points: ' .. playerPoints)
   end
 end
 

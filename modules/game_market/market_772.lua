@@ -62,6 +62,13 @@ local categories = {
 function init()
   print('[Market] Initializing Rarity Market...')
   
+  -- Initialize protocol
+  if protocol then
+    print('[Market] Protocol loaded successfully')
+  else
+    print('[Market] ⚠️ WARNING: Protocol not loaded, using demo mode only')
+  end
+  
   connect(g_game, {
     onGameStart = Market.online,
     onGameEnd = Market.offline
@@ -208,6 +215,11 @@ function terminate()
     marketWindow:destroy()
     marketWindow = nil
   end
+  
+  -- Cleanup protocol
+  if protocol and protocol.unregisterProtocol then
+    protocol.unregisterProtocol()
+  end
 
   Market = nil
 end
@@ -236,7 +248,12 @@ function Market.toggle()
     -- Solicitar ofertas reais do servidor
     if g_game.isOnline() then
       print('[Market] Requesting offers from server...')
-      protocol.sendMarketBrowse(2) -- 2 = all offers
+      if protocol and protocol.sendMarketBrowse then
+        protocol.sendMarketBrowse(2) -- 2 = all offers
+      else
+        print('[Market] ERROR: protocol not initialized, showing demo offers')
+        Market.applyFilters()
+      end
     else
       print('[Market] Not online, showing demo offers')
       Market.applyFilters() -- Usa ofertas demo

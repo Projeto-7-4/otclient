@@ -154,4 +154,10 @@ function MarketProtocol.sendMarketAccept(offerId, amount)
   print('[MarketProtocol] Accepting offer: ' .. offerId .. ', amount ' .. amount)
 end
 
-print('[MarketProtocol] 7.72 Market Protocol module loaded')
+-- Auto-initialize protocol
+initProtocol()
+
+print('[MarketProtocol] 7.72 Market Protocol module loaded and initialized')
+
+-- Return the protocol table for use by market_772.lua
+return MarketProtocol

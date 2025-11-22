@@ -110,21 +110,48 @@ function loadMap()
   g_minimap.clean()
   loaded = false
 
-  local minimapFile = '/minimap.otmm'
-  local dataMinimapFile = '/data' .. minimapFile
-  local versionedMinimapFile = '/minimap' .. clientVersion .. '.otmm'
-  if g_resources.fileExists(dataMinimapFile) then
-    loaded = g_minimap.loadOtmm(dataMinimapFile)
+  print('[Minimap] Client version: ' .. clientVersion)
+  
+  -- FORÇAR carregamento do mapa full primeiro!
+  local fullMapFile = '/minimap772.otmm'
+  print('[Minimap] Trying to load full map: ' .. fullMapFile)
+  
+  if g_resources.fileExists(fullMapFile) then
+    print('[Minimap] Full map file EXISTS! Loading...')
+    loaded = g_minimap.loadOtmm(fullMapFile)
+    if loaded then
+      print('[Minimap] ✅ FULL MAP LOADED SUCCESSFULLY!')
+    else
+      print('[Minimap] ❌ Failed to load full map')
+    end
+  else
+    print('[Minimap] ❌ Full map file NOT FOUND: ' .. fullMapFile)
   end
-  if not loaded and g_resources.fileExists(versionedMinimapFile) then
-    loaded = g_minimap.loadOtmm(versionedMinimapFile)
-  end
-  if not loaded and g_resources.fileExists(minimapFile) then
-    loaded = g_minimap.loadOtmm(minimapFile)
-  end
+  
+  -- Fallback para outros arquivos
   if not loaded then
-    print("Minimap couldn't be loaded, file missing?")
+    local minimapFile = '/minimap.otmm'
+    local dataMinimapFile = '/data' .. minimapFile
+    local versionedMinimapFile = '/minimap' .. clientVersion .. '.otmm'
+    
+    if g_resources.fileExists(dataMinimapFile) then
+      print('[Minimap] Loading: ' .. dataMinimapFile)
+      loaded = g_minimap.loadOtmm(dataMinimapFile)
+    end
+    if not loaded and g_resources.fileExists(versionedMinimapFile) then
+      print('[Minimap] Loading: ' .. versionedMinimapFile)
+      loaded = g_minimap.loadOtmm(versionedMinimapFile)
+    end
+    if not loaded and g_resources.fileExists(minimapFile) then
+      print('[Minimap] Loading: ' .. minimapFile)
+      loaded = g_minimap.loadOtmm(minimapFile)
+    end
   end
+  
+  if not loaded then
+    print("[Minimap] ❌ ERROR: Minimap couldn't be loaded, file missing?")
+  end
+  
   minimapWidget:load()
 end
 

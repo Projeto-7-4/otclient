@@ -135,6 +135,14 @@ function show()
   gameRootPanel:show()
   gameRootPanel:focus()
   gameMapPanel:followCreature(g_game.getLocalPlayer())
+  
+  -- ✅ Forçar minimapHorizontalSection visível
+  local minimapSection = gameRootPanel:getChildById('minimapHorizontalSection')
+  if minimapSection then
+    minimapSection:setVisible(true)
+    minimapSection:show()
+    print('[GameInterface] MinimapHorizontalSection forced visible')
+  end
     
   updateStretchShrink()
   logoutButton:setTooltip(tr('Logout'))

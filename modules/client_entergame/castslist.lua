@@ -342,6 +342,10 @@ function CastsList.connectToCast(cast, password)
   
   g_logger.info('[CastsList] Connecting to cast: ' .. cast.name)
   
+  -- ATIVAR MODO VIEWER - Bloqueia TODOS os controles do cliente
+  g_game.setViewerMode(true)
+  g_logger.info('[CastsList] ✅ VIEWER MODE ENABLED - all controls BLOCKED')
+  
   -- Fechar janela de casts
   CastsList.hide()
   

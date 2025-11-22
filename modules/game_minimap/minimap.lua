@@ -50,9 +50,13 @@ function init()
     print('[Minimap] open() called')
     
     -- Forçar dimensões corretas (ignorar save)
+    minimapWindow:setMinimumWidth(592)
+    minimapWindow:setMaximumWidth(592)
+    minimapWindow:setMinimumHeight(242)
+    minimapWindow:setMaximumHeight(242)
     minimapWindow:setWidth(592)
     minimapWindow:setHeight(242)
-    print('[Minimap] Dimensions set to 592x242')
+    print('[Minimap] Dimensions FORCED to 592x242 (min/max set)')
   end
   
   -- Criar botão DEPOIS de abrir
@@ -77,14 +81,29 @@ function init()
   connect(g_game, {
     onGameStart = function()
       online()
-      -- Debug após gameStart
+      -- FORÇAR dimensões corretas APÓS gameStart
       scheduleEvent(function()
-        print('[Minimap] === DEBUG APÓS GAMESTART ===')
-        if minimapSection then
-          print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
+        if minimapWindow then
+          minimapWindow:setMinimumWidth(592)
+          minimapWindow:setMaximumWidth(592)
+          minimapWindow:setMinimumHeight(242)
+          minimapWindow:setMaximumHeight(242)
+          minimapWindow:setWidth(592)
+          minimapWindow:setHeight(242)
+          minimapWindow:setVisible(true)
+          minimapWindow:show()
+          minimapWindow:raise()
+          
+          -- Forçar update do layout
+          if minimapSection then
+            minimapSection:updateLayout()
+          end
+          
+          print('[Minimap] === APÓS GAMESTART ===')
+          print('[Minimap] Forced dimensions: 592x242 (with min/max)')
+          print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
+          print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
         end
-        print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
-        print('[Minimap] Window parent visible: ' .. tostring(minimapWindow:getParent():isVisible()))
       end, 100)
     end,
     onGameEnd = offline,

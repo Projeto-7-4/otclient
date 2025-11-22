@@ -1,0 +1,119 @@
+name: Build OTClient
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxinerama-dev \
+            libasound2-dev \
+            libpulse-dev \
+            libudev-dev \
+            libvulkan-dev \
+            libssl-dev \
+            zlib1g-dev \
+            liblzma-dev
+
+      - name: Setup vcpkg
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git ../vcpkg
+          cd ../vcpkg
+          ./bootstrap-vcpkg.sh
+          echo "$(pwd)/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_PATH
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=../../vcpkg/scripts/buildsystems/vcpkg.cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -GNinja ..
+
+      - name: Build
+        run: |
+          cd build
+          ninja -j$(nproc)
+
+      - name: Zip executable
+        run: |
+          cd build
+          zip otclient_linux.zip otclient || zip otclient_linux.zip otclient_linux || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: otclient-linux
+          path: build/otclient_linux.zip
+          if-no-files-found: warn
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          choco install cmake ninja -y
+          choco install vcpkg -y
+
+      - name: Setup vcpkg
+        run: |
+          vcpkg integrate install
+
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "CMake configuration failed, trying without vcpkg..."
+            cmake ..
+          }
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release -j
+
+      - name: Zip executable
+        run: |
+          cd build
+          if (Test-Path "Release/otclient.exe") {
+            Compress-Archive -Path "Release/otclient.exe" -DestinationPath "otclient_windows.zip"
+          } elseif (Test-Path "otclient.exe") {
+            Compress-Archive -Path "otclient.exe" -DestinationPath "otclient_windows.zip"
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: otclient-windows
+          path: build/otclient_windows.zip
+          if-no-files-found: warn

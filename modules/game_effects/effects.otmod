@@ -1,0 +1,8 @@
+Module
+  name: effects
+  description: Enhanced effects rendering with custom sprite sizes
+  author: OTClient
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  scripts: [ effects.lua ]
+

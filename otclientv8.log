@@ -1,0 +1,554 @@
+GPU ANGLE (NVIDIA GeForce GTX 1070 Direct3D11 vs_5_0 ps_5_0) (Google Inc.)
+OpenGL OpenGL ES 3.0.0 (ANGLE 2.1.0.54a3d7cbcadb)
+[Atlas] Texture size is: 4096x4096 (max: 16384x16384)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 17:54:59
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Missing file: 772/Tibia.dat
+Missing file: 772/Tibia.spr
+
+You should open data/things and create directory 772.
+In this directory (data/things/772) you should put missing
+files (Tibia.dat and Tibia.spr/Tibia.cwm) from correct Tibia version.
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 17:56:49
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Exiting application..
+ERROR: unable to open file for writing '/settings/questlog.json': not found
+WARNING: widget 'widget1316' was not explicitly destroyed
+Exiting application..
+ERROR: unable to open file for writing '/settings/questlog.json': not found
+WARNING: widget 'widget1316' was not explicitly destroyed
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 17:56:53
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Missing file: 772/Tibia.dat
+Missing file: 772/Tibia.spr
+
+You should open data/things and create directory 772.
+In this directory (data/things/772) you should put missing
+files (Tibia.dat and Tibia.spr/Tibia.cwm) from correct Tibia version.
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 17:57:40
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Missing file: 772/Tibia.dat
+Missing file: 772/Tibia.spr
+
+You should open data/things and create directory 772.
+In this directory (data/things/772) you should put missing
+files (Tibia.dat and Tibia.spr/Tibia.cwm) from correct Tibia version.
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Missing file: 772/Tibia.dat
+Missing file: 772/Tibia.spr
+
+You should open data/things and create directory 772.
+In this directory (data/things/772) you should put missing
+files (Tibia.dat and Tibia.spr/Tibia.cwm) from correct Tibia version.
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Exiting application..
+ERROR: unable to open file for writing '/settings/questlog.json': not found
+WARNING: widget 'widget1316' was not explicitly destroyed
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Login to 192.168.0.36:7172
+Minimap couldn't be loaded, file missing?
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+Exiting application..
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:21:16
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+ERROR: Failed to read dat '/things/772/Tibia.dat': a thing type has more than 4096 sprites'
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Exiting application..
+WARNING: widget 'widget1316' was not explicitly destroyed
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:22:00
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Connecting to: 192.168.0.36:7171
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+GPU ANGLE (NVIDIA GeForce GTX 1070 Direct3D11 vs_5_0 ps_5_0) (Google Inc.)
+OpenGL OpenGL ES 3.0.0 (ANGLE 2.1.0.54a3d7cbcadb)
+[Atlas] Texture size is: 4096x4096 (max: 16384x16384)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:24:25
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Exiting application..
+WARNING: widget 'widget1316' was not explicitly destroyed
+Connecting to: 192.168.0.36:7171
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Login to 192.168.0.36:7172
+ERROR: ProtocolGame parse message exception (3620 bytes, 3476 unread, last opcode is 0x64 (100), prev opcode is 0x0b (11)): unable to create item with invalid id 26367
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32349 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32347 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32346 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32345 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32344 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (111 bytes, 59 unread, last opcode is 0x68 (104), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32343 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (163 bytes, 83 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32344 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (151 bytes, 69 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32345 32219 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (183 bytes, 97 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32349 32218 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+Exiting application..
+WARNING: widget 'widget1316' was not explicitly destroyed
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:25:39
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Connecting to: 192.168.0.36:7171
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+ERROR: ProtocolGame parse message exception (151 bytes, 107 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 39423
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (147 bytes, 117 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 13311
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (145 bytes, 115 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 14079
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (141 bytes, 107 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 39423
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (147 bytes, 123 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 13311
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (117 bytes, 47 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 12287
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (113 bytes, 47 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (99 bytes, 55 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 13823
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (117 bytes, 51 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 12287
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (93 bytes, 51 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 44543
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (89 bytes, 49 unread, last opcode is 0x66 (102), prev opcode is 0x6d (109)): unable to create item with invalid id 14591
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (2856 bytes, 1678 unread, last opcode is 0x64 (100), prev opcode is 0x6c (108)): unable to create item with invalid id 12287
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32110 32206 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32109 32206 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32108 32206 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32107 32206 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32107 32207 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32107 32208 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32107 32209 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32108 32209 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32108 32208 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32109 32208 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32109 32207 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32110 32207 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no thing
+at:
+	[C++]: ?parseTileTransformThing@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32110 32207 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no thing
+at:
+	[C++]: ?parseTileRemoveThing@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (2330 bytes, 1338 unread, last opcode is 0x64 (100), prev opcode is 0x6c (108)): unable to create item with invalid id 12287
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (189 bytes, 167 unread, last opcode is 0x65 (101), prev opcode is 0x6d (109)): unable to create item with invalid id 28689
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (249 bytes, 227 unread, last opcode is 0x65 (101), prev opcode is 0x6d (109)): unable to create item with invalid id 27921
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (217 bytes, 179 unread, last opcode is 0x65 (101), prev opcode is 0x6d (109)): unable to create item with invalid id 42239
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (231 bytes, 199 unread, last opcode is 0x65 (101), prev opcode is 0x6d (109)): unable to create item with invalid id 13055
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: ProtocolGame parse message exception (211 bytes, 173 unread, last opcode is 0x65 (101), prev opcode is 0x6d (109)): unable to create item with invalid id 28177
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32092 32179 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: ProtocolGame parse message exception (204 bytes, 148 unread, last opcode is 0x68 (104), prev opcode is 0x6d (109)): unable to create item with invalid id 27665
+Packet has been saved to packet.log, you can use it to find what was wrong. (Protocol: 772)
+ERROR: no thing at pos:32091 32179 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32092 32179 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32090 32179 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32090 32180 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32092 32180 6, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+ERROR: no thing at pos:32098 32179 7, stackpos:1
+at:
+	[C++]: ?getMappedThing@ProtocolGame@@QAE?AV?$shared_object_ptr@VThing@@@stdext@@ABV?$shared_object_ptr@VInputMessage@@@3@@Z
+ERROR: no creature found to move
+at:
+	[C++]: ?parseCreatureMove@ProtocolGame@@AAEXABV?$shared_object_ptr@VInputMessage@@@stdext@@@Z
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Exiting application..
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:32:32
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Login to 192.168.0.36:7172
+GPU NVIDIA GeForce GTX 1070/PCIe/SSE2 (NVIDIA Corporation)
+OpenGL 4.6.0 NVIDIA 576.88
+[Atlas] Texture size is: 4096x4096 (max: 32768x32768)
+Found work dir at 'C:/Users/bruze/OneDrive/Área de Trabalho/otclientv8-master (2)/otclientv8-master/'
+== application started at Nov 20 2025 19:36:32
+OTCv8 3.2 rev 4 (dev) made by otclient.net built on Feb 26 2023 for arch x86
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Connecting to: 192.168.0.36:7171
+Connecting to: 192.168.0.36:7171
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: HTTP error for http://otclient.ovh/api/status.php: Invalid http status code (403)
+Login to 192.168.0.36:7172
+WARNING: attempt to destroy widget 'widget1316' two times
+Exiting application..
+Exiting application..

@@ -1,62 +1,482 @@
-MarketWindow < MainWindow
+MainWindow
   id: marketWindow
-  !text: tr('Market')
-  size: 700 530
+  !text: tr('Rarity Market')
+  size: 900 600
+  @onEscape: self:hide()
+  background-color: #1a1a1a
 
-  @onEscape: Market.close()
-
-  // Main Panel Window
-
-  MarketTabBar
-    id: mainTabBar
-    width: 164
-    height: 25
+  // Header Tabs
+  Panel
+    id: headerPanel
+    height: 35
     anchors.top: parent.top
     anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
 
+    Button
+      id: offersTab
+      !text: tr('Offers')
+      width: 100
+      height: 28
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 10
+      color: #ff9900
+
+    Button
+      id: historyTab
+      !text: tr('History')
+      width: 100
+      height: 28
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 5
+      color: #ff9900
+
+  // Top Indicators Bar
   Panel
-    id: mainTabContent
-    anchors.top: prev.bottom
+    id: indicatorsPanel
+    height: 35
+    anchors.top: headerPanel.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    padding: 3
+    margin: 5
+    margin-top: 2
+    background-color: #2d2d2d
     border-width: 1
-    border-color: #000000
-    margin-bottom: 20
+    border-color: #404040
+
+    Label
+      id: slotsLabel
+      !text: tr('Slots: 0 / 50')
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 15
+      font: verdana-11px-rounded
+      color: #ff9900
+      text-auto-resize: true
+      width: 120
+
+    Label
+      id: goldLabel
+      !text: tr('Gold: 99')
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      font: verdana-11px-rounded
+      color: #ffcc00
+      text-auto-resize: true
+      width: 120
+
+    Label
+      id: pointsLabel
+      !text: tr('Points: 0')
+      anchors.right: refreshButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 20
+      font: verdana-11px-rounded
+      color: #00ccff
+      text-auto-resize: true
+      width: 100
+
+    Button
+      id: refreshButton
+      !text: tr('Refresh')
+      width: 90
+      height: 28
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 10
+      background-color: #3d3d3d
+      color: white
+
+  // Left Panel - Filters
+  Panel
+    id: leftPanel
+    width: 200
+    anchors.top: indicatorsPanel.bottom
+    anchors.left: parent.left
+    anchors.bottom: bottomPanel.top
+    margin: 5
+    margin-top: 10
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
+
+    VerticalScrollBar
+      id: filtersScrollBar
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      step: 20
+      pixels-scroll: true
+
+    Panel
+      id: filtersContent
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: filtersScrollBar.left
+      anchors.bottom: parent.bottom
+      padding: 10
+      layout:
+        type: verticalBox
+        spacing: 8
+
+      Label
+        !text: tr('Category:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+
+      ComboBox
+        id: categoryFilter
+        width: 170
+        height: 25
+
+      Label
+        !text: tr('Offer Type:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: buyFilter
+          !text: tr('Buy')
+          width: 80
+          height: 28
+          background-color: #cc6600
+          color: white
+
+        Button
+          id: sellFilter
+          !text: tr('Sell')
+          width: 80
+          height: 28
+          margin-left: 10
+          background-color: #006600
+          color: white
+
+      Label
+        !text: tr('Transaction Type:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: directFilter
+          !text: tr('Direct')
+          width: 80
+          height: 28
+
+        Button
+          id: auctionFilter
+          !text: tr('Auction')
+          width: 80
+          height: 28
+          margin-left: 10
+
+      Label
+        !text: tr('Created by:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      Panel
+        height: 28
+        layout: horizontalBox
+
+        Button
+          id: yourselfFilter
+          !text: tr('Yourself')
+          width: 80
+          height: 28
+
+        Button
+          id: othersFilter
+          !text: tr('Others')
+          width: 80
+          height: 28
+          margin-left: 10
+
+      Label
+        !text: tr('Search by name:')
+        font: verdana-11px-rounded
+        color: #ff9900
+        height: 18
+        margin-top: 5
+
+      TextEdit
+        id: searchEdit
+        height: 28
+
+      Button
+        id: applySearchButton
+        !text: tr('Apply & Search')
+        height: 32
+        margin-top: 10
+        background-color: #006600
+        color: white
+
+  // Center Panel - Offers List
+  Panel
+    id: centerPanel
+    anchors.top: indicatorsPanel.bottom
+    anchors.left: leftPanel.right
+    anchors.right: parent.right
+    anchors.bottom: bottomPanel.top
+    margin: 5
+    margin-top: 10
+    margin-left: 10
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
+
+    Panel
+      id: offersHeader
+      height: 30
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      background-color: #1a1a1a
+      border-width-bottom: 1
+      border-color: #404040
+
+      Label
+        id: offersTitle
+        !text: tr('Offers List (39 items)')
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+        font: verdana-11px-rounded
+        color: #ff9900
+
+      Label
+        !text: tr('Sort By:')
+        anchors.right: sortTimeButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+        font: verdana-11px-rounded
+        color: white
+
+      Button
+        id: sortTimeButton
+        !text: tr('Expire Time')
+        width: 110
+        height: 24
+        anchors.right: sortValueButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 5
+
+      Button
+        id: sortValueButton
+        !text: tr('Value')
+        width: 90
+        height: 24
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+
+    VerticalScrollBar
+      id: offersScrollBar
+      anchors.top: offersHeader.bottom
+      anchors.bottom: paginationPanel.top
+      anchors.right: parent.right
+      step: 85
+      pixels-scroll: true
+      margin-top: 5
+      margin-bottom: 5
+
+    ScrollablePanel
+      id: offersList
+      anchors.top: offersHeader.bottom
+      anchors.left: parent.left
+      anchors.right: offersScrollBar.left
+      anchors.bottom: paginationPanel.top
+      margin-top: 5
+      margin-left: 5
+      margin-right: 5
+      margin-bottom: 5
+      vertical-scrollbar: offersScrollBar
+      layout:
+        type: verticalBox
+        spacing: 3
+
+    Panel
+      id: paginationPanel
+      height: 35
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      background-color: #1a1a1a
+      border-width-top: 1
+      border-color: #404040
+
+      Button
+        id: firstPageButton
+        !text: tr('<<')
+        width: 40
+        height: 28
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+
+      Button
+        id: prevPageButton
+        !text: tr('<')
+        width: 40
+        height: 28
+        anchors.left: prev.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 5
+
+      Label
+        id: pageLabel
+        !text: tr('Page 1 of 5')
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        font: verdana-11px-rounded
+        color: white
+
+      Button
+        id: nextPageButton
+        !text: tr('>')
+        width: 40
+        height: 28
+        anchors.right: lastPageButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 5
+
+      Button
+        id: lastPageButton
+        !text: tr('>>')
+        width: 40
+        height: 28
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+
+  // Bottom Panel
+  Panel
+    id: bottomPanel
+    height: 50
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 5
+    background-color: #2d2d2d
+    border-width: 1
+    border-color: #404040
+
+    Button
+      id: sellItemButton
+      !text: tr('Sell Item')
+      width: 130
+      height: 38
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 15
+      background-color: #006600
+      color: white
+      font: verdana-11px-rounded
+
+    Button
+      id: buyItemButton
+      !text: tr('Buy Item')
+      width: 130
+      height: 38
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 10
+      background-color: #cc6600
+      color: white
+      font: verdana-11px-rounded
+
+    Button
+      id: closeButton
+      !text: tr('Close')
+      width: 100
+      height: 38
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 15
+      background-color: #3d3d3d
+      color: white
+
+MarketOffer < Panel
+  height: 80
+  background-color: #1a1a1a
+  border-width: 1
+  border-color: #404040
+
+  $focus:
+    background-color: #2d2d2d
+    border-color: #ff9900
+
+  Item
+    id: itemIcon
+    anchors.left: parent.left
+    anchors.top: parent.top
+    margin: 10
+    size: 60 60
+    virtual: true
 
   Label
-    id: balanceLabel
-    !text: tr('Balance') .. ':'
-    font: verdana-11px-rounded
-    text-offset: 0 2
+    id: itemName
     anchors.top: parent.top
+    anchors.left: prev.right
+    anchors.right: actionButton.left
+    margin-top: 10
+    margin-left: 15
+    margin-right: 10
+    font: verdana-11px-rounded
+    color: white
+    text-auto-resize: true
+
+  Label
+    id: itemExpire
+    anchors.top: prev.bottom
+    anchors.left: itemIcon.right
+    anchors.right: actionButton.left
+    margin-top: 5
+    margin-left: 15
+    margin-right: 10
+    font: verdana-11px-antialised
+    color: #ff6666
+    text-auto-resize: true
+
+  Label
+    id: itemPrice
+    anchors.bottom: parent.bottom
+    anchors.left: itemIcon.right
+    anchors.right: actionButton.left
+    margin-bottom: 10
+    margin-left: 15
+    margin-right: 10
+    font: verdana-11px-rounded
+    color: #ffcc00
+    text-auto-resize: true
+
+  Button
+    id: actionButton
+    !text: tr('Sell')
+    width: 75
+    height: 32
     anchors.right: parent.right
-
-  Button
-    id: closeButton
-    !text: tr('Close')
-    anchors.top: mainTabContent.bottom
-    anchors.horizontalCenter: mainTabContent.horizontalCenter
-    margin-top: 5
-    width: 110
-    @onClick: Market.close()
-
-  Button
-    id: refreshOffersButton
-    !text: tr('Refresh Offers')
-    anchors.top: mainTabContent.bottom
-    anchors.right: mainTabContent.right
-    margin-top: 5
-    width: 110
-    @onClick: Market.refreshOffers()
-
-  Button
-    id: resetButton
-    !text: tr('Reset Market')
-    !tooltip: tr('Reset selection, filters & search')
-    anchors.top: mainTabContent.bottom
-    anchors.left: mainTabContent.left
-    margin-top: 5
-    width: 110
-    @onClick: Market.reset()
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 10
+    background-color: #006600
+    color: white

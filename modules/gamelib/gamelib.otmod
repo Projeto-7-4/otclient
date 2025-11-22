@@ -19,6 +19,8 @@ Module
     dofile 'textmessages'
     dofile 'thing'
     dofile 'spells'
-    dofile 'tile'
-    dofile 'items'
+    dofile 'itemtooltip'
+
     dofiles 'ui'
+    
+    ItemTooltip.init()

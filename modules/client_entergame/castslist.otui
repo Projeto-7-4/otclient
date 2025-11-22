@@ -1,0 +1,66 @@
+MainWindow
+  id: castsWindow
+  !text: tr('Live Casts')
+  size: 450 400
+  @onEscape: self:hide()
+
+  Label
+    !text: tr('Select a cast to watch:')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 10
+    text-auto-resize: true
+    text-align: center
+
+  TextList
+    id: castsList
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    anchors.bottom: refreshButton.top
+    margin-top: 10
+    margin-bottom: 10
+    margin-left: 10
+    margin-right: 10
+    focusable: true
+    vertical-scrollbar: castsScrollBar
+
+  VerticalScrollBar
+    id: castsScrollBar
+    anchors.top: castsList.top
+    anchors.bottom: castsList.bottom
+    anchors.right: castsList.right
+    step: 28
+    pixels-scroll: true
+
+  Button
+    id: refreshButton
+    !text: tr('Refresh')
+    anchors.left: parent.left
+    anchors.bottom: watchButton.top
+    width: 100
+    margin-left: 10
+    margin-bottom: 5
+    @onClick: CastsList.refresh()
+
+  Button
+    id: watchButton
+    !text: tr('Watch')
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: closeButton.top
+    width: 150
+    margin-bottom: 10
+    @onClick: CastsList.watchSelectedCast()
+
+  Button
+    id: closeButton
+    !text: tr('Close')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-left: 10
+    margin-right: 10
+    margin-bottom: 10
+    @onClick: self:getParent():hide()
+

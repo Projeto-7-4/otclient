@@ -1,4 +1,4 @@
-CastsWindow < MainWindow
+MainWindow
   id: castsWindow
   !text: tr('Live Casts')
   size: 450 400

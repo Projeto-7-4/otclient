@@ -48,16 +48,12 @@ function init()
   if minimapWindow.open then
     minimapWindow:open()
     print('[Minimap] open() called')
-    
-    -- Forçar dimensões corretas (ignorar save)
-    minimapWindow:setMinimumWidth(592)
-    minimapWindow:setMaximumWidth(592)
-    minimapWindow:setMinimumHeight(242)
-    minimapWindow:setMaximumHeight(242)
-    minimapWindow:setWidth(592)
-    minimapWindow:setHeight(242)
-    print('[Minimap] Dimensions FORCED to 592x242 (min/max set)')
   end
+  
+  -- Forçar dimensões (sem min/max que não existem)
+  minimapWindow:setWidth(592)
+  minimapWindow:setHeight(242)
+  print('[Minimap] Dimensions set to 592x242')
   
   -- Criar botão DEPOIS de abrir
   if not minimapWindow.forceOpen then
@@ -84,23 +80,14 @@ function init()
       -- FORÇAR dimensões corretas APÓS gameStart
       scheduleEvent(function()
         if minimapWindow then
-          minimapWindow:setMinimumWidth(592)
-          minimapWindow:setMaximumWidth(592)
-          minimapWindow:setMinimumHeight(242)
-          minimapWindow:setMaximumHeight(242)
           minimapWindow:setWidth(592)
           minimapWindow:setHeight(242)
           minimapWindow:setVisible(true)
           minimapWindow:show()
           minimapWindow:raise()
           
-          -- Forçar update do layout
-          if minimapSection then
-            minimapSection:updateLayout()
-          end
-          
           print('[Minimap] === APÓS GAMESTART ===')
-          print('[Minimap] Forced dimensions: 592x242 (with min/max)')
+          print('[Minimap] Forced dimensions: 592x242')
           print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
           print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
         end

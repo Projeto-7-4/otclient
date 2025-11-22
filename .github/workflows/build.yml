@@ -1,28 +1,32 @@
 # ⚠️ BUILD AUTOMÁTICO DESABILITADO
 # 
-# O repositório otclient não contém os arquivos de build necessários
-# (CMakeLists.txt, estrutura completa do código fonte)
-# 
-# Para compilar:
-# 1. Use o repositório otclient-build que tem o código fonte completo
-# 2. Ou compile manualmente no Windows usando seu método usual
-# 3. Os arquivos fonte modificados (thingtype.cpp, effect.cpp) já estão commitados
+# Este repositório não contém os arquivos de build necessários (CMakeLists.txt)
+# para compilar automaticamente no GitHub Actions.
+#
+# SOLUÇÃO: Compilar manualmente no Windows
+# 1. git pull origin develop
+# 2. Compilar usando seu método usual
+# 3. O executável terá as correções do efeito 173 em 64x64
+#
+# Arquivos modificados já commitados:
+# - src/client/thingtype.cpp (escala 2x para efeito 173)
+# - src/client/effect.cpp (simplificado)
 
 name: Build OTClient
 
-on:
-  workflow_dispatch:  # Apenas manual, mas não funcionará sem CMakeLists.txt
+# DESABILITADO - Sem arquivos de build
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: [ develop, main ]
 
 jobs:
-  build:
+  disabled:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Error - Build files missing
+      - name: Build Disabled
         run: |
-          echo "❌ Este repositório não contém CMakeLists.txt"
-          echo "💡 Para compilar, use o repositório com código fonte completo"
-          echo "   ou compile manualmente no Windows"
-          exit 1
+          echo "⚠️ Build automático desabilitado"
+          echo "💡 Este repositório não contém CMakeLists.txt"
+          echo "📋 Compile manualmente no Windows"
+          echo "✅ Arquivos fonte modificados já estão commitados"

@@ -28,6 +28,13 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
   minimapWindow:setup()
+  
+  -- Garantir que o botão X está escondido
+  local closeButton = minimapWindow:getChildById('closeButton')
+  if closeButton then
+    closeButton:hide()
+    closeButton:setEnabled(false)
+  end
 
   connect(g_game, {
     onGameStart = online,

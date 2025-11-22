@@ -1,12 +1,11 @@
 name: Build OTClient
 
+# Desabilitado temporariamente - precisa de estrutura completa do projeto
+# Para compilar, use o método manual no Windows
 on:
-  workflow_dispatch:
-  push:
-    branches: [ develop, main ]
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
+  workflow_dispatch:  # Apenas manual por enquanto
+  # push:
+  #   branches: [ develop, main ]
 
 jobs:
   build:
@@ -18,94 +17,42 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 1
 
-      - name: Install system dependencies
+      - name: Check for CMakeLists.txt
+        run: |
+          if [ ! -f "CMakeLists.txt" ] && [ ! -f "src/CMakeLists.txt" ]; then
+            echo "❌ CMakeLists.txt não encontrado!"
+            echo "💡 Este repositório não tem a estrutura completa para compilar"
+            echo "   Por favor, compile manualmente no Windows"
+            exit 1
+          fi
+
+      - name: Install dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq \
-            build-essential \
-            cmake \
-            ninja-build \
-            libgl1-mesa-dev \
-            libglu1-mesa-dev \
-            libx11-dev \
-            libxrandr-dev \
-            libxi-dev \
-            libxcursor-dev \
-            libxinerama-dev \
-            libasound2-dev \
-            libpulse-dev \
-            libudev-dev \
-            libssl-dev \
-            zlib1g-dev \
-            liblzma-dev \
-            pkg-config
+            build-essential cmake ninja-build \
+            libgl1-mesa-dev libglu1-mesa-dev \
+            libx11-dev libxrandr-dev libxi-dev \
+            libxcursor-dev libxinerama-dev \
+            libasound2-dev libpulse-dev \
+            libudev-dev libssl-dev zlib1g-dev liblzma-dev
 
-      - name: Setup vcpkg (if needed)
+      - name: Build (se CMakeLists.txt existir)
         run: |
-          if [ -f "vcpkg.json" ] || [ -d "../vcpkg" ] || grep -q "vcpkg" CMakeLists.txt 2>/dev/null; then
-            echo "vcpkg=true" >> $GITHUB_ENV
-            if [ ! -d "../vcpkg" ]; then
-              git clone --depth 1 https://github.com/Microsoft/vcpkg.git ../vcpkg
-            fi
-            cd ../vcpkg
-            ./bootstrap-vcpkg.sh -disableMetrics
-            echo "VCPKG_ROOT=$(pwd)" >> $GITHUB_ENV
-          else
-            echo "vcpkg=false" >> $GITHUB_ENV
-          fi
-
-      - name: Configure CMake
-        run: |
-          mkdir -p build
-          cd build
-          if [ "$vcpkg" = "true" ] && [ -n "$VCPKG_ROOT" ]; then
-            cmake -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-                  -DCMAKE_BUILD_TYPE=Release \
-                  -GNinja .. 2>&1 | tee cmake.log || \
-            cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. 2>&1 | tee cmake.log
-          else
-            cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. 2>&1 | tee cmake.log
-          fi
-          cat cmake.log
-
-      - name: Build
-        run: |
-          cd build
-          ninja -j$(nproc) 2>&1 | tee build.log || \
-          cmake --build . --config Release -j$(nproc) 2>&1 | tee build.log
-          tail -50 build.log
-
-      - name: Find executable
-        run: |
-          cd build
-          echo "🔍 Procurando executável..."
-          find . -type f -executable -name "*otclient*" 2>/dev/null | head -5
-          find . -type f -name "otclient" -o -name "otclient.exe" 2>/dev/null | head -5
-          ls -la | head -20
-
-      - name: Create artifact
-        run: |
-          cd build
-          EXEC=$(find . -type f -executable -name "*otclient*" 2>/dev/null | head -1)
-          if [ -z "$EXEC" ]; then
-            EXEC=$(find . -type f -name "otclient" -o -name "otclient.exe" 2>/dev/null | head -1)
-          fi
-          if [ -n "$EXEC" ]; then
-            echo "✅ Executável encontrado: $EXEC"
-            zip -9 otclient.zip "$EXEC"
-            ls -lh otclient.zip
-          else
-            echo "❌ Executável não encontrado!"
-            echo "📋 Listando arquivos em build/:"
-            find . -type f | head -20
-            exit 1
+          if [ -f "CMakeLists.txt" ]; then
+            mkdir -p build && cd build
+            cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
+            ninja -j$(nproc)
+          elif [ -f "src/CMakeLists.txt" ]; then
+            mkdir -p build && cd build
+            cmake -DCMAKE_BUILD_TYPE=Release -GNinja ../src
+            ninja -j$(nproc)
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: otclient-linux
-          path: build/otclient.zip
-          retention-days: 7
+          name: otclient
+          path: build/otclient*
+          if-no-files-found: ignore

@@ -36,32 +36,45 @@ jobs:
             libvulkan-dev \
             libssl-dev \
             zlib1g-dev \
-            liblzma-dev
+            liblzma-dev \
+            pkg-config
 
       - name: Setup vcpkg
         run: |
-          git clone https://github.com/Microsoft/vcpkg.git ../vcpkg
+          if [ ! -d "../vcpkg" ]; then
+            git clone https://github.com/Microsoft/vcpkg.git ../vcpkg
+          fi
           cd ../vcpkg
           ./bootstrap-vcpkg.sh
-          echo "$(pwd)/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_PATH
+          export VCPKG_ROOT=$(pwd)
+          echo "VCPKG_ROOT=$VCPKG_ROOT" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=../../vcpkg/scripts/buildsystems/vcpkg.cmake \
+          cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
                 -DCMAKE_BUILD_TYPE=Release \
-                -GNinja ..
+                -GNinja .. || \
+          cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
 
       - name: Build
         run: |
           cd build
-          ninja -j$(nproc)
+          ninja -j$(nproc) || cmake --build . --config Release -j$(nproc)
 
-      - name: Zip executable
+      - name: Find and zip executable
         run: |
           cd build
-          zip otclient_linux.zip otclient || zip otclient_linux.zip otclient_linux || true
+          EXECUTABLE=$(find . -name "otclient" -type f -executable | head -1)
+          if [ -n "$EXECUTABLE" ]; then
+            zip otclient_linux.zip "$EXECUTABLE"
+            echo "✅ Executável encontrado: $EXECUTABLE"
+          else
+            echo "❌ Executável não encontrado"
+            ls -la
+            find . -type f -name "*otclient*" | head -10
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -69,6 +82,7 @@ jobs:
           name: otclient-linux
           path: build/otclient_linux.zip
           if-no-files-found: warn
+          retention-days: 7
 
   build-windows:
     runs-on: windows-latest
@@ -78,37 +92,38 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install dependencies
-        run: |
-          choco install cmake ninja -y
-          choco install vcpkg -y
+      - name: Install CMake and Ninja
+        uses: microsoft/setup-cmake@v1
+        with:
+          cmake-version: 'latest'
 
-      - name: Setup vcpkg
-        run: |
-          vcpkg integrate install
+      - name: Install vcpkg
+        uses: microsoft/setup-vcpkg@v1
 
       - name: Configure CMake
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "CMake configuration failed, trying without vcpkg..."
-            cmake ..
-          }
+          cmake -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+                -DCMAKE_BUILD_TYPE=Release `
+                -GNinja .. || `
+          cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
 
       - name: Build
         run: |
           cd build
           cmake --build . --config Release -j
 
-      - name: Zip executable
+      - name: Find and zip executable
         run: |
           cd build
-          if (Test-Path "Release/otclient.exe") {
-            Compress-Archive -Path "Release/otclient.exe" -DestinationPath "otclient_windows.zip"
-          } elseif (Test-Path "otclient.exe") {
-            Compress-Archive -Path "otclient.exe" -DestinationPath "otclient_windows.zip"
+          $exe = Get-ChildItem -Recurse -Filter "otclient.exe" | Select-Object -First 1
+          if ($exe) {
+            Compress-Archive -Path $exe.FullName -DestinationPath "otclient_windows.zip"
+            Write-Host "✅ Executável encontrado: $($exe.FullName)"
+          } else {
+            Write-Host "❌ Executável não encontrado"
+            Get-ChildItem -Recurse | Where-Object { $_.Name -like "*otclient*" } | Select-Object -First 10
           }
 
       - name: Upload artifact
@@ -117,3 +132,4 @@ jobs:
           name: otclient-windows
           path: build/otclient_windows.zip
           if-no-files-found: warn
+          retention-days: 7

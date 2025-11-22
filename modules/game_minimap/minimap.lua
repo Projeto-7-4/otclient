@@ -51,9 +51,11 @@ function init()
 end
 
 function terminate()
-  if g_game.isOnline() then
-    saveMap()
-  end
+  -- NÃO salvar o mapa para não sobrescrever o full map!
+  -- if g_game.isOnline() then
+  --   saveMap()
+  -- end
+  print('[Minimap] Terminating without saving to preserve full map')
 
   disconnect(g_game, {
     onGameStart = online,
@@ -101,7 +103,9 @@ function online()
 end
 
 function offline()
-  saveMap()
+  -- NÃO salvar o mapa para não sobrescrever o full map!
+  -- saveMap()
+  print('[Minimap] Skipping save to preserve full map')
 end
 
 function loadMap()

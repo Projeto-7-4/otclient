@@ -27,23 +27,31 @@ function CastProtocol.terminate()
 end
 
 function CastProtocol.requestCastList()
-    if not g_game.isOnline() then
-        g_logger.error('[CastProtocol] Cannot request cast list: not connected')
-        return false
-    end
-    
-    g_logger.info('[CastProtocol] Requesting cast list from server...')
-    
+  g_logger.info('[CastProtocol] Requesting cast list...')
+  
+  if g_game.isOnline() then
+    -- Se já está online, usar o protocolo existente
+    g_logger.info('[CastProtocol] Already connected, using existing protocol')
     local protocolGame = g_game.getProtocolGame()
     if protocolGame then
-        local msg = OutputMessage.create()
-        msg:addU8(CastOpcodes.ClientRequestCastList)
-        protocolGame:send(msg)
-        return true
+      local msg = OutputMessage.create()
+      msg:addU8(CastOpcodes.ClientRequestCastList)
+      protocolGame:send(msg)
+      return true
     end
-    
-    g_logger.error('[CastProtocol] Failed to get protocol game')
-    return false
+  end
+  
+  -- Se não está online, fazer uma requisição via HTTP ou retornar erro
+  g_logger.error('[CastProtocol] Cannot request cast list: not connected to server')
+  
+  -- Notificar que precisa estar logado
+  if CastsList then
+    scheduleEvent(function()
+      CastsList.showNotConnectedMessage()
+    end, 100)
+  end
+  
+  return false
 end
 
 function CastProtocol.parseCastList(protocol, msg)

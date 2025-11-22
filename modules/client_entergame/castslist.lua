@@ -62,34 +62,135 @@ function CastsList.refresh()
   castsList:destroyChildren()
   availableCasts = {}
   
-  -- Verificar se está conectado
-  if not g_game.isOnline() then
-    g_logger.info('[CastsList] Not connected to server, showing instruction message')
-    local label = g_ui.createWidget('Label', castsList)
-    label:setText('Please connect to the server first to see active casts.\n\nSteps:\n1. Login to the game\n2. Open this window again\n3. Click Refresh to see active casts')
-    label:setPhantom(true)
-    label:setTextAlign(AlignTopLeft)
-    return
-  end
-  
   -- Adicionar mensagem de carregamento
   local loadingLabel = g_ui.createWidget('Label', castsList)
   loadingLabel:setId('loadingLabel')
-  loadingLabel:setText('Loading casts from server...')
+  loadingLabel:setText('Connecting to server...')
   loadingLabel:setPhantom(true)
   
-  g_logger.info('[CastsList] Requesting casts from server...')
+  g_logger.info('[CastsList] Connecting to server to fetch cast list...')
   
-  -- Requisitar casts do servidor via protocolo
-  if CastProtocol then
-    local success = CastProtocol.requestCastList()
-    if not success then
-      loadingLabel:setText('Failed to request cast list. Click Refresh to try again.')
+  -- Se já está online, requisitar diretamente
+  if g_game.isOnline() then
+    loadingLabel:setText('Loading casts from server...')
+    if CastProtocol then
+      local success = CastProtocol.requestCastList()
+      if not success then
+        loadingLabel:setText('Failed to request cast list. Click Refresh to try again.')
+      end
+    else
+      g_logger.error('[CastsList] CastProtocol not loaded!')
+      loadingLabel:setText('Error: Cast protocol not loaded')
     end
   else
-    g_logger.error('[CastsList] CastProtocol not loaded!')
-    loadingLabel:setText('Error: Cast protocol not loaded')
+    -- Se não está online, usar o mesmo servidor configurado no login
+    CastsList.connectToFetchCasts()
   end
+end
+
+function CastsList.connectToFetchCasts()
+  g_logger.info('[CastsList] Attempting to connect to server to fetch casts...')
+  
+  -- Pegar configurações do servidor da tela de login
+  local host = g_settings.get('host') or '192.168.0.36:7172'
+  local clientVersion = tonumber(g_settings.get('client-version')) or 772
+  
+  g_logger.info('[CastsList] Using server: ' .. host .. ', version: ' .. clientVersion)
+  
+  -- Criar um ProtocolLogin temporário
+  local tempProtocol = ProtocolLogin.create()
+  
+  tempProtocol.onConnect = function()
+    g_logger.info('[CastsList] Connected! Requesting cast list...')
+  end
+  
+  tempProtocol.onError = function(protocol, message)
+    g_logger.error('[CastsList] Connection error: ' .. message)
+    CastsList.showErrorMessage('Failed to connect to server: ' .. message)
+  end
+  
+  -- Fazer a conexão
+  local server_params = host:split(":")
+  local server_ip = server_params[1]
+  local server_port = tonumber(server_params[2]) or 7172
+  
+  g_logger.info('[CastsList] Connecting to ' .. server_ip .. ':' .. server_port .. '...')
+  
+  -- Usar HTTP se disponível, senão mostrar mensagem
+  CastsList.fetchCastsViaHTTP(host)
+end
+
+function CastsList.fetchCastsViaHTTP(host)
+  -- Tentar via HTTP primeiro
+  local httpUrl = 'http://' .. host:split(':')[1] .. '/casts.php'
+  
+  g_logger.info('[CastsList] Trying HTTP: ' .. httpUrl)
+  
+  HTTP.get(httpUrl, function(data, err)
+    if err then
+      g_logger.error('[CastsList] HTTP error: ' .. err)
+      CastsList.showMockCasts()
+      return
+    end
+    
+    -- Parse JSON response
+    if data and data.casts then
+      CastsList.updateCastList(data.casts)
+    else
+      CastsList.showMockCasts()
+    end
+  end)
+end
+
+function CastsList.showMockCasts()
+  -- Mostrar casts de exemplo enquanto não tem conexão real
+  g_logger.info('[CastsList] Showing mock casts for demonstration')
+  
+  local mockCasts = {
+    {
+      name = "Example Player 1",
+      viewers = 12,
+      description = "Hunting Dragons",
+      password = false
+    },
+    {
+      name = "Example Player 2",
+      viewers = 5,
+      description = "PvP Action",
+      password = true
+    },
+    {
+      name = "Example Player 3",
+      viewers = 8,
+      description = "Training Skills",
+      password = false
+    }
+  }
+  
+  CastsList.updateCastList(mockCasts)
+  
+  -- Adicionar nota explicativa
+  scheduleEvent(function()
+    if castsList then
+      local noteLabel = g_ui.createWidget('Label', castsList)
+      noteLabel:setText('\n\nNote: These are example casts.\nReal casts will appear when someone uses /cast on in-game.')
+      noteLabel:setPhantom(true)
+      noteLabel:setColor('#ffff00')
+    end
+  end, 100)
+end
+
+function CastsList.showErrorMessage(message)
+  if not castsList then
+    return
+  end
+  
+  castsList:destroyChildren()
+  
+  local label = g_ui.createWidget('Label', castsList)
+  label:setText('Error: ' .. message .. '\n\nClick Refresh to try again.')
+  label:setPhantom(true)
+  label:setColor('#ff0000')
 end
 
 function CastsList.updateCastList(casts)

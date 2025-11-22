@@ -3,12 +3,8 @@ MiniWindow
   !text: tr('Minimap')
   icon: /images/topbuttons/minimap
   @onClose: modules.game_minimap.onMiniWindowClose()
-  &save: false
-  &autoOpen: false
-  width: 592
-  height: 242
-  visible: true
-  phantom: false
+  &save: true
+  height: 150
   
   MiniWindowContents
     padding: 3

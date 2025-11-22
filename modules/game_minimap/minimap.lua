@@ -1,7 +1,6 @@
 minimapWidget = nil
 minimapButton = nil
 minimapWindow = nil
-minimapSection = nil
 fullMapWindow = nil
 fullMapWidget = nil
 fullmapView = false
@@ -10,25 +9,12 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  -- Carregar na section horizontal dedicada no topo direito
-  minimapSection = modules.game_interface.getMinimapHorizontalSection()
+  -- SIMPLIFICADO: Carregar no RIGHT PANEL (como Skills)
+  minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
+    tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
+  minimapButton:setOn(true)
   
-  if minimapSection then
-    minimapWindow = g_ui.loadUI('minimap', minimapSection)
-    print('[Minimap] ✅ Loaded in horizontal section')
-  else
-    -- Fallback: painel direito
-    minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
-    print('[Minimap] ⚠️ Loaded in right panel (fallback)')
-  end
-  
-  if not minimapWindow then
-    print('[Minimap] ❌ ERROR: Failed to create window!')
-    return
-  end
-  
-  print('[Minimap] Window created: ' .. tostring(minimapWindow))
-
+  minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
 
   local gameRootPanel = modules.game_interface.getRootPanel()
@@ -39,60 +25,10 @@ function init()
   g_keyboard.bindKeyDown('Ctrl+M', toggle)
   g_keyboard.bindKeyDown('Ctrl+Shift+M', toggleFullMap)
 
-  if minimapWindow.setup then
-    minimapWindow:setup()
-    print('[Minimap] setup() done')
-  end
-  
-  -- ✅ ABRIR A JANELA EXPLICITAMENTE (como Skills faz!)
-  if minimapWindow.open then
-    minimapWindow:open()
-    print('[Minimap] open() called')
-  end
-  
-  -- Forçar dimensões (sem min/max que não existem)
-  minimapWindow:setWidth(592)
-  minimapWindow:setHeight(242)
-  print('[Minimap] Dimensions set to 592x242')
-  
-  -- Criar botão DEPOIS de abrir
-  if not minimapWindow.forceOpen then
-    minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
-      tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
-    minimapButton:setOn(true)
-    print('[Minimap] Button created and set ON')
-  end
-  
-  -- DEBUG FINAL
-  scheduleEvent(function()
-    print('[Minimap] === DEBUG APÓS INIT ===')
-    if minimapSection then
-      print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
-    end
-    print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
-    print('[Minimap] Window parent visible: ' .. tostring(minimapWindow:getParent():isVisible()))
-    print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
-  end, 100)
+  minimapWindow:setup()
 
   connect(g_game, {
-    onGameStart = function()
-      online()
-      -- FORÇAR dimensões corretas APÓS gameStart
-      scheduleEvent(function()
-        if minimapWindow then
-          minimapWindow:setWidth(592)
-          minimapWindow:setHeight(242)
-          minimapWindow:setVisible(true)
-          minimapWindow:show()
-          minimapWindow:raise()
-          
-          print('[Minimap] === APÓS GAMESTART ===')
-          print('[Minimap] Forced dimensions: 592x242')
-          print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
-          print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
-        end
-      end, 100)
-    end,
+    onGameStart = online,
     onGameEnd = offline,
   })
 

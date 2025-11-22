@@ -1,12 +1,8 @@
 -- @docclass
 ProtocolLogin = extends(Protocol, "ProtocolLogin")
 
--- Workaround: Add missing rsaGetSize function
-if not g_crypt.rsaGetSize then
-  g_crypt.rsaGetSize = function()
-    return 128 -- 1024 bits RSA = 128 bytes
-  end
-end
+-- RSA size constant (for clients without native g_crypt.rsaGetSize)
+RSA_SIZE = 128 -- 1024 bits RSA = 128 bytes
 
 LoginServerError = 10
 LoginServerTokenSuccess = 12
@@ -103,8 +99,9 @@ function ProtocolLogin:sendLoginPacket()
     msg:addU16(tonumber(version))
   end
 
-  local paddingBytes = g_crypt.rsaGetSize() - (msg:getMessageSize() - offset)
-  assert(paddingBytes >= 0)
+  local rsaSize = (g_crypt.rsaGetSize and g_crypt.rsaGetSize()) or RSA_SIZE
+  local paddingBytes = rsaSize - (msg:getMessageSize() - offset)
+  assert(paddingBytes >= 0, "Padding bytes must be >= 0")
   for i = 1, paddingBytes do
     msg:addU8(math.random(0, 0xff))
   end
@@ -137,8 +134,9 @@ function ProtocolLogin:sendLoginPacket()
       msg:addU8(booleantonumber(self.stayLogged))
     end
 
-    paddingBytes = g_crypt.rsaGetSize() - (msg:getMessageSize() - offset)
-    assert(paddingBytes >= 0)
+    rsaSize = (g_crypt.rsaGetSize and g_crypt.rsaGetSize()) or RSA_SIZE
+    paddingBytes = rsaSize - (msg:getMessageSize() - offset)
+    assert(paddingBytes >= 0, "Padding bytes must be >= 0")
     for i = 1, paddingBytes do
       msg:addU8(math.random(0, 0xff))
     end

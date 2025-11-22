@@ -1,6 +1,13 @@
 -- @docclass
 ProtocolLogin = extends(Protocol, "ProtocolLogin")
 
+-- Workaround: Add missing rsaGetSize function
+if not g_crypt.rsaGetSize then
+  g_crypt.rsaGetSize = function()
+    return 128 -- 1024 bits RSA = 128 bytes
+  end
+end
+
 LoginServerError = 10
 LoginServerTokenSuccess = 12
 LoginServerTokenError = 13

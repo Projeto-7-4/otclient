@@ -25,17 +25,22 @@ end
 
 function ItemTooltip.requestDescription(itemId, count, callback)
   if not itemId or itemId == 0 then
+    print("[ItemTooltip] Invalid itemId: " .. tostring(itemId))
     return false
   end
   
   -- Check cache first
   local cacheKey = itemId .. ":" .. (count or 1)
+  print("[ItemTooltip] Checking cache for: " .. cacheKey)
   if descriptionCache[cacheKey] then
+    print("[ItemTooltip] Found in cache!")
     if callback then
       callback(descriptionCache[cacheKey])
     end
     return true
   end
+  
+  print("[ItemTooltip] Not in cache, requesting from server...")
   
   -- Check if already requesting
   if pendingRequests[cacheKey] then
@@ -77,6 +82,9 @@ function ItemTooltip.onReceiveItemDescription(protocol, msg)
   
   local cacheKey = itemId .. ":" .. count
   
+  print("[ItemTooltip] Received from server - itemId: " .. itemId .. ", cacheKey: " .. cacheKey)
+  print("[ItemTooltip] Description: " .. description:sub(1, 80))
+  
   -- Store in cache
   descriptionCache[cacheKey] = description
   
@@ -85,10 +93,13 @@ function ItemTooltip.onReceiveItemDescription(protocol, msg)
   
   -- Call waiting callbacks
   if waitingCallbacks[cacheKey] then
+    print("[ItemTooltip] Calling " .. #waitingCallbacks[cacheKey] .. " waiting callback(s)")
     for _, callback in ipairs(waitingCallbacks[cacheKey]) do
       callback(description)
     end
     waitingCallbacks[cacheKey] = nil
+  else
+    print("[ItemTooltip] No waiting callbacks for " .. cacheKey)
   end
 end
 

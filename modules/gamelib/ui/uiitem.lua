@@ -147,7 +147,10 @@ function UIItem:onHoverChange(hovered)
       local success, isStackable = pcall(function() return item:isStackable() end)
       if success and isStackable then
         count = item:getCount() or 1
+        print("[UIItem] Item " .. itemId .. " is stackable, count: " .. count)
       end
+      
+      print("[UIItem] Requesting tooltip for item " .. itemId .. " with count " .. count)
       
       -- Request description from server
       ItemTooltip.requestDescription(itemId, count, function(description)

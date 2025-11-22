@@ -7,6 +7,8 @@ local effect173ThingType = nil
 local originalSpriteSize = nil
 
 function init()
+  print("[CLIENT DEBUG] ✅ Módulo game_effects carregado!")
+  
   -- Try to get ThingType for effect 173 and modify it if possible
   if g_things and g_things.getThingType then
     effect173ThingType = g_things.getThingType(CONST_ME_CRITICAL_DAMAGE, ThingCategoryEffect)
@@ -54,13 +56,15 @@ function terminate()
 end
 
 function onMagicEffect(position, effectId)
-  -- Debug: Log todos os efeitos recebidos
+  -- Debug: Log TODOS os efeitos recebidos
+  print("[CLIENT DEBUG] Efeito recebido: ID=" .. effectId .. " em posição: " .. position.x .. "," .. position.y .. "," .. position.z)
+  
   if effectId == CONST_ME_CRITICAL_DAMAGE then
-    print("[CLIENT DEBUG] Effect 173 (Critical Damage) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
+    print("[CLIENT DEBUG] ✅ Effect 173 (Critical Damage) detectado!")
   elseif effectId == 6 then  -- CONST_ME_EXPLOSIONHIT
-    print("[CLIENT DEBUG] ⚠️ Effect 6 (EXPLOSIONHIT) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
+    print("[CLIENT DEBUG] ⚠️ Effect 6 (EXPLOSIONHIT) detectado!")
   elseif effectId == 5 then  -- CONST_ME_EXPLOSIONAREA
-    print("[CLIENT DEBUG] ⚠️ Effect 5 (EXPLOSIONAREA) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
+    print("[CLIENT DEBUG] ⚠️ Effect 5 (EXPLOSIONAREA) detectado!")
   end
 end
 

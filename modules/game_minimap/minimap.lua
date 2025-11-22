@@ -9,12 +9,14 @@ oldZoom = nil
 oldPos = nil
 
 function init()
-  -- SIMPLIFICADO: Carregar no RIGHT PANEL (como Skills)
-  minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
-    tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
-  minimapButton:setOn(true)
-  
   minimapWindow = g_ui.loadUI('minimap', modules.game_interface.getRightPanel())
+
+  if not minimapWindow.forceOpen then
+    minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
+      tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
+    minimapButton:setOn(true)
+  end
+
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
 
   local gameRootPanel = modules.game_interface.getRootPanel()

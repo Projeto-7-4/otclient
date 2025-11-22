@@ -832,10 +832,6 @@ function getMinimapSection()
   return gameRootPanel:getChildById('minimapSection')
 end
 
-function getMinimapHorizontalSection()
-  return gameRootPanel:getChildById('minimapHorizontalSection')
-end
-
 function getContainerPanel()
   local containerPanel = g_settings.getNumber("containerPanel")
   if containerPanel >= 5 then

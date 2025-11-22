@@ -4,7 +4,9 @@ MiniWindow
   icon: /images/topbuttons/minimap
   @onClose: modules.game_minimap.onMiniWindowClose()
   &save: true
-  height: 150
+  &autoOpen: 1
+  height: 250
+  width: 600
   
   MiniWindowContents
     padding: 3

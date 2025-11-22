@@ -167,14 +167,25 @@ EnterGameWindow
     margin-top: 9
 
   Button
+    id: loginButton
     !text: tr('Login')
     anchors.left: parent.left
-    anchors.right: parent.right
+    anchors.right: parent.horizontalCenter
     anchors.top: prev.bottom
     margin-top: 10
     margin-left: 50
-    margin-right: 50
+    margin-right: 5
     @onClick: EnterGame.doLogin()
+
+  Button
+    id: castsButton
+    !text: tr('Casts')
+    anchors.left: parent.horizontalCenter
+    anchors.right: parent.right
+    anchors.top: prev.top
+    margin-left: 5
+    margin-right: 50
+    @onClick: EnterGame.showCastsList()
 
   Label
     id: serverInfoLabel

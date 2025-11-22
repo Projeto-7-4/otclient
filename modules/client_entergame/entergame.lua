@@ -606,3 +606,11 @@ function EnterGame.onLoginError(err)
     EnterGame.clearAccountFields()
   end
 end
+
+function EnterGame.showCastsList()
+  if CastsList then
+    CastsList.show()
+  else
+    displayErrorBox('Error', 'Casts system not loaded')
+  end
+end

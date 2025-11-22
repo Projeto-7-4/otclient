@@ -49,6 +49,11 @@ function g_game.isOfficialTibia()
   return G.currentRsa == CIPSOFT_RSA
 end
 
+-- Get protocol version from client version
+function g_game.getClientProtocolVersion(clientVersion)
+  return clientVersion
+end
+
 -- CAST SYSTEM: Viewer Mode
 G.isViewerMode = false
 

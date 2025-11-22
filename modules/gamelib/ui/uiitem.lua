@@ -129,39 +129,32 @@ function UIItem:onClick(mousePos)
 end
 
 function UIItem:onItemChange()
-  local tooltip = nil
   local item = self:getItem()
-  
   if item then
-    -- Create rich tooltip with all item information
-    tooltip = self:createRichTooltip(item)
+    -- Create rich tooltip immediately
+    local tooltip = self:createRichTooltip(item)
+    self:setTooltip(tooltip)
+  else
+    self:setTooltip(nil)
   end
-  
-  self:setTooltip(tooltip)
 end
 
 function UIItem:createRichTooltip(item)
   if not item then return nil end
   
   local lines = {}
-  
-  -- Get item description from server tooltip (if exists)
-  local serverTooltip = item:getTooltip()
-  if serverTooltip and serverTooltip:len() > 0 then
-    -- Use server tooltip directly - it's already complete
-    return serverTooltip
-  end
-  
-  -- Fallback: create basic tooltip if no server tooltip
   local itemId = item:getId()
-  table.insert(lines, "Item #" .. itemId)
   
-  -- Item Count/Charges (safe checks)
+  -- Title
+  table.insert(lines, "Item ID: " .. itemId)
+  table.insert(lines, "")
+  
+  -- Count/Charges
   local success, isStackable = pcall(function() return item:isStackable() end)
   if success and isStackable then
     local count = item:getCount()
     if count and count > 1 then
-      table.insert(lines, "Count: " .. count)
+      table.insert(lines, "▸ Count: " .. count)
     end
   end
   
@@ -169,14 +162,20 @@ function UIItem:createRichTooltip(item)
   if success2 and isFluid then
     local subType = item:getSubType()
     if subType and subType > 0 then
-      table.insert(lines, "Charges: " .. subType)
+      table.insert(lines, "▸ Charges: " .. subType)
     end
   end
   
-  -- Join all lines
-  if #lines > 0 then
-    return table.concat(lines, "\n")
+  -- Position (if on map)
+  local pos = item:getPosition()
+  if pos and pos.x > 0 and pos.y > 0 and pos.z > 0 then
+    table.insert(lines, "▸ Position: " .. pos.x .. ", " .. pos.y .. ", " .. pos.z)
   end
   
-  return nil
+  -- Hint
+  table.insert(lines, "")
+  table.insert(lines, "💡 Right-click + Left-click to see full details")
+  
+  -- Join all lines
+  return table.concat(lines, "\n")
 end

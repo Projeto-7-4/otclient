@@ -19,5 +19,6 @@ Module
     dofile 'textmessages'
     dofile 'thing'
     dofile 'spells'
+    dofile 'itemtooltip'
 
     dofiles 'ui'

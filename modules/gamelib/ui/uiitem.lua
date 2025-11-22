@@ -129,12 +129,39 @@ function UIItem:onClick(mousePos)
 end
 
 function UIItem:onItemChange()
-  local item = self:getItem()
-  if item then
-    -- Create rich tooltip immediately
-    local tooltip = self:createRichTooltip(item)
-    self:setTooltip(tooltip)
+  -- Don't set tooltip here - it will be set on hover
+  self:setTooltip(nil)
+end
+
+function UIItem:onHoverChange(hovered)
+  -- Call parent implementation
+  UIWidget.onHoverChange(self, hovered)
+  
+  if hovered and not self:isVirtual() then
+    local item = self:getItem()
+    if item and ItemTooltip then
+      local itemId = item:getId()
+      local count = 1
+      
+      -- Get count if stackable
+      local success, isStackable = pcall(function() return item:isStackable() end)
+      if success and isStackable then
+        count = item:getCount() or 1
+      end
+      
+      -- Request description from server
+      ItemTooltip.requestDescription(itemId, count, function(description)
+        -- Only update tooltip if still hovering this item
+        if self:isHovered() and self:getItem() and self:getItem():getId() == itemId then
+          self:setTooltip(description)
+        end
+      end)
+      
+      -- Show temporary tooltip while loading
+      self:setTooltip("Loading...")
+    end
   else
+    -- Clear tooltip when not hovering
     self:setTooltip(nil)
   end
 end

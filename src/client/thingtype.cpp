@@ -611,7 +611,9 @@ void ThingType::unserializeOtml(const OTMLNodePtr& node)
 }
 
 void ThingType::drawWithFrameBuffer(const TexturePtr& texture, const Rect& screenRect, const Rect& textureRect, const Color& color) {
-        const float scaleFactor = (m_category == ThingCategoryEffect && m_id == 173) ? g_drawPool.getScaleFactor() * 2.0f : g_drawPool.getScaleFactor();
+        // Special scaling for effect 173 (Critical Damage) - 64x64 instead of 32x32
+        const float baseScale = g_drawPool.getScaleFactor();
+        const float scaleFactor = (m_category == ThingCategoryEffect && static_cast<uint16_t>(m_id) == 173) ? baseScale * 2.0f : baseScale;
         const int size = static_cast<int>(g_gameConfig.getSpriteSize() * std::max<int>(m_size.area(), 2) * scaleFactor);
     const auto& p = (Point(size) - screenRect.size().toPoint()) / 2;
     const auto& destDiff = Rect(screenRect.topLeft() - p, Size{ size });
@@ -663,7 +665,8 @@ void ThingType::draw(const Point& dest, const int layer, const int xPattern, con
     const auto& textureRect = textureData.pos[frameIndex].rects;
 
     // Special scaling for effect 173 (Critical Damage) - 64x64 instead of 32x32
-    const float scaleFactor = (m_category == ThingCategoryEffect && m_id == 173) ? g_drawPool.getScaleFactor() * 2.0f : g_drawPool.getScaleFactor();
+    const float baseScale = g_drawPool.getScaleFactor();
+    const float scaleFactor = (m_category == ThingCategoryEffect && static_cast<uint16_t>(m_id) == 173) ? baseScale * 2.0f : baseScale;
     const Rect screenRect(dest + (textureOffset - m_displacement - (m_size.toPoint() - Point(1)) * g_gameConfig.getSpriteSize()) * scaleFactor, textureRect.size() * scaleFactor);
 
     if (drawThings && texture) {

@@ -5,7 +5,11 @@ local castsList
 local availableCasts = {}
 
 function CastsList.init()
-  castsWindow = g_ui.loadUI('castslist', rootWidget)
+  castsWindow = g_ui.displayUI('castslist')
+  if not castsWindow then
+    g_logger.error('Failed to load casts list window')
+    return
+  end
   castsWindow:hide()
   
   castsList = castsWindow:getChildById('castsList')

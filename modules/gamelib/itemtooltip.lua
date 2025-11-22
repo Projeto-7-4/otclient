@@ -77,12 +77,12 @@ end
 
 function ItemTooltip.onReceiveItemDescription(protocol, msg)
   local itemId = msg:getU16()
+  local count = msg:getU8() -- Read count from server
   local description = msg:getString()
-  local count = 1 -- We'll use count=1 as default for cache
   
   local cacheKey = itemId .. ":" .. count
   
-  print("[ItemTooltip] Received from server - itemId: " .. itemId .. ", cacheKey: " .. cacheKey)
+  print("[ItemTooltip] Received from server - itemId: " .. itemId .. ", count: " .. count .. ", cacheKey: " .. cacheKey)
   print("[ItemTooltip] Description: " .. description:sub(1, 80))
   
   -- Store in cache

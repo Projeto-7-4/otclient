@@ -89,25 +89,8 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     if (hasShader())
         g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
 
-    // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
-    const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
-    if (m_clientId == EFFECT_CRITICAL_DAMAGE) {
-        // Draw effect 2x larger using a scaled framebuffer
-        const int spriteSize = g_gameConfig.getSpriteSize();
-        const int scaledSize = spriteSize * 2;
-        const Point scaledDest = dest - Point(spriteSize / 2);
-        const Rect destRect(scaledDest, Size(scaledSize, scaledSize));
-        
-        // Draw to a 2x framebuffer
-        g_drawPool.bindFrameBuffer(Size(scaledSize, scaledSize));
-        {
-            // Draw the effect at normal size centered in the framebuffer
-            getThingType()->draw(Point(spriteSize / 2, spriteSize / 2), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-        }
-        g_drawPool.releaseFrameBuffer(destRect);
-    } else {
-        getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-    }
+    // Effect 173 (Critical Damage) - render normally for now
+    getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
 }
 
 void Effect::onAppear()

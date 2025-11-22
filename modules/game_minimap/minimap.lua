@@ -154,9 +154,12 @@ function loadMap()
   
   if not loaded then
     print("[Minimap] ❌ ERROR: Minimap couldn't be loaded, file missing?")
+  else
+    print("[Minimap] ✅ Full map is active - NOT loading from cache")
   end
   
-  minimapWidget:load()
+  -- NÃO carregar do cache se já carregamos o full map!
+  -- minimapWidget:load()
 end
 
 function saveMap()

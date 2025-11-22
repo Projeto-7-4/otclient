@@ -33,6 +33,12 @@ local function onSessionKey(protocol, sessionKey)
 end
 
 local function onCharacterList(protocol, characters, account, otui)
+  g_logger.info('[EnterGame] onCharacterList called')
+  g_logger.info('[EnterGame] Number of characters: ' .. #characters)
+  for i, char in ipairs(characters) do
+    g_logger.info('[EnterGame] Character ' .. i .. ': ' .. char.name)
+  end
+  
   if rememberPasswordBox:isChecked() then
     local account = g_crypt.encrypt(G.account)
     local password = g_crypt.encrypt(G.password)

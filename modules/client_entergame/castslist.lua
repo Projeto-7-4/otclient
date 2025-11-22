@@ -127,14 +127,14 @@ function CastsList.fetchCastsViaHTTP(host)
   
   g_logger.info('[CastsList] Fetching casts via HTTP: ' .. httpUrl)
   
-  HTTP.get(httpUrl, function(data, err)
+  HTTP.getJSON(httpUrl, function(data, err)
     if err then
       g_logger.error('[CastsList] HTTP error: ' .. err)
       -- Tentar IP local da VPS
       httpUrl = 'http://192.168.0.36/casts.php'
       g_logger.info('[CastsList] Trying local IP: ' .. httpUrl)
       
-      HTTP.get(httpUrl, function(data2, err2)
+      HTTP.getJSON(httpUrl, function(data2, err2)
         if err2 then
           g_logger.error('[CastsList] HTTP error on retry: ' .. err2)
           CastsList.showMockCasts()
@@ -153,21 +153,38 @@ end
 function CastsList.processCastsData(data)
   g_logger.info('[CastsList] Processing casts data: ' .. type(data))
   
+  if not data then
+    g_logger.error('[CastsList] Data is nil!')
+    CastsList.showMockCasts()
+    return
+  end
+  
   -- Parse JSON response
   if type(data) == 'table' then
-    if data.success and data.casts then
-      g_logger.info('[CastsList] Found ' .. data.count .. ' casts')
-      if data.count > 0 then
-        CastsList.updateCastList(data.casts)
+    g_logger.info('[CastsList] Data is table. Keys: ' .. table.concat(table.keys(data), ', '))
+    
+    if data.success then
+      g_logger.info('[CastsList] API success = true')
+      
+      if data.casts then
+        local count = data.count or #data.casts
+        g_logger.info('[CastsList] Found ' .. count .. ' casts')
+        
+        if count > 0 then
+          CastsList.updateCastList(data.casts)
+        else
+          CastsList.showNoCastsMessage()
+        end
       else
-        CastsList.showNoCastsMessage()
+        g_logger.error('[CastsList] No casts field in response')
+        CastsList.showMockCasts()
       end
     else
       g_logger.error('[CastsList] API returned error: ' .. (data.error or 'unknown'))
       CastsList.showMockCasts()
     end
   else
-    g_logger.error('[CastsList] Invalid data type received')
+    g_logger.error('[CastsList] Invalid data type received: ' .. type(data))
     CastsList.showMockCasts()
   end
 end

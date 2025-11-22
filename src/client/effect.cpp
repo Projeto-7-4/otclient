@@ -89,6 +89,9 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     if (hasShader())
         g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
 
+    // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
+    const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
+    if (m_clientId == EFFECT_CRITICAL_DAMAGE) {
         // Temporarily set scale factor to 2.0 for 64x64 sprites
         const float originalScale = g_drawPool.getScaleFactor();
         g_drawPool.setScaleFactor(originalScale * 2.0f);

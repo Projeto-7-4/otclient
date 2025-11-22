@@ -144,97 +144,39 @@ function UIItem:createRichTooltip(item)
   if not item then return nil end
   
   local lines = {}
-  local itemId = item:getId()
   
   -- Get item description from server tooltip (if exists)
   local serverTooltip = item:getTooltip()
   if serverTooltip and serverTooltip:len() > 0 then
-    -- Parse server tooltip for item name (usually first line)
-    local firstLine = serverTooltip:match("([^\n]+)")
-    if firstLine then
-      table.insert(lines, firstLine)
-      table.insert(lines, "")  -- Empty line separator
-    end
-  else
-    -- Fallback: show item ID
-    table.insert(lines, "Item #" .. itemId)
-    table.insert(lines, "")
+    -- Use server tooltip directly - it's already complete
+    return serverTooltip
   end
   
-  -- Item Count/Charges
-  if item:isStackable() then
+  -- Fallback: create basic tooltip if no server tooltip
+  local itemId = item:getId()
+  table.insert(lines, "Item #" .. itemId)
+  
+  -- Item Count/Charges (safe checks)
+  local success, isStackable = pcall(function() return item:isStackable() end)
+  if success and isStackable then
     local count = item:getCount()
-    if count > 1 then
+    if count and count > 1 then
       table.insert(lines, "Count: " .. count)
     end
-  elseif item:isFluidContainer() then
+  end
+  
+  local success2, isFluid = pcall(function() return item:isFluidContainer() end)
+  if success2 and isFluid then
     local subType = item:getSubType()
-    if subType > 0 then
+    if subType and subType > 0 then
       table.insert(lines, "Charges: " .. subType)
     end
   end
   
-  -- Position (if item is on map)
-  local pos = item:getPosition()
-  if pos and pos.x > 0 and pos.y > 0 then
-    table.insert(lines, "Position: (" .. pos.x .. ", " .. pos.y .. ", " .. pos.z .. ")")
-  end
-  
-  -- Item Properties
-  local properties = {}
-  
-  if item:isPickupable() then
-    table.insert(properties, "Pickupable")
-  end
-  
-  if item:isStackable() then
-    table.insert(properties, "Stackable")
-  end
-  
-  if item:isContainer() then
-    table.insert(properties, "Container")
-  end
-  
-  if item:isFluidContainer() then
-    table.insert(properties, "Fluid Container")
-  end
-  
-  if item:isMultiUse() then
-    table.insert(properties, "Multi-use")
-  end
-  
-  if item:isRotateable() then
-    table.insert(properties, "Rotateable")
-  end
-  
-  if item:isNotMoveable() then
-    table.insert(properties, "Not Moveable")
-  end
-  
-  if item:isHangable() then
-    table.insert(properties, "Hangable")
-  end
-  
-  if #properties > 0 then
-    table.insert(lines, "")
-    table.insert(lines, "Properties:")
-    for _, prop in ipairs(properties) do
-      table.insert(lines, "  • " .. prop)
-    end
-  end
-  
-  -- Additional server tooltip info (skip first line which we already used)
-  if serverTooltip and serverTooltip:len() > 0 then
-    local foundFirst = false
-    for line in serverTooltip:gmatch("[^\n]+") do
-      if foundFirst then
-        table.insert(lines, line)
-      else
-        foundFirst = true
-      end
-    end
-  end
-  
   -- Join all lines
-  return table.concat(lines, "\n")
+  if #lines > 0 then
+    return table.concat(lines, "\n")
+  end
+  
+  return nil
 end

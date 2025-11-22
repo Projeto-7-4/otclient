@@ -340,17 +340,19 @@ function CastsList.connectToCast(cast, password)
     return
   end
   
-  -- Fechar janela de casts
-  CastsList.hide()
+  g_logger.info('[CastsList] Attempting to watch cast: ' .. cast.name)
   
-  -- Conectar ao cast
-  -- Usa o mesmo sistema de login mas com prefixo especial
-  local castAccount = 'CAST_' .. cast.name
-  local castPassword = password or ''
+  -- Por enquanto, mostrar mensagem explicativa
+  -- TODO: Implementar conexão automática como viewer
+  local message = string.format(
+    'To watch %s\'s cast:\n\n' ..
+    '1. Login with your account normally\n' ..
+    '2. Type in game: /watch %s\n' ..
+    '3. If the cast has a password, use: /watch %s password\n\n' ..
+    'Automatic viewer connection will be implemented soon!',
+    cast.name, cast.name, cast.name
+  )
   
-  g_logger.info('Connecting to cast: ' .. cast.name)
-  
-  -- Usar o sistema de login existente
-  EnterGame.doLogin(castAccount, castPassword)
+  displayInfoBox('Watch Cast', message)
 end
 

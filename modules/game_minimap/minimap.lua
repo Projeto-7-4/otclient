@@ -26,6 +26,8 @@ function init()
     print('[Minimap] ❌ ERROR: Failed to create window!')
     return
   end
+  
+  print('[Minimap] Window created: ' .. tostring(minimapWindow))
 
   minimapWidget = minimapWindow:recursiveGetChildById('minimap')
 
@@ -39,15 +41,18 @@ function init()
 
   if minimapWindow.setup then
     minimapWindow:setup()
+    print('[Minimap] setup() done')
   end
   
   -- ✅ ABRIR A JANELA EXPLICITAMENTE (como Skills faz!)
   if minimapWindow.open then
     minimapWindow:open()
+    print('[Minimap] open() called')
     
     -- Forçar dimensões corretas (ignorar save)
     minimapWindow:setWidth(592)
     minimapWindow:setHeight(242)
+    print('[Minimap] Dimensions set to 592x242')
   end
   
   -- Criar botão DEPOIS de abrir
@@ -55,10 +60,33 @@ function init()
     minimapButton = modules.client_topmenu.addRightGameToggleButton('minimapButton', 
       tr('Minimap') .. ' (Ctrl+M)', '/images/topbuttons/minimap', toggle)
     minimapButton:setOn(true)
+    print('[Minimap] Button created and set ON')
   end
+  
+  -- DEBUG FINAL
+  scheduleEvent(function()
+    print('[Minimap] === DEBUG APÓS INIT ===')
+    if minimapSection then
+      print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
+    end
+    print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
+    print('[Minimap] Window parent visible: ' .. tostring(minimapWindow:getParent():isVisible()))
+    print('[Minimap] Window size: ' .. minimapWindow:getWidth() .. 'x' .. minimapWindow:getHeight())
+  end, 100)
 
   connect(g_game, {
-    onGameStart = online,
+    onGameStart = function()
+      online()
+      -- Debug após gameStart
+      scheduleEvent(function()
+        print('[Minimap] === DEBUG APÓS GAMESTART ===')
+        if minimapSection then
+          print('[Minimap] Section visible: ' .. tostring(minimapSection:isVisible()))
+        end
+        print('[Minimap] Window visible: ' .. tostring(minimapWindow:isVisible()))
+        print('[Minimap] Window parent visible: ' .. tostring(minimapWindow:getParent():isVisible()))
+      end, 100)
+    end,
     onGameEnd = offline,
   })
 

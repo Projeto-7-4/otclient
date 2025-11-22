@@ -7,6 +7,7 @@ MiniWindow
   &autoOpen: true
   width: 592
   height: 242
+  visible: true
   
   MiniWindowContents
     padding: 3

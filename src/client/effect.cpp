@@ -52,6 +52,8 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
             // This requires a separate getPhaseAt method as using getPhase would make all magic effects use the same phase regardless of their appearance time
             animationPhase = animator->getPhaseAt(m_animationTimer);
         } else {
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
             // hack to fix some animation phases duration, currently there is no better solution
             int ticks = g_gameConfig.getEffectTicksPerFrame();
             if (m_clientId == 33) {
@@ -89,8 +91,32 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     if (hasShader())
         g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
 
-    // Effect 173 (Critical Damage) - render normally for now
-    getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
+    const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
+    if (m_clientId == EFFECT_CRITICAL_DAMAGE) {
+        // Get texture and draw it 2x larger
+        const int spriteSize = g_gameConfig.getSpriteSize();
+        const int scaledSize = spriteSize * 2;
+        const Point scaledDest = dest - Point(spriteSize / 2);
+        
+        const auto& texture = getThingType()->getTexture(animationPhase);
+        if (texture) {
+            const Rect textureRect(Point(0, 0), texture->getSize());
+            const Rect destRect(scaledDest, Size(scaledSize, scaledSize));
+            g_drawPool.addTexturedRect(destRect, texture, textureRect, Color::white);
+        } else {
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
+    } else {
+        getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    }
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
+    } else {
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
+        getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    }
 }
 
 void Effect::onAppear()
@@ -102,6 +128,8 @@ void Effect::onAppear()
 
         m_duration = animator->getTotalDuration();
     } else {
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
         m_duration = g_gameConfig.getEffectTicksPerFrame();
 
         // hack to fix some animation phases duration, currently there is no better solution

@@ -608,9 +608,12 @@ function EnterGame.onLoginError(err)
 end
 
 function EnterGame.showCastsList()
+  g_logger.info('[EnterGame] showCastsList called')
   if CastsList then
+    g_logger.info('[EnterGame] CastsList exists, showing window')
     CastsList.show()
   else
+    g_logger.error('[EnterGame] CastsList not loaded!')
     displayErrorBox('Error', 'Casts system not loaded')
   end
 end

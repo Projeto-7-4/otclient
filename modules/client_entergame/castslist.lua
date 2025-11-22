@@ -5,14 +5,21 @@ local castsList
 local availableCasts = {}
 
 function CastsList.init()
+  g_logger.info('[CastsList] Initializing...')
   castsWindow = g_ui.displayUI('castslist')
   if not castsWindow then
-    g_logger.error('Failed to load casts list window')
+    g_logger.error('[CastsList] Failed to load casts list window')
     return
   end
+  g_logger.info('[CastsList] Window loaded successfully')
   castsWindow:hide()
   
   castsList = castsWindow:getChildById('castsList')
+  if not castsList then
+    g_logger.error('[CastsList] Failed to get castsList widget')
+  else
+    g_logger.info('[CastsList] Initialized successfully')
+  end
 end
 
 function CastsList.terminate()
@@ -25,10 +32,13 @@ function CastsList.terminate()
 end
 
 function CastsList.show()
+  g_logger.info('[CastsList] show() called')
   if not castsWindow then
+    g_logger.error('[CastsList] castsWindow is nil!')
     return
   end
   
+  g_logger.info('[CastsList] Showing window...')
   castsWindow:show()
   castsWindow:raise()
   castsWindow:focus()
@@ -43,12 +53,15 @@ function CastsList.hide()
 end
 
 function CastsList.refresh()
+  g_logger.info('[CastsList] refresh() called')
   if not castsList then
+    g_logger.error('[CastsList] castsList is nil!')
     return
   end
   
   castsList:destroyChildren()
   availableCasts = {}
+  g_logger.info('[CastsList] Fetching casts...')
   
   -- Buscar casts ativos do servidor
   -- Por enquanto, vamos criar casts de exemplo

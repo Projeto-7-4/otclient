@@ -92,22 +92,30 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
     const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
     if (m_clientId == EFFECT_CRITICAL_DAMAGE) {
-        // ThingType::draw() doesn't respect transform matrix, so we draw the sprite 4 times (2x2 grid)
-        // to simulate 64x64 size
-        const int spriteSize = g_gameConfig.getSpriteSize(); // 32
-        const int halfSize = spriteSize / 2;
-        
-        // Draw sprite 4 times in a 2x2 grid to create 64x64 effect
-        // Top-left
-        getThingType()->draw(dest + Point(-halfSize, -halfSize), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-        // Top-right
-        getThingType()->draw(dest + Point(halfSize, -halfSize), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-        // Bottom-left
-        getThingType()->draw(dest + Point(-halfSize, halfSize), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-        // Bottom-right
-        getThingType()->draw(dest + Point(halfSize, halfSize), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        // Use custom shader to scale the effect 2x
+        // The shader map_effect_scale has a uniform u_EffectScale that can scale vertices
+        const auto* shader = g_shaders.getShader("map_effect_scale");
+        if (shader) {
+            g_drawPool.setShaderProgram(shader, true);
+            // Set the scale uniform to 2.0 for 64x64
+            g_drawPool.setShaderUniform("u_EffectScale", 2.0f);
+            
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+            
+            // Reset shader
+            if (hasShader()) {
+                g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true);
+            } else {
+                g_drawPool.setShaderProgram(nullptr, false);
+            }
+        } else {
+            // Fallback: draw normally if shader not available
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
     } else {
         getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    }
+    }
     }
     }
     }

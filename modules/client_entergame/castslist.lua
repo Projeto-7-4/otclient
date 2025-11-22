@@ -360,7 +360,11 @@ function CastsList.connectToCast(cast, password)
   
   g_logger.info('[CastsList] Logging in as cast viewer for: ' .. cast.name)
   
-  -- Fazer login como viewer
-  EnterGame.doLogin(viewerAccount, viewerPassword)
+  -- Pegar configurações do servidor da tela de login
+  local host = g_settings.get('host') or '192.168.0.36:7171'
+  local token = ''
+  
+  -- Fazer login como viewer com host configurado
+  EnterGame.doLogin(viewerAccount, viewerPassword, token, host)
 end
 

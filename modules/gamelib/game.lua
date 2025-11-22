@@ -54,6 +54,13 @@ function g_game.getClientProtocolVersion(clientVersion)
   return clientVersion
 end
 
+-- RSA size helper (for old clients without native support)
+if not g_crypt.rsaGetSize then
+  g_crypt.rsaGetSize = function()
+    return 128 -- 1024 bits RSA = 128 bytes
+  end
+end
+
 -- CAST SYSTEM: Viewer Mode
 G.isViewerMode = false
 

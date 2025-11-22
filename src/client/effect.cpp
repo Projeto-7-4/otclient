@@ -97,7 +97,7 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
         const int scaledSize = spriteSize * 2;
         const Point scaledDest = dest - Point(spriteSize / 2);
         
-        const auto// Effect 173 (Critical Damage) - render normally for now texture = getThingType()->getTexture(animationPhase);
+        const auto& texture = getThingType()->getTexture(animationPhase);
         if (texture) {
             const Rect textureRect(Point(0, 0), texture->getSize());
             const Rect destRect(scaledDest, Size(scaledSize, scaledSize));
@@ -108,7 +108,6 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     } else {
         getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
     }
-    getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
 }
 
 void Effect::onAppear()
@@ -120,8 +119,6 @@ void Effect::onAppear()
 
         m_duration = animator->getTotalDuration();
     } else {
-        getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-    }
         m_duration = g_gameConfig.getEffectTicksPerFrame();
 
         // hack to fix some animation phases duration, currently there is no better solution

@@ -151,14 +151,25 @@ function UIItem:onHoverChange(hovered)
       
       -- Request description from server
       ItemTooltip.requestDescription(itemId, count, function(description)
+        print("[ItemTooltip] Callback received for item " .. itemId .. ", setting tooltip")
         -- Only update tooltip if still hovering this item
         if self:isHovered() and self:getItem() and self:getItem():getId() == itemId then
+          print("[ItemTooltip] Setting tooltip: " .. description:sub(1, 50))
           self:setTooltip(description)
+          -- Force tooltip to show
+          if g_tooltip then
+            g_tooltip.display(description)
+          end
+        else
+          print("[ItemTooltip] Not hovering anymore or item changed")
         end
       end)
       
-      -- Show temporary tooltip while loading
-      self:setTooltip("Loading...")
+      -- Show temporary tooltip while loading (only if not cached)
+      local cached = ItemTooltip.getDescription(itemId, count)
+      if not cached then
+        self:setTooltip("Loading...")
+      end
     end
   else
     -- Clear tooltip when not hovering

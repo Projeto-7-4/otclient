@@ -342,10 +342,6 @@ function CastsList.connectToCast(cast, password)
   
   g_logger.info('[CastsList] Connecting to cast: ' .. cast.name)
   
-  -- ATIVAR MODO VIEWER - Bloqueia TODOS os controles do cliente
-  g_game.setViewerMode(true)
-  g_logger.info('[CastsList] ✅ VIEWER MODE ENABLED - all controls BLOCKED')
-  
   -- Fechar janela de casts
   CastsList.hide()
   
@@ -360,11 +356,7 @@ function CastsList.connectToCast(cast, password)
   
   g_logger.info('[CastsList] Logging in as cast viewer for: ' .. cast.name)
   
-  -- Pegar configurações do servidor da tela de login
-  local host = g_settings.get('host') or '192.168.0.36:7171'
-  local token = ''
-  
-  -- Fazer login como viewer com host configurado
-  EnterGame.doLogin(viewerAccount, viewerPassword, token, host)
+  -- Fazer login como viewer
+  EnterGame.doLogin(viewerAccount, viewerPassword)
 end
 

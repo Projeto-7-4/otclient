@@ -264,12 +264,7 @@ function onCancelWalk(player)
   player:lockWalk(50)
 end
 
-function walk(dir, ticks)
-  -- BLOQUEAR MOVIMENTO EM MODO VIEWER
-  if g_game.isViewerMode() then
-    return
-  end
-  
+function walk(dir, ticks) 
   lastManualWalk = g_clock.millis()
   local player = g_game.getLocalPlayer()
   if not player or g_game.isDead() or player:isDead() then
@@ -409,11 +404,6 @@ function walk(dir, ticks)
 end
 
 function turn(dir, repeated)
-  -- BLOQUEAR MOVIMENTO EM MODO VIEWER
-  if g_game.isViewerMode() then
-    return
-  end
-  
   local player = g_game.getLocalPlayer()
   if player:isWalking() and player:getWalkDirection() == dir and not player:isServerWalking() then
     return

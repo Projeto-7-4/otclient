@@ -125,10 +125,6 @@ function onGameStart()
 end
 
 function onGameEnd()
-  -- Desativar modo viewer ao sair do jogo
-  g_game.setViewerMode(false)
-  g_logger.info('[GameInterface] Viewer mode DISABLED on game end')
-  
   hide()
   modules.client_topmenu.getTopMenu():setImageColor('white')
 end

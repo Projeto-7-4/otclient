@@ -1,25 +1,29 @@
 name: Build OTClient
 
 on:
+  workflow_dispatch:
   push:
     branches: [ develop, main ]
-  pull_request:
-    branches: [ develop, main ]
-  workflow_dispatch:
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
 
 jobs:
-  build-linux:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 1
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
             build-essential \
             cmake \
             ninja-build \
@@ -33,103 +37,75 @@ jobs:
             libasound2-dev \
             libpulse-dev \
             libudev-dev \
-            libvulkan-dev \
             libssl-dev \
             zlib1g-dev \
             liblzma-dev \
             pkg-config
 
-      - name: Setup vcpkg
+      - name: Setup vcpkg (if needed)
         run: |
-          if [ ! -d "../vcpkg" ]; then
-            git clone https://github.com/Microsoft/vcpkg.git ../vcpkg
+          if [ -f "vcpkg.json" ] || [ -d "../vcpkg" ] || grep -q "vcpkg" CMakeLists.txt 2>/dev/null; then
+            echo "vcpkg=true" >> $GITHUB_ENV
+            if [ ! -d "../vcpkg" ]; then
+              git clone --depth 1 https://github.com/Microsoft/vcpkg.git ../vcpkg
+            fi
+            cd ../vcpkg
+            ./bootstrap-vcpkg.sh -disableMetrics
+            echo "VCPKG_ROOT=$(pwd)" >> $GITHUB_ENV
+          else
+            echo "vcpkg=false" >> $GITHUB_ENV
           fi
-          cd ../vcpkg
-          ./bootstrap-vcpkg.sh
-          export VCPKG_ROOT=$(pwd)
-          echo "VCPKG_ROOT=$VCPKG_ROOT" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
-                -DCMAKE_BUILD_TYPE=Release \
-                -GNinja .. || \
-          cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
+          if [ "$vcpkg" = "true" ] && [ -n "$VCPKG_ROOT" ]; then
+            cmake -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+                  -DCMAKE_BUILD_TYPE=Release \
+                  -GNinja .. 2>&1 | tee cmake.log || \
+            cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. 2>&1 | tee cmake.log
+          else
+            cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. 2>&1 | tee cmake.log
+          fi
+          cat cmake.log
 
       - name: Build
         run: |
           cd build
-          ninja -j$(nproc) || cmake --build . --config Release -j$(nproc)
+          ninja -j$(nproc) 2>&1 | tee build.log || \
+          cmake --build . --config Release -j$(nproc) 2>&1 | tee build.log
+          tail -50 build.log
 
-      - name: Find and zip executable
+      - name: Find executable
         run: |
           cd build
-          EXECUTABLE=$(find . -name "otclient" -type f -executable | head -1)
-          if [ -n "$EXECUTABLE" ]; then
-            zip otclient_linux.zip "$EXECUTABLE"
-            echo "✅ Executável encontrado: $EXECUTABLE"
+          echo "🔍 Procurando executável..."
+          find . -type f -executable -name "*otclient*" 2>/dev/null | head -5
+          find . -type f -name "otclient" -o -name "otclient.exe" 2>/dev/null | head -5
+          ls -la | head -20
+
+      - name: Create artifact
+        run: |
+          cd build
+          EXEC=$(find . -type f -executable -name "*otclient*" 2>/dev/null | head -1)
+          if [ -z "$EXEC" ]; then
+            EXEC=$(find . -type f -name "otclient" -o -name "otclient.exe" 2>/dev/null | head -1)
+          fi
+          if [ -n "$EXEC" ]; then
+            echo "✅ Executável encontrado: $EXEC"
+            zip -9 otclient.zip "$EXEC"
+            ls -lh otclient.zip
           else
-            echo "❌ Executável não encontrado"
-            ls -la
-            find . -type f -name "*otclient*" | head -10
+            echo "❌ Executável não encontrado!"
+            echo "📋 Listando arquivos em build/:"
+            find . -type f | head -20
+            exit 1
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: otclient-linux
-          path: build/otclient_linux.zip
-          if-no-files-found: warn
-          retention-days: 7
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Install CMake and Ninja
-        uses: microsoft/setup-cmake@v1
-        with:
-          cmake-version: 'latest'
-
-      - name: Install vcpkg
-        uses: microsoft/setup-vcpkg@v1
-
-      - name: Configure CMake
-        run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-                -DCMAKE_BUILD_TYPE=Release `
-                -GNinja .. || `
-          cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-
-      - name: Build
-        run: |
-          cd build
-          cmake --build . --config Release -j
-
-      - name: Find and zip executable
-        run: |
-          cd build
-          $exe = Get-ChildItem -Recurse -Filter "otclient.exe" | Select-Object -First 1
-          if ($exe) {
-            Compress-Archive -Path $exe.FullName -DestinationPath "otclient_windows.zip"
-            Write-Host "✅ Executável encontrado: $($exe.FullName)"
-          } else {
-            Write-Host "❌ Executável não encontrado"
-            Get-ChildItem -Recurse | Where-Object { $_.Name -like "*otclient*" } | Select-Object -First 10
-          }
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: otclient-windows
-          path: build/otclient_windows.zip
-          if-no-files-found: warn
+          path: build/otclient.zip
           retention-days: 7

@@ -161,7 +161,12 @@ function CastsList.processCastsData(data)
   
   -- Parse JSON response
   if type(data) == 'table' then
-    g_logger.info('[CastsList] Data is table. Keys: ' .. table.concat(table.keys(data), ', '))
+    -- Debug: show table keys
+    local keys = {}
+    for k, v in pairs(data) do
+      table.insert(keys, tostring(k))
+    end
+    g_logger.info('[CastsList] Data keys: ' .. table.concat(keys, ', '))
     
     if data.success then
       g_logger.info('[CastsList] API success = true')

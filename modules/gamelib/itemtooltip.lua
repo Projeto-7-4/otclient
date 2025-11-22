@@ -13,8 +13,8 @@ local pendingRequests = {}
 local waitingCallbacks = {}
 
 function ItemTooltip.init()
-  -- Register protocol handler for item descriptions (opcode 0xFE)
-  ProtocolGame.registerExtendedOpcode(254, ItemTooltip.onReceiveItemDescription)
+  -- Register protocol handler for item descriptions (opcode 0xFE = 254)
+  ProtocolGame.registerOpcode(254, ItemTooltip.onReceiveItemDescription)
   
   print("[ItemTooltip] System initialized")
 end
@@ -78,9 +78,9 @@ function ItemTooltip.requestDescription(itemId, count, callback)
   end
 end
 
-function ItemTooltip.onReceiveItemDescription(protocol, opcode, buffer)
-  local itemId = buffer:getU16()
-  local description = buffer:getString()
+function ItemTooltip.onReceiveItemDescription(protocol, msg)
+  local itemId = msg:getU16()
+  local description = msg:getString()
   local count = 1 -- We'll use count=1 as default for cache
   
   local cacheKey = itemId .. ":" .. count

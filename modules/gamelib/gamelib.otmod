@@ -22,3 +22,5 @@ Module
     dofile 'itemtooltip'
 
     dofiles 'ui'
+    
+    ItemTooltip.init()

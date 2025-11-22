@@ -89,8 +89,11 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     if (hasShader())
         g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
 
-    // Effect 173 (Critical Damage) - render normally for now
-    getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
+    const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
+     else {
+        getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+    }
 }
 
 void Effect::onAppear()

@@ -54,10 +54,13 @@ function terminate()
 end
 
 function onMagicEffect(position, effectId)
+  -- Debug: Log todos os efeitos recebidos
   if effectId == CONST_ME_CRITICAL_DAMAGE then
-    -- Effect 173 (Critical Damage) detected
-    -- Log para debug
-    -- print("Effect 173 at position: " .. position.x .. "," .. position.y .. "," .. position.z)
+    print("[CLIENT DEBUG] Effect 173 (Critical Damage) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
+  elseif effectId == 6 then  -- CONST_ME_EXPLOSIONHIT
+    print("[CLIENT DEBUG] ⚠️ Effect 6 (EXPLOSIONHIT) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
+  elseif effectId == 5 then  -- CONST_ME_EXPLOSIONAREA
+    print("[CLIENT DEBUG] ⚠️ Effect 5 (EXPLOSIONAREA) recebido em: " .. position.x .. "," .. position.y .. "," .. position.z)
   end
 end
 

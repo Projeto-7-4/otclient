@@ -122,24 +122,68 @@ end
 
 function CastsList.fetchCastsViaHTTP(host)
   -- Tentar via HTTP primeiro
-  local httpUrl = 'http://' .. host:split(':')[1] .. '/casts.php'
+  local serverIp = host:split(':')[1]
+  local httpUrl = 'http://' .. serverIp .. '/casts.php'
   
-  g_logger.info('[CastsList] Trying HTTP: ' .. httpUrl)
+  g_logger.info('[CastsList] Fetching casts via HTTP: ' .. httpUrl)
   
   HTTP.get(httpUrl, function(data, err)
     if err then
       g_logger.error('[CastsList] HTTP error: ' .. err)
-      CastsList.showMockCasts()
+      -- Tentar IP local da VPS
+      httpUrl = 'http://192.168.0.36/casts.php'
+      g_logger.info('[CastsList] Trying local IP: ' .. httpUrl)
+      
+      HTTP.get(httpUrl, function(data2, err2)
+        if err2 then
+          g_logger.error('[CastsList] HTTP error on retry: ' .. err2)
+          CastsList.showMockCasts()
+          return
+        end
+        
+        CastsList.processCastsData(data2)
+      end)
       return
     end
     
-    -- Parse JSON response
-    if data and data.casts then
-      CastsList.updateCastList(data.casts)
+    CastsList.processCastsData(data)
+  end)
+end
+
+function CastsList.processCastsData(data)
+  g_logger.info('[CastsList] Processing casts data: ' .. type(data))
+  
+  -- Parse JSON response
+  if type(data) == 'table' then
+    if data.success and data.casts then
+      g_logger.info('[CastsList] Found ' .. data.count .. ' casts')
+      if data.count > 0 then
+        CastsList.updateCastList(data.casts)
+      else
+        CastsList.showNoCastsMessage()
+      end
     else
+      g_logger.error('[CastsList] API returned error: ' .. (data.error or 'unknown'))
       CastsList.showMockCasts()
     end
-  end)
+  else
+    g_logger.error('[CastsList] Invalid data type received')
+    CastsList.showMockCasts()
+  end
+end
+
+function CastsList.showNoCastsMessage()
+  if not castsList then
+    return
+  end
+  
+  castsList:destroyChildren()
+  
+  local label = g_ui.createWidget('Label', castsList)
+  label:setText('No active casts at the moment.\n\nTo start casting:\n1. Login to the game\n2. Type: /cast on\n3. Others can watch you!')
+  label:setPhantom(true)
+  label:setTextAlign(AlignTopLeft)
+  label:setColor('#ffff00')
 end
 
 function CastsList.showMockCasts()

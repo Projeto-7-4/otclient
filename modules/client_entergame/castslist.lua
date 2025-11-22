@@ -61,32 +61,56 @@ function CastsList.refresh()
   
   castsList:destroyChildren()
   availableCasts = {}
-  g_logger.info('[CastsList] Fetching casts...')
   
-  -- Buscar casts ativos do servidor
-  -- Por enquanto, vamos criar casts de exemplo
-  -- TODO: Implementar requisição ao servidor para listar casts
-  
-  -- Exemplo de casts (remover quando implementar a requisição real)
-  local exampleCasts = {
-    {name = "Mage", viewers = 5, description = "Hunting Dragons"},
-    {name = "Knight", viewers = 3, description = "Training Skills"},
-    {name = "Paladin", viewers = 8, description = "PvP Action"}
-  }
-  
-  -- Tentar buscar casts do servidor
-  local success, casts = pcall(CastsList.fetchCastsFromServer)
-  if success and casts and #casts > 0 then
-    availableCasts = casts
-  else
-    availableCasts = exampleCasts
+  -- Verificar se está conectado
+  if not g_game.isOnline() then
+    g_logger.info('[CastsList] Not connected to server, showing instruction message')
+    local label = g_ui.createWidget('Label', castsList)
+    label:setText('Please connect to the server first to see active casts.\n\nSteps:\n1. Login to the game\n2. Open this window again\n3. Click Refresh to see active casts')
+    label:setPhantom(true)
+    label:setTextAlign(AlignTopLeft)
+    return
   end
+  
+  -- Adicionar mensagem de carregamento
+  local loadingLabel = g_ui.createWidget('Label', castsList)
+  loadingLabel:setId('loadingLabel')
+  loadingLabel:setText('Loading casts from server...')
+  loadingLabel:setPhantom(true)
+  
+  g_logger.info('[CastsList] Requesting casts from server...')
+  
+  -- Requisitar casts do servidor via protocolo
+  if CastProtocol then
+    local success = CastProtocol.requestCastList()
+    if not success then
+      loadingLabel:setText('Failed to request cast list. Click Refresh to try again.')
+    end
+  else
+    g_logger.error('[CastsList] CastProtocol not loaded!')
+    loadingLabel:setText('Error: Cast protocol not loaded')
+  end
+end
+
+function CastsList.updateCastList(casts)
+  g_logger.info('[CastsList] updateCastList() called with ' .. #casts .. ' casts')
+  
+  if not castsList then
+    g_logger.error('[CastsList] castsList is nil!')
+    return
+  end
+  
+  -- Limpar lista
+  castsList:destroyChildren()
+  availableCasts = casts
   
   -- Adicionar casts à lista
   for i, cast in ipairs(availableCasts) do
     local label = g_ui.createWidget('Label', castsList)
     label:setId('cast_' .. i)
-    label:setText(string.format('%s (%d viewers) - %s', cast.name, cast.viewers, cast.description or ''))
+    
+    local passwordIcon = cast.password and '🔒 ' or ''
+    label:setText(string.format('%s%s (%d viewers) - %s', passwordIcon, cast.name, cast.viewers, cast.description or 'No description'))
     label:setPhantom(false)
     label:setFocusable(true)
     label.castData = cast
@@ -103,17 +127,11 @@ function CastsList.refresh()
   
   if #availableCasts == 0 then
     local label = g_ui.createWidget('Label', castsList)
-    label:setText('No active casts found')
+    label:setText('No active casts found. Start casting with /cast on')
     label:setPhantom(true)
   end
-end
-
-function CastsList.fetchCastsFromServer()
-  -- TODO: Implementar requisição HTTP ou protocolo customizado
-  -- para buscar lista de casts ativos do servidor
   
-  -- Por enquanto retorna nil para usar os exemplos
-  return nil
+  g_logger.info('[CastsList] Cast list updated successfully')
 end
 
 function CastsList.selectCast(widget)

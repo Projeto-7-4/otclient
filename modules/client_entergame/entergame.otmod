@@ -3,9 +3,9 @@ Module
   description: Manages enter game and character list windows
   author: edubart & otclient.ovh
   website: https://github.com/edubart/otclient
-  scripts: [ entergame, characterlist, castslist ]
-  @onLoad: EnterGame.init() CharacterList.init() CastsList.init()
-  @onUnload: EnterGame.terminate() CharacterList.terminate() CastsList.terminate()
+  scripts: [ entergame, characterlist, castslist, castprotocol ]
+  @onLoad: EnterGame.init() CharacterList.init() CastsList.init() CastProtocol.init()
+  @onUnload: CastProtocol.terminate() CastsList.terminate() CharacterList.terminate() EnterGame.terminate()
   
   load-later:
     - game_things

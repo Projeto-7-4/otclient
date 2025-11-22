@@ -15,16 +15,12 @@ local waitingCallbacks = {}
 function ItemTooltip.init()
   -- Register protocol handler for item descriptions (opcode 0xFE = 254)
   ProtocolGame.registerOpcode(254, ItemTooltip.onReceiveItemDescription)
-  
-  print("[ItemTooltip] System initialized")
 end
 
 function ItemTooltip.terminate()
   descriptionCache = {}
   pendingRequests = {}
   waitingCallbacks = {}
-  
-  print("[ItemTooltip] System terminated")
 end
 
 function ItemTooltip.requestDescription(itemId, count, callback)
@@ -35,7 +31,6 @@ function ItemTooltip.requestDescription(itemId, count, callback)
   -- Check cache first
   local cacheKey = itemId .. ":" .. (count or 1)
   if descriptionCache[cacheKey] then
-    print("[ItemTooltip] Using cached description for item " .. itemId)
     if callback then
       callback(descriptionCache[cacheKey])
     end
@@ -44,7 +39,6 @@ function ItemTooltip.requestDescription(itemId, count, callback)
   
   -- Check if already requesting
   if pendingRequests[cacheKey] then
-    print("[ItemTooltip] Already requesting item " .. itemId .. ", adding callback to queue")
     if callback then
       if not waitingCallbacks[cacheKey] then
         waitingCallbacks[cacheKey] = {}
@@ -61,7 +55,6 @@ function ItemTooltip.requestDescription(itemId, count, callback)
   end
   
   -- Send request to server
-  print("[ItemTooltip] Requesting description for item " .. itemId .. " (count: " .. (count or 1) .. ")")
   
   local protocolGame = g_game.getProtocolGame()
   if protocolGame then
@@ -72,7 +65,6 @@ function ItemTooltip.requestDescription(itemId, count, callback)
     protocolGame:send(msg)
     return true
   else
-    print("[ItemTooltip] ERROR: No active protocol game connection")
     pendingRequests[cacheKey] = nil
     return false
   end
@@ -84,8 +76,6 @@ function ItemTooltip.onReceiveItemDescription(protocol, msg)
   local count = 1 -- We'll use count=1 as default for cache
   
   local cacheKey = itemId .. ":" .. count
-  
-  print("[ItemTooltip] Received description for item " .. itemId .. ": " .. description:sub(1, 50) .. "...")
   
   -- Store in cache
   descriptionCache[cacheKey] = description
@@ -111,6 +101,5 @@ function ItemTooltip.clearCache()
   descriptionCache = {}
   pendingRequests = {}
   waitingCallbacks = {}
-  print("[ItemTooltip] Cache cleared")
 end
 

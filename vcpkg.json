@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "asio",
+    "pugixml",
+    "zlib",
+    "liblzma",
+    "fmt"
+  ]
+}

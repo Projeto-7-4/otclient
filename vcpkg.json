@@ -1,0 +1,28 @@
+{
+  "name": "otclient",
+  "version": "1.0.0",
+  "description": "OTClient dependencies",
+  "dependencies": [
+    "asio",
+    "abseil",
+    "cpp-httplib",
+    "discord-rpc",
+    "liblzma",
+    "libogg",
+    "libvorbis",
+    "nlohmann-json",
+    "openal-soft",
+    "openssl",
+    "parallel-hashmap",
+    "physfs",
+    "protobuf",
+    "pugixml",
+    "stduuid",
+    "zlib",
+    "luajit",
+    "opengl",
+    "glew",
+    "angle"
+  ]
+}
+

@@ -86,25 +86,28 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
             g_drawPool.setOpacity(g_client.getEffectAlpha(), true);
     }
 
-    if (hasShader())
-        g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
-
-    // Effect 173 (Critical Damage) uses 64x64 sprites instead of 32x32
-    const uint8_t EFFECT_CRITICAL_DAMAGE = 173;
-    if (m_clientId == EFFECT_CRITICAL_DAMAGE) {
-        // Use transform matrix to scale the effect 2x
-        const int spriteSize = g_gameConfig.getSpriteSize();
-        const Point centerOffset = Point(-spriteSize / 2, -spriteSize / 2);
-        
-        g_drawPool.pushTransformMatrix();
-        g_drawPool.translate(dest + centerOffset);
-        g_drawPool.scale(2.0f);
-        g_drawPool.translate(-centerOffset);
-        
-        getThingType()->draw(Point(0, 0), 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
-        
-        g_drawPool.popTransformMatrix();
+    // Special handling for Critical Damage effect (ID 173) - scale to 64x64
+    const bool isCriticalDamage = (m_clientId == 173);
+    
+    if (isCriticalDamage) {
+        // Use the effect scale shader to render at 2x size (64x64)
+        // The shader is configured to always scale 2x when used
+        auto* scaleShader = g_shaders.getShader("map_effect_scale");
+        if (scaleShader) {
+            g_drawPool.setShaderProgram(scaleShader, true);
+            // Adjust destination to center the larger 64x64 sprite
+            Point adjustedDest = dest - Point(16, 16);
+            getThingType()->draw(adjustedDest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+            g_drawPool.setShaderProgram(nullptr, true);
+        } else {
+            // Fallback: draw normally if shader not available
+            getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
+        }
     } else {
+        // Normal rendering for other effects
+        if (hasShader())
+            g_drawPool.setShaderProgram(g_shaders.getShaderById(m_shaderId), true/*, shaderAction*/);
+        
         getThingType()->draw(dest, 0, xPattern, yPattern, 0, animationPhase, Color::white, drawThings, lightView);
     }
 }

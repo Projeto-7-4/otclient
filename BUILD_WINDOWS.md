@@ -110,3 +110,51 @@ O código para renderizar o efeito 173 em 64x64 já está commitado:
 - `src/client/effect.cpp` - Simplificado
 
 Após compilar, o executável terá o efeito funcionando em 64x64.
+
+## Solução Rápida (Recomendado)
+
+Execute o script completo que faz tudo automaticamente:
+
+```powershell
+.\fix_and_build.ps1
+```
+
+Este script:
+1. ✅ Detecta automaticamente o vcpkg
+2. ✅ Corrige dependências (copia de packages para installed)
+3. ✅ Configura CMake com variáveis corretas
+4. ✅ Compila o projeto
+
+### Opções do Script
+
+```powershell
+# Apenas corrigir dependências (sem configurar/build)
+.\fix_and_build.ps1 -SkipConfigure -SkipBuild
+
+# Apenas configurar CMake (sem corrigir/build)
+.\fix_and_build.ps1 -SkipDependencies -SkipBuild
+
+# Apenas compilar (já configurado)
+.\fix_and_build.ps1 -SkipDependencies -SkipConfigure
+
+# Especificar caminho do vcpkg
+.\fix_and_build.ps1 -VCPKG_ROOT "C:\meu\caminho\vcpkg"
+```
+
+### Se o Script Falhar
+
+1. Verifique se o vcpkg está instalado:
+   ```powershell
+   $env:VCPKG_ROOT
+   ```
+
+2. Instale as dependências manualmente:
+   ```powershell
+   cd C:\vcpkg
+   .\vcpkg install libzip:x64-windows bzip2:x64-windows openal-soft:x64-windows
+   ```
+
+3. Execute o script novamente:
+   ```powershell
+   .\fix_and_build.ps1
+   ```

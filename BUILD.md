@@ -54,25 +54,38 @@ cd vcpkg
 ./vcpkg integrate install
 ```
 
-### 2. Configurar variável de ambiente
+### 2. Configurar variável de ambiente VCPKG_ROOT
+
+**⚠️ IMPORTANTE:** A variável deve ser `VCPKG_ROOT` (não `VcpkgRoot`).
 
 **Windows (PowerShell):**
 ```powershell
 [System.Environment]::SetEnvironmentVariable("VCPKG_ROOT", "C:\vcpkg", "User")
+# Verificar
+echo $env:VCPKG_ROOT
 ```
 
 **Windows (CMD):**
 ```cmd
 setx VCPKG_ROOT "C:\vcpkg"
+REM Verificar (em novo terminal)
+echo %VCPKG_ROOT%
 ```
 
 **Linux/macOS:**
 ```bash
 echo 'export VCPKG_ROOT="$HOME/vcpkg"' >> ~/.bashrc
-source ~/.bashrc
+# Ou para zsh:
+echo 'export VCPKG_ROOT="$HOME/vcpkg"' >> ~/.zshrc
+source ~/.bashrc  # ou source ~/.zshrc
+# Verificar
+echo $VCPKG_ROOT
 ```
 
-**Importante:** Feche e reabra o terminal após configurar a variável.
+**Importante:** 
+- Feche e reabra o terminal após configurar a variável
+- O CMake usa `VCPKG_ROOT` para encontrar o toolchain do vcpkg
+- Sem essa variável, o CMake não conseguirá encontrar as dependências
 
 ---
 
@@ -87,9 +100,13 @@ cd C:\vcpkg
 
 ### Windows (x64-windows-static) - Linking Estático
 
+**⚠️ Recomendado para OpenGL no Windows:**
+
 ```powershell
 .\vcpkg install asio abseil cpp-httplib discord-rpc liblzma libogg libvorbis nlohmann-json openal-soft openssl parallel-hashmap physfs protobuf pugixml stduuid zlib luajit opengl glew angle --triplet x64-windows-static
 ```
+
+**Nota:** O triplet `x64-windows-static` é recomendado quando você precisa de linking estático, especialmente para OpenGL. Use `x64-windows` para linking dinâmico (mais comum).
 
 ### Linux
 
@@ -175,14 +192,86 @@ build\otclient_mac
 
 ---
 
+## 📂 Diretório vcpkg_installed
+
+O diretório `vcpkg_installed` é criado **automaticamente** pelo vcpkg quando você instala as dependências. Ele contém:
+
+- Bibliotecas compiladas
+- Headers (arquivos de cabeçalho)
+- Arquivos de configuração CMake
+- Binários das dependências
+
+### Localização
+
+O diretório `vcpkg_installed` é criado dentro do diretório do vcpkg:
+
+**Windows:**
+```
+C:\vcpkg\vcpkg_installed\
+```
+
+**Linux/macOS:**
+```
+~/vcpkg/vcpkg_installed/
+```
+
+### Estrutura
+
+```
+vcpkg_installed/
+├── x64-windows/          # Para triplet x64-windows
+│   ├── include/          # Headers
+│   ├── lib/              # Bibliotecas
+│   └── share/            # Arquivos CMake
+├── x64-windows-static/   # Para triplet x64-windows-static
+└── ...
+```
+
+### Verificar se está instalado
+
+```powershell
+# Windows
+Test-Path "C:\vcpkg\vcpkg_installed\x64-windows"
+
+# Linux/macOS
+test -d "$HOME/vcpkg/vcpkg_installed/x64-linux" && echo "OK" || echo "Não encontrado"
+```
+
+---
+
 ## ⚠️ Problemas Comuns
 
 ### Erro: "vcpkg_installed directory not found"
 
+**Causa:** As dependências não foram instaladas ainda.
+
 **Solução:**
-1. Verifique se `VCPKG_ROOT` está configurado corretamente
-2. Execute `vcpkg install` novamente para garantir que as dependências estão instaladas
-3. Verifique se o triplet está correto (x64-windows, x64-linux, etc.)
+1. Verifique se `VCPKG_ROOT` está configurado corretamente:
+   ```powershell
+   # Windows
+   echo $env:VCPKG_ROOT
+   
+   # Linux/macOS
+   echo $VCPKG_ROOT
+   ```
+
+2. Instale as dependências:
+   ```powershell
+   # Windows
+   cd $env:VCPKG_ROOT
+   .\vcpkg install --triplet x64-windows
+   
+   # Linux
+   cd $VCPKG_ROOT
+   ./vcpkg install --triplet x64-linux
+   ```
+
+3. Verifique se o triplet está correto:
+   - Windows: `x64-windows` ou `x64-windows-static`
+   - Linux: `x64-linux`
+   - macOS: `x64-osx` ou `arm64-osx`
+
+4. O diretório `vcpkg_installed` será criado automaticamente após a primeira instalação bem-sucedida.
 
 ### Erro: "CMAKE_TOOLCHAIN_FILE not found"
 
@@ -196,12 +285,46 @@ build\otclient_mac
 **Solução:**
 1. Verifique se todas as dependências foram instaladas:
    ```powershell
-   vcpkg list
+   # Windows
+   cd $env:VCPKG_ROOT
+   .\vcpkg list
+   
+   # Linux/macOS
+   cd $VCPKG_ROOT
+   ./vcpkg list
    ```
-2. Instale as dependências faltantes manualmente:
+
+2. Verifique o triplet usado:
    ```powershell
-   vcpkg install <nome-do-pacote> --triplet x64-windows
+   # Windows
+   .\vcpkg list --triplet x64-windows
+   
+   # Se usar static
+   .\vcpkg list --triplet x64-windows-static
    ```
+
+3. Instale as dependências faltantes manualmente:
+   ```powershell
+   # Windows
+   .\vcpkg install <nome-do-pacote> --triplet x64-windows
+   
+   # Ou para static
+   .\vcpkg install <nome-do-pacote> --triplet x64-windows-static
+   ```
+
+### Erro: "VCPKG_ROOT not set"
+
+**Solução:**
+1. Configure a variável `VCPKG_ROOT` (veja seção "Configurar variável de ambiente")
+2. Verifique se está configurada:
+   ```powershell
+   # Windows
+   echo $env:VCPKG_ROOT
+   
+   # Linux/macOS
+   echo $VCPKG_ROOT
+   ```
+3. Se não estiver configurada, configure novamente e **feche e reabra o terminal**
 
 ### Erro de compilação: "Cannot find OpenGL"
 

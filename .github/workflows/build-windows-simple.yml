@@ -1,0 +1,88 @@
+name: Build OTClient Windows (Simple - Visual Studio Generator)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+      
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      id: vcpkg
+      
+    - name: Install dependencies using manifest
+      run: |
+        vcpkg install --triplet x64-windows-static --x-manifest-root=. --x-install-root=./vcpkg_installed
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Configure CMake (Visual Studio Generator)
+      run: |
+        mkdir build
+        cd build
+        cmake .. `
+          -G "Visual Studio 17 2022" `
+          -A x64 `
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          -DBUILD_STATIC_LIBRARY=ON
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
+        
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config RelWithDebInfo --parallel
+        
+    - name: Find executable
+      id: find_exe
+      run: |
+        Write-Output "Searching for executable..."
+        $searchPaths = @(
+          "build/RelWithDebInfo",
+          "build/Release", 
+          "build",
+          "."
+        )
+        
+        foreach ($searchPath in $searchPaths) {
+          if (Test-Path $searchPath) {
+            $exe = Get-ChildItem -Path $searchPath -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($exe) {
+              echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+              Write-Output "✅ Executable found: $($exe.FullName)"
+              Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+              exit 0
+            }
+          }
+        }
+        
+        Write-Output "❌ Executable not found! Listing all .exe files:"
+        Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { 
+          Write-Output "  Found: $($_.FullName)"
+        }
+        exit 1
+      shell: pwsh
+      
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+        if-no-files-found: error
+

@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     
     steps:
     - name: Checkout repository
@@ -20,18 +20,26 @@ jobs:
       
     - name: Setup vcpkg
       uses: microsoft/setup-vcpkg@v1
+      id: vcpkg
       
-    - name: Install dependencies
+    - name: Install Ninja
       run: |
-        vcpkg install --triplet x64-windows-static
+        choco install ninja -y
+      continue-on-error: true
+      
+    - name: Install dependencies using manifest
+      run: |
+        vcpkg install --triplet x64-windows-static --x-manifest-root=. --x-install-root=vcpkg_installed
       env:
         VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
         
     - name: Configure CMake
       run: |
         cmake --preset windows-release
       env:
         VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
         
     - name: Build
       run: |
@@ -40,14 +48,29 @@ jobs:
     - name: Find executable
       id: find_exe
       run: |
-        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse | Select-Object -First 1
+        Write-Output "Searching for executable..."
+        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($exe) {
           echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
           Write-Output "Executable found: $($exe.FullName)"
           Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
         } else {
-          Write-Output "Executable not found!"
-          Get-ChildItem -Path . -Filter "*.exe" -Recurse | ForEach-Object { Write-Output "Found: $($_.FullName)" }
+          Write-Output "Executable not found! Searching all .exe files..."
+          Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Output "Found: $($_.FullName)" }
+          
+          # Try alternative paths
+          $altPaths = @("build/windows-release", "build/Release", "build/windows-release/Release", "build")
+          foreach ($path in $altPaths) {
+            if (Test-Path $path) {
+              $found = Get-ChildItem -Path $path -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+              if ($found) {
+                echo "executable=$($found.FullName)" >> $env:GITHUB_OUTPUT
+                Write-Output "Found in alternative path: $($found.FullName)"
+                exit 0
+              }
+            }
+          }
+          
           exit 1
         }
       shell: pwsh

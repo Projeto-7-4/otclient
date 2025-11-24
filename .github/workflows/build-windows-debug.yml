@@ -1,0 +1,170 @@
+name: Build - Windows (Debug Mode)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LUKKA_RUN_VCPKG_SHA: "${{ vars.LUKKA_RUN_VCPKG_SHA != '' && vars.LUKKA_RUN_VCPKG_SHA || 'b3dd708d38df5c856fe1c18dc0d59ab771f93921' }}"
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
+
+jobs:
+  debug-build:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Debug - List files
+        shell: pwsh
+        run: |
+          Write-Output "========================================"
+          Write-Output "DEBUG: Repository Structure"
+          Write-Output "========================================"
+          Write-Output "Current directory: $(Get-Location)"
+          Write-Output ""
+          Write-Output "Root files:"
+          Get-ChildItem -Path . -File | Select-Object -First 20 Name
+          Write-Output ""
+          Write-Output "Directories:"
+          Get-ChildItem -Path . -Directory | Select-Object Name
+          Write-Output ""
+          Write-Output "vcpkg.json exists: $(Test-Path vcpkg.json)"
+          Write-Output "CMakePresets.json exists: $(Test-Path CMakePresets.json)"
+          Write-Output "vc17 directory exists: $(Test-Path vc17)"
+
+      - name: Debug - Check vcpkg.json
+        shell: pwsh
+        run: |
+          Write-Output "========================================"
+          Write-Output "DEBUG: vcpkg.json"
+          Write-Output "========================================"
+          if (Test-Path vcpkg.json) {
+            Get-Content vcpkg.json | Write-Output
+            $json = Get-Content vcpkg.json -Raw | ConvertFrom-Json
+            Write-Output ""
+            Write-Output "builtin-baseline: $($json.'builtin-baseline')"
+            Write-Output "Dependencies count: $($json.dependencies.Count)"
+          } else {
+            Write-Output "❌ vcpkg.json NOT FOUND!"
+          }
+
+      - name: Get vcpkg commit ID
+        id: vcpkg-step
+        shell: pwsh
+        run: |
+          $json = Get-Content vcpkg.json -Raw | ConvertFrom-Json
+          $commit = $json.'builtin-baseline'
+          echo "vcpkgGitCommitId=$commit" >> $env:GITHUB_OUTPUT
+          Write-Output "vcpkg baseline: $commit"
+
+      - name: Install vcpkg (with verbose output)
+        uses: lukka/run-vcpkg@a400452f634fe49e9f18d388aeb1809dcc642136
+        with:
+          vcpkgGitCommitId: ${{ steps.vcpkg-step.outputs.vcpkgGitCommitId }}
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgJsonGlob: 'vcpkg.json'
+          vcpkgTriplet: x64-windows-static
+          vcpkgArguments: '--x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg/installed'
+
+      - name: Debug - Verify vcpkg installation
+        shell: pwsh
+        run: |
+          Write-Output "========================================"
+          Write-Output "DEBUG: vcpkg Installation"
+          Write-Output "========================================"
+          
+          $vcpkgDir = "${{ github.workspace }}/vcpkg"
+          $installedDir = "$vcpkgDir/installed"
+          
+          Write-Output "vcpkg directory: $vcpkgDir"
+          Write-Output "installed directory: $installedDir"
+          Write-Output ""
+          Write-Output "vcpkg directory exists: $(Test-Path $vcpkgDir)"
+          Write-Output "installed directory exists: $(Test-Path $installedDir)"
+          
+          if (Test-Path $installedDir) {
+            Write-Output ""
+            Write-Output "Triplets installed:"
+            Get-ChildItem -Path $installedDir -Directory | Select-Object Name
+            
+            $tripletDir = "$installedDir/x64-windows-static"
+            if (Test-Path $tripletDir) {
+              Write-Output ""
+              Write-Output "x64-windows-static directory structure:"
+              Get-ChildItem -Path $tripletDir -Directory | Select-Object Name
+              
+              $includeDir = "$tripletDir/include"
+              if (Test-Path $includeDir) {
+                Write-Output ""
+                Write-Output "Sample headers in include:"
+                Get-ChildItem -Path $includeDir -Directory | Select-Object -First 10 Name
+              }
+            }
+          }
+
+      - name: Get latest CMake and Ninja
+        uses: lukka/get-cmake@v3.31.6
+
+      - name: Debug - CMake version
+        shell: pwsh
+        run: |
+          Write-Output "CMake version:"
+          cmake --version
+          Write-Output ""
+          Write-Output "Ninja version:"
+          ninja --version
+
+      - name: Debug - List CMake presets
+        shell: pwsh
+        run: |
+          Write-Output "========================================"
+          Write-Output "DEBUG: CMake Presets"
+          Write-Output "========================================"
+          cmake --list-presets
+
+      - name: Configure CMake (with debug output)
+        shell: pwsh
+        run: |
+          Write-Output "========================================"
+          Write-Output "Configuring CMake..."
+          Write-Output "========================================"
+          cmake --preset windows-release --debug-output 2>&1 | Select-Object -First 200
+
+      - name: Build (first attempt with detailed logs)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          Write-Output "========================================"
+          Write-Output "Building..."
+          Write-Output "========================================"
+          cmake --build --preset windows-release --verbose 2>&1 | Tee-Object -FilePath build_output.log
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output ""
+            Write-Output "========================================"
+            Write-Output "BUILD FAILED - Last 100 lines:"
+            Write-Output "========================================"
+            Get-Content build_output.log -Tail 100
+            
+            Write-Output ""
+            Write-Output "Searching for error patterns:"
+            Get-Content build_output.log | Select-String -Pattern "error|ERROR|Error|failed|FAILED|Failed" | Select-Object -Last 20
+          }
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-logs
+          path: |
+            build_output.log
+          retention-days: 7
+

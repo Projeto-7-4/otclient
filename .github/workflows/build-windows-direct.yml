@@ -1,0 +1,106 @@
+name: Build OTClient Windows (Direct - Most Reliable)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+      
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      
+    - name: Install vcpkg dependencies
+      shell: pwsh
+      run: |
+        Write-Output "Installing dependencies..."
+        vcpkg install --triplet x64-windows-static
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Build using MSBuild (Visual Studio Solution)
+      shell: pwsh
+      run: |
+        $vcpkgRoot = $env:VCPKG_ROOT
+        
+        Write-Output "Building with MSBuild..."
+        Write-Output "VCPKG_ROOT=$vcpkgRoot"
+        
+        msbuild vc17\otclient.sln `
+          /t:Build `
+          /p:Configuration=OpenGL `
+          /p:Platform=x64 `
+          /p:VcpkgTriplet=x64-windows-static `
+          /p:VcpkgRoot="$vcpkgRoot" `
+          /p:VcpkgInstalledDir="$vcpkgRoot/installed" `
+          /m:2 `
+          /v:minimal `
+          /nologo
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "Build failed with exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
+        }
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Find executable
+      id: find_exe
+      shell: pwsh
+      run: |
+        Write-Output "Searching for executable..."
+        
+        $searchPaths = @(
+          "otclient_gl_x64.exe",
+          "vc17/otclient_gl_x64.exe",
+          "build/Release/otclient_gl_x64.exe",
+          "build/RelWithDebInfo/otclient_gl_x64.exe"
+        )
+        
+        foreach ($searchPath in $searchPaths) {
+          if (Test-Path $searchPath) {
+            $exe = Get-Item $searchPath
+            echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+            Write-Output "✅ Executable found: $($exe.FullName)"
+            Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+            exit 0
+          }
+        }
+        
+        # Fallback: search recursively
+        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notlike "*vc17\otclient\*" } | Select-Object -First 1
+        
+        if ($exe) {
+          echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          Write-Output "✅ Executable found: $($exe.FullName)"
+          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+        } else {
+          Write-Output "❌ Executable not found!"
+          Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "Found: $($_.FullName)"
+          }
+          exit 1
+        }
+        
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+

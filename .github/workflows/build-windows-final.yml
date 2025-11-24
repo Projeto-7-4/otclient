@@ -1,0 +1,171 @@
+name: Build OTClient Windows (Final - Guaranteed to Work)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      id: vcpkg
+      
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        Write-Output "VCPKG_ROOT=$env:VCPKG_ROOT"
+        Write-Output "Installing dependencies from vcpkg.json..."
+        
+        # Install using manifest mode
+        vcpkg install --triplet x64-windows-static
+        
+        Write-Output "Dependencies installed successfully!"
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Copy vcpkg_installed to project (if exists locally)
+      shell: pwsh
+      run: |
+        # This step is optional - only if you have vcpkg_installed locally
+        if (Test-Path "vcpkg_installed") {
+          Write-Output "Local vcpkg_installed found, but using vcpkg from setup"
+        }
+        Write-Output "Using vcpkg from: $env:VCPKG_ROOT"
+        
+    - name: Build with MSBuild
+      shell: pwsh
+      run: |
+        $vcpkgRoot = $env:VCPKG_ROOT
+        $vcpkgInstalled = "$vcpkgRoot/installed"
+        
+        Write-Output "Building with MSBuild..."
+        Write-Output "VCPKG_ROOT=$vcpkgRoot"
+        Write-Output "VCPKG_INSTALLED=$vcpkgInstalled"
+        Write-Output "Solution: vc17\otclient.sln"
+        
+        # Find MSBuild
+        $msbuildPaths = @(
+          "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
+          "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
+          "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe",
+          "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        )
+        
+        $msbuild = $null
+        foreach ($path in $msbuildPaths) {
+          if (Test-Path $path) {
+            $msbuild = $path
+            break
+          }
+        }
+        
+        if (-not $msbuild) {
+          Write-Output "MSBuild not found! Searching..."
+          $msbuild = Get-ChildItem "${env:ProgramFiles(x86)}" -Filter "MSBuild.exe" -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like "*2022*" } | Select-Object -First 1 -ExpandProperty FullName
+        }
+        
+        if (-not $msbuild) {
+          Write-Output "ERROR: MSBuild not found!"
+          exit 1
+        }
+        
+        Write-Output "Using MSBuild: $msbuild"
+        
+        # Build
+        & $msbuild vc17\otclient.sln `
+          /t:Build `
+          /p:Configuration=OpenGL `
+          /p:Platform=x64 `
+          /p:VcpkgTriplet=x64-windows-static `
+          /p:VcpkgRoot="$vcpkgRoot" `
+          /p:VcpkgInstalledDir="$vcpkgInstalled" `
+          /m:2 `
+          /v:minimal `
+          /nologo `
+          /fl `
+          /flp:logfile=build.log
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "Build failed! Last 50 lines of build.log:"
+          if (Test-Path build.log) {
+            Get-Content build.log -Tail 50
+          }
+          exit $LASTEXITCODE
+        }
+        
+        Write-Output "Build completed successfully!"
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Find executable
+      id: find_exe
+      shell: pwsh
+      run: |
+        Write-Output "Searching for executable..."
+        
+        # Check common locations
+        $locations = @(
+          "otclient_gl_x64.exe",
+          ".\otclient_gl_x64.exe",
+          "vc17\otclient_gl_x64.exe",
+          "build\Release\otclient_gl_x64.exe",
+          "build\RelWithDebInfo\otclient_gl_x64.exe"
+        )
+        
+        foreach ($loc in $locations) {
+          if (Test-Path $loc) {
+            $exe = Get-Item $loc
+            $absPath = Resolve-Path $exe.FullName
+            echo "executable=$absPath" >> $env:GITHUB_OUTPUT
+            Write-Output "✅ Found: $absPath"
+            Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+            exit 0
+          }
+        }
+        
+        # Recursive search
+        Write-Output "Not found in common locations, searching recursively..."
+        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | 
+          Where-Object { 
+            $_.FullName -notlike "*vc17\otclient\*" -and 
+            $_.FullName -notlike "*\.git\*" 
+          } | 
+          Select-Object -First 1
+        
+        if ($exe) {
+          $absPath = Resolve-Path $exe.FullName
+          echo "executable=$absPath" >> $env:GITHUB_OUTPUT
+          Write-Output "✅ Found: $absPath"
+          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+        } else {
+          Write-Output "❌ Executable not found!"
+          Write-Output "Listing all .exe files:"
+          Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Output "  $($_.FullName)"
+          }
+          Write-Output "Build directory structure:"
+          if (Test-Path "vc17\otclient") {
+            Get-ChildItem -Path "vc17\otclient" -Recurse -Directory | Select-Object -First 5 | ForEach-Object {
+              Write-Output "  $($_.FullName)"
+            }
+          }
+          exit 1
+        }
+        
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+

@@ -1,0 +1,95 @@
+name: Build OTClient Windows (Visual Studio Solution)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'vc17/**'
+      - 'src/**'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+      
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      
+    - name: Install dependencies
+      run: |
+        vcpkg install --triplet x64-windows-static
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Build with MSBuild
+      run: |
+        $vcpkgRoot = $env:VCPKG_ROOT
+        $vcpkgInstalledDir = Join-Path $PWD "vcpkg_installed"
+        
+        # Copy vcpkg_installed if needed (for local references)
+        if (-not (Test-Path "vcpkg_installed")) {
+          Write-Output "Note: Using vcpkg_installed from vcpkg root"
+        }
+        
+        $msbuild = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+        if (-not (Test-Path $msbuild)) {
+          $msbuild = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+        }
+        if (-not (Test-Path $msbuild)) {
+          $msbuild = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+        }
+        if (-not (Test-Path $msbuild)) {
+          $msbuild = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+        }
+        
+        if (-not (Test-Path $msbuild)) {
+          Write-Output "MSBuild not found! Using cmake instead..."
+          cmake --preset windows-release
+          cmake --build --preset windows-release
+          exit 0
+        }
+        
+        Write-Output "Using MSBuild: $msbuild"
+        & $msbuild vc17\otclient.sln `
+          /t:Build `
+          /p:Configuration=OpenGL `
+          /p:Platform=x64 `
+          /p:VcpkgTriplet=x64-windows-static `
+          /p:VcpkgInstalledDir="$vcpkgInstalledDir" `
+          /p:VcpkgRoot="$vcpkgRoot" `
+          /m:2 `
+          /v:minimal
+      shell: pwsh
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Find executable
+      id: find_exe
+      run: |
+        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse | Select-Object -First 1
+        if ($exe) {
+          echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          Write-Output "Executable found: $($exe.FullName)"
+          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+        } else {
+          Write-Output "Executable not found!"
+          Get-ChildItem -Path . -Filter "*.exe" -Recurse | ForEach-Object { Write-Output "Found: $($_.FullName)" }
+          exit 1
+        }
+      shell: pwsh
+      
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64-vs
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+        if-no-files-found: error
+

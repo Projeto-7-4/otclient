@@ -1,0 +1,135 @@
+name: Build OTClient Windows (Robust)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 1
+      
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      
+    - name: Configure vcpkg environment
+      shell: pwsh
+      run: |
+        Write-Output "VCPKG_ROOT=$env:VCPKG_ROOT"
+        Write-Output "Current directory: $(Get-Location)"
+        
+    - name: Install dependencies from manifest
+      shell: pwsh
+      run: |
+        Write-Output "Installing dependencies using manifest..."
+        vcpkg install --triplet x64-windows-static --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg_installed
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "vcpkg install failed with exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
+        }
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Configure CMake
+      shell: pwsh
+      run: |
+        Write-Output "Configuring CMake..."
+        Write-Output "VCPKG_ROOT=$env:VCPKG_ROOT"
+        
+        New-Item -ItemType Directory -Force -Path build | Out-Null
+        Set-Location build
+        
+        cmake .. `
+          -G "Visual Studio 17 2022" `
+          -A x64 `
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          -DVCPKG_MANIFEST_DIR="${{ github.workspace }}" `
+          -DVCPKG_INSTALLED_DIR="${{ github.workspace }}/vcpkg_installed"
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "CMake configuration failed!"
+          exit $LASTEXITCODE
+        }
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Build project
+      shell: pwsh
+      run: |
+        Set-Location build
+        Write-Output "Building project..."
+        cmake --build . --config RelWithDebInfo --parallel 2 --verbose
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "Build failed!"
+          exit $LASTEXITCODE
+        }
+        
+    - name: Find and verify executable
+      id: find_exe
+      shell: pwsh
+      run: |
+        Write-Output "Searching for executable..."
+        
+        $searchPaths = @(
+          "build/RelWithDebInfo",
+          "build/Release",
+          "build/Debug",
+          "build",
+          "."
+        )
+        
+        $exe = $null
+        foreach ($path in $searchPaths) {
+          if (Test-Path $path) {
+            Write-Output "Checking: $path"
+            $found = Get-ChildItem -Path $path -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($found) {
+              $exe = $found
+              break
+            }
+          }
+        }
+        
+        if ($exe) {
+          $relativePath = Resolve-Path $exe.FullName -Relative
+          echo "executable=$relativePath" >> $env:GITHUB_OUTPUT
+          echo "executable_abs=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          Write-Output "✅ Executable found: $($exe.FullName)"
+          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+          Write-Output "Last modified: $($exe.LastWriteTime)"
+        } else {
+          Write-Output "❌ Executable not found!"
+          Write-Output "Listing all .exe files in build directory:"
+          if (Test-Path build) {
+            Get-ChildItem -Path build -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Output "  $($_.FullName)"
+            }
+          }
+          Write-Output "Listing build directory structure:"
+          if (Test-Path build) {
+            Get-ChildItem -Path build -Recurse -Directory | Select-Object -First 10 | ForEach-Object {
+              Write-Output "  Directory: $($_.FullName)"
+            }
+          }
+          exit 1
+        }
+        
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+        if-no-files-found: error
+

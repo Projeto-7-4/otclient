@@ -30,10 +30,19 @@ jobs:
       shell: pwsh
       run: |
         Write-Output "Installing dependencies using manifest..."
+        Write-Output "VCPKG_ROOT=$env:VCPKG_ROOT"
+        Write-Output "Workspace=${{ github.workspace }}"
+        Write-Output "vcpkg.json exists: $(Test-Path vcpkg.json)"
+        
         vcpkg install --triplet x64-windows-static --x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg_installed
+        
         if ($LASTEXITCODE -ne 0) {
           Write-Output "vcpkg install failed with exit code: $LASTEXITCODE"
-          exit $LASTEXITCODE
+          Write-Output "Trying without --x-install-root..."
+          vcpkg install --triplet x64-windows-static
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
         }
       env:
         VCPKG_ROOT: ${{ env.VCPKG_ROOT }}

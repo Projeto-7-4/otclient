@@ -1,85 +1,265 @@
-name: Build OTClient Windows
+name: Build - Windows
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "src/**"
+      - ".github/workflows/build-windows.yml"
+  merge_group:
+  push:
+    paths:
+      - "src/**"
+      - ".github/workflows/build-windows.yml"
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  LUKKA_RUN_VCPKG_SHA: "${{ vars.LUKKA_RUN_VCPKG_SHA != '' && vars.LUKKA_RUN_VCPKG_SHA || 'b3dd708d38df5c856fe1c18dc0d59ab771f93921' }}"
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
+  MAKEFLAGS: "-j 2"
 
 jobs:
-  build:
-    runs-on: windows-latest
-    timeout-minutes: 90
-    
+  cancel-runs:
+    if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-      
-    - name: Setup vcpkg
-      uses: microsoft/setup-vcpkg@v1
-      id: vcpkg
-      
-    - name: Install Ninja
-      run: |
-        choco install ninja -y
-      continue-on-error: true
-      
-    - name: Install dependencies using manifest
-      run: |
-        vcpkg install --triplet x64-windows-static --x-manifest-root=. --x-install-root=vcpkg_installed
-      env:
-        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
-        VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
-        
-    - name: Configure CMake
-      run: |
-        cmake --preset windows-release
-      env:
-        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
-        VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
-        
-    - name: Build
-      run: |
-        cmake --build --preset windows-release
-        
-    - name: Find executable
-      id: find_exe
-      run: |
-        Write-Output "Searching for executable..."
-        $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($exe) {
-          echo "executable=$($exe.FullName)" >> $env:GITHUB_OUTPUT
-          Write-Output "Executable found: $($exe.FullName)"
-          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
-        } else {
-          Write-Output "Executable not found! Searching all .exe files..."
-          Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Output "Found: $($_.FullName)" }
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    if: ${{ github.event_name == 'push' || !github.event.pull_request.draft }}
+    name: ${{ matrix.os }}-${{ matrix.buildtype }}
+    runs-on: ${{ matrix.os }}
+
+    concurrency:
+      group: otclient-${{ github.workflow }}-${{ github.ref }}-${{ matrix.buildtype }}
+      cancel-in-progress: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022]
+        buildtype: [windows-release]
+        include:
+          - os: windows-2022
+            triplet: x64-windows-static
+            packages: sccache
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event_name == 'push' && github.repository || (github.event.pull_request.head.repo.fork && github.repository || github.event.pull_request.head.repo.full_name) }}
+          ref: ${{ github.event_name == 'push' && github.ref || (github.event.pull_request.head.repo.fork && github.event.pull_request.base.ref || github.event.pull_request.head.ref) }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Get vcpkg commit ID
+        id: vcpkg-step
+        shell: pwsh
+        run: |
+          $json = Get-Content vcpkg.json -Raw | ConvertFrom-Json
+          $commit = $json.'builtin-baseline'
+          if ([string]::IsNullOrEmpty($commit)) {
+            Write-Error "builtin-baseline not found in vcpkg.json!"
+            exit 1
+          }
+          echo "vcpkgGitCommitId=$commit" >> $env:GITHUB_OUTPUT
+          Write-Output "vcpkg baseline: $commit"
+
+      - name: Validate vcpkg baseline SHA
+        shell: pwsh
+        run: |
+          $SHAS = "${{ steps.vcpkg-step.outputs.vcpkgGitCommitId }}"
+          if ([string]::IsNullOrEmpty($SHAS)) {
+            echo "::error title=Missing vcpkg baseline::Provide a full 40-char vcpkgGitCommitId."
+            exit 1
+          }
+          if ($SHAS -notmatch '^[0-9a-f]{40}$') {
+            echo "::error title=Invalid vcpkg baseline::vcpkgGitCommitId must be a full 40-char commit SHA."
+            exit 1
+          }
+          Write-Output "✅ vcpkg baseline SHA validated: $SHAS"
+
+      - name: Compute vcpkg.json hash
+        id: hash
+        shell: pwsh
+        run: |
+          $json = Get-Content "vcpkg.json" -Raw -Encoding UTF8
+          $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+          $sha256 = [System.Security.Cryptography.SHA256]::Create()
+          $hashBytes = $sha256.ComputeHash($bytes)
+          $hash = [BitConverter]::ToString($hashBytes) -replace '-', ''
+          "hash=$hash" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Output "vcpkg.json hash: $hash"
+
+      - name: Cache vcpkg artifacts (Windows)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg/installed
+            ${{ github.workspace }}/vcpkg/buildtrees
+            ${{ github.workspace }}/vcpkg/downloads
+          key: vcpkg-${{ matrix.os }}-${{ matrix.buildtype }}-${{ steps.hash.outputs.hash }}
+          restore-keys: |
+            vcpkg-${{ matrix.os }}-${{ matrix.buildtype }}-
+
+      - name: CCache with SCCACHE
+        uses: hendrikmuhs/ccache-action@main
+        with:
+          max-size: "1G"
+          variant: "sccache"
+          key: ccache-${{ matrix.os }}-${{ matrix.buildtype }}
+          restore-keys: |
+            ccache-${{ matrix.os }}-${{ matrix.buildtype }}
+
+      - name: Remove Windows pre-installed MySQL (for clean builds)
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "C:/mysql*"
+          Write-Output "✅ MySQL cleanup done (if existed)"
+
+      - name: Install vcpkg
+        if: ${{ matrix.buildtype == 'windows-release' }}
+        uses: lukka/run-vcpkg@a400452f634fe49e9f18d388aeb1809dcc642136
+        with:
+          vcpkgGitCommitId: ${{ steps.vcpkg-step.outputs.vcpkgGitCommitId }}
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgJsonGlob: 'vcpkg.json'
+          vcpkgTriplet: ${{ matrix.triplet }}
+          vcpkgArguments: '--x-manifest-root=${{ github.workspace }} --x-install-root=${{ github.workspace }}/vcpkg/installed'
+
+      - name: Verify vcpkg installation
+        shell: pwsh
+        run: |
+          Write-Output "Verifying vcpkg installation..."
           
-          # Try alternative paths
-          $altPaths = @("build/windows-release", "build/Release", "build/windows-release/Release", "build")
-          foreach ($path in $altPaths) {
-            if (Test-Path $path) {
-              $found = Get-ChildItem -Path $path -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-              if ($found) {
-                echo "executable=$($found.FullName)" >> $env:GITHUB_OUTPUT
-                Write-Output "Found in alternative path: $($found.FullName)"
-                exit 0
-              }
-            }
+          $vcpkgInstalled = "${{ github.workspace }}/vcpkg/installed"
+          $triplet = "${{ matrix.triplet }}"
+          
+          if (-not (Test-Path $vcpkgInstalled)) {
+            Write-Error "❌ vcpkg/installed directory not found!"
+            exit 1
           }
           
-          exit 1
-        }
-      shell: pwsh
-      
-    - name: Upload executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: otclient-windows-x64
-        path: ${{ steps.find_exe.outputs.executable }}
-        retention-days: 30
-        if-no-files-found: error
+          $includeDir = "$vcpkgInstalled/$triplet/include"
+          if (-not (Test-Path $includeDir)) {
+            Write-Error "❌ Include directory not found: $includeDir"
+            exit 1
+          }
+          
+          Write-Output "✅ vcpkg installed directory: $vcpkgInstalled"
+          Write-Output "✅ Include directory: $includeDir"
+          
+          # Check for critical headers
+          $criticalHeaders = @(
+            "parallel_hashmap/phmap.h",
+            "asio/asio.hpp",
+            "pugixml.hpp"
+          )
+          
+          foreach ($header in $criticalHeaders) {
+            $found = Get-ChildItem -Path $includeDir -Filter "*" -Recurse -ErrorAction SilentlyContinue | 
+              Where-Object { $_.FullName -like "*$header*" } | Select-Object -First 1
+            
+            if ($found) {
+              Write-Output "✅ Found: $header"
+            } else {
+              Write-Output "⚠️  Not found: $header (may cause issues)"
+            }
+          }
 
+      - name: Get latest CMake and Ninja
+        uses: lukka/get-cmake@v3.31.6
+
+      - name: Verify CMake preset
+        shell: pwsh
+        run: |
+          Write-Output "Verifying CMakePresets.json..."
+          if (-not (Test-Path "CMakePresets.json")) {
+            Write-Error "❌ CMakePresets.json not found!"
+            exit 1
+          }
+          
+          $presets = Get-Content "CMakePresets.json" -Raw | ConvertFrom-Json
+          $configurePresets = $presets.configurePresets
+          $buildPresets = $presets.buildPresets
+          
+          $configurePreset = $configurePresets | Where-Object { $_.name -eq "${{ matrix.buildtype }}" } | Select-Object -First 1
+          $buildPreset = $buildPresets | Where-Object { $_.name -eq "${{ matrix.buildtype }}" } | Select-Object -First 1
+          
+          if (-not $configurePreset) {
+            Write-Error "❌ Configure preset '${{ matrix.buildtype }}' not found!"
+            exit 1
+          }
+          
+          if (-not $buildPreset) {
+            Write-Error "❌ Build preset '${{ matrix.buildtype }}' not found!"
+            exit 1
+          }
+          
+          Write-Output "✅ Configure preset found: $($configurePreset.name)"
+          Write-Output "✅ Build preset found: $($buildPreset.name)"
+
+      - name: Configure and Build
+        if: ${{ matrix.buildtype == 'windows-release' }}
+        uses: lukka/run-cmake@main
+        with:
+          configurePreset: ${{ matrix.buildtype }}
+          buildPreset: ${{ matrix.buildtype }}
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+      - name: Prepare artifact folder
+        shell: pwsh
+        run: |
+          Write-Output "Preparing artifacts..."
+          $artifactDir = "$env:GITHUB_WORKSPACE\artifacts"
+          New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+          
+          Write-Output "Searching for otclient*.exe..."
+          $exePath = Get-ChildItem -Recurse -Path $env:GITHUB_WORKSPACE -Filter "otclient*.exe" -ErrorAction SilentlyContinue | 
+            Where-Object { 
+              $_.FullName -notlike "*\.git\*" -and
+              $_.FullName -notlike "*\vcpkg\*"
+            } | Select-Object -First 1
+          
+          if (-not $exePath) {
+            Write-Error "❌ Not found otclient*.exe!"
+            Write-Output "Searching all .exe files:"
+            Get-ChildItem -Recurse -Path $env:GITHUB_WORKSPACE -Filter "*.exe" -ErrorAction SilentlyContinue | 
+              ForEach-Object { Write-Output "  $($_.FullName)" }
+            exit 1
+          }
+          
+          Write-Output "✅ Found executable: $($exePath.FullName)"
+          Write-Output "Size: $([math]::Round($exePath.Length / 1MB, 2)) MB"
+          
+          Copy-Item $exePath.FullName -Destination $artifactDir
+          
+          # Copy DLLs from same directory
+          $dlls = Get-ChildItem -Path $exePath.Directory.FullName -Filter "*.dll" -ErrorAction SilentlyContinue
+          if ($dlls) {
+            foreach ($dll in $dlls) {
+              Write-Output "Copying DLL: $($dll.Name)"
+              Copy-Item $dll.FullName -Destination $artifactDir
+            }
+          } else {
+            Write-Output "No DLLs found in executable directory"
+          }
+
+      - name: Upload Executable Artifact (MSBuild)
+        uses: actions/upload-artifact@v4
+        with:
+          name: otclient-${{ matrix.os }}-${{ matrix.buildtype }}
+          path: |
+            ${{ github.workspace }}/artifacts
+          retention-days: 30
+          if-no-files-found: error

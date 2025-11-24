@@ -1,0 +1,218 @@
+name: Build OTClient Windows (Fixed - No More Breaks)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup vcpkg
+      uses: microsoft/setup-vcpkg@v1
+      id: vcpkg
+      
+    - name: Verify vcpkg installation
+      shell: pwsh
+      run: |
+        Write-Output "VCPKG_ROOT=$env:VCPKG_ROOT"
+        Write-Output "vcpkg version:"
+        vcpkg version
+        if (Test-Path "$env:VCPKG_ROOT\vcpkg.exe") {
+          Write-Output "✅ vcpkg.exe found"
+        } else {
+          Write-Output "❌ vcpkg.exe NOT found!"
+          exit 1
+        }
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Install dependencies with manifest
+      shell: pwsh
+      run: |
+        Write-Output "Installing dependencies from vcpkg.json..."
+        Write-Output "Working directory: $(Get-Location)"
+        Write-Output "vcpkg.json exists: $(Test-Path vcpkg.json)"
+        
+        # Install using manifest mode - this is crucial
+        vcpkg install --triplet x64-windows-static --x-manifest-root=. --x-install-root=./vcpkg_installed
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Output "❌ vcpkg install failed!"
+          exit $LASTEXITCODE
+        }
+        
+        Write-Output ""
+        Write-Output "Verifying installed packages..."
+        
+        # Check for critical headers
+        $criticalHeaders = @(
+          "parallel_hashmap/phmap.h",
+          "parallel_hashmap/btree.h",
+          "asio/asio.hpp",
+          "pugixml.hpp",
+          "fmt/format.h"
+        )
+        
+        foreach ($header in $criticalHeaders) {
+          $found = Get-ChildItem -Path "./vcpkg_installed" -Filter "*" -Recurse -ErrorAction SilentlyContinue | 
+            Where-Object { $_.FullName -like "*$header*" } | Select-Object -First 1
+          
+          if ($found) {
+            Write-Output "✅ Found: $header"
+          } else {
+            Write-Output "⚠️  Not found: $header"
+          }
+        }
+        
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+      
+    - name: Build with MSBuild
+      shell: pwsh
+      run: |
+        $vcpkgRoot = $env:VCPKG_ROOT
+        $workspace = $env:GITHUB_WORKSPACE
+        $vcpkgInstalled = "$workspace/vcpkg_installed"
+        
+        Write-Output "========================================"
+        Write-Output "BUILD CONFIGURATION"
+        Write-Output "========================================"
+        Write-Output "VCPKG_ROOT=$vcpkgRoot"
+        Write-Output "VCPKG_INSTALLED=$vcpkgInstalled"
+        Write-Output "Workspace=$workspace"
+        Write-Output "Solution=vc17\otclient.sln"
+        Write-Output ""
+        
+        # Verify vcpkg_installed exists
+        if (-not (Test-Path $vcpkgInstalled)) {
+          Write-Output "❌ ERROR: vcpkg_installed directory not found!"
+          Write-Output "Contents of workspace:"
+          Get-ChildItem -Path $workspace -Directory | Select-Object -First 10 | ForEach-Object { Write-Output "  $($_.Name)" }
+          exit 1
+        }
+        
+        # Verify critical directories
+        $triplet = "x64-windows-static"
+        $includeDir = "$vcpkgInstalled/$triplet/include"
+        if (Test-Path $includeDir) {
+          Write-Output "✅ Include directory exists: $includeDir"
+        } else {
+          Write-Output "❌ Include directory NOT found: $includeDir"
+          exit 1
+        }
+        
+        Write-Output ""
+        Write-Output "Building with MSBuild..."
+        
+        # Build
+        msbuild vc17\otclient.sln `
+          /t:Build `
+          /p:Configuration=OpenGL `
+          /p:Platform=x64 `
+          /p:VcpkgTriplet=$triplet `
+          /p:VcpkgRoot="$vcpkgRoot" `
+          /p:VcpkgInstalledDir="$vcpkgInstalled" `
+          /p:VcpkgEnableManifest=true `
+          /m:2 `
+          /v:minimal `
+          /nologo `
+          /fl `
+          /flp:logfile=build.log;verbosity=detailed
+        
+        $exitCode = $LASTEXITCODE
+        
+        if ($exitCode -ne 0) {
+          Write-Output ""
+          Write-Output "========================================"
+          Write-Output "BUILD FAILED - ERROR SUMMARY"
+          Write-Output "========================================"
+          
+          if (Test-Path build.log) {
+            Write-Output ""
+            Write-Output "Last 100 lines of build.log:"
+            Get-Content build.log -Tail 100 | Select-String -Pattern "error|ERROR|Error" -Context 2
+          }
+          
+          Write-Output ""
+          Write-Output "Full build.log saved as artifact"
+          exit $exitCode
+        }
+        
+        Write-Output ""
+        Write-Output "✅ Build completed successfully!"
+      env:
+        VCPKG_ROOT: ${{ env.VCPKG_ROOT }}
+        
+    - name: Find executable
+      id: find_exe
+      shell: pwsh
+      run: |
+        Write-Output "Searching for executable..."
+        
+        # Common locations
+        $searchPaths = @(
+          "otclient_gl_x64.exe",
+          "vc17\otclient_gl_x64.exe",
+          "vc17\x64\OpenGL\otclient_gl_x64.exe"
+        )
+        
+        $exe = $null
+        foreach ($path in $searchPaths) {
+          if (Test-Path $path) {
+            $exe = Get-Item $path
+            break
+          }
+        }
+        
+        # Recursive search if not found
+        if (-not $exe) {
+          Write-Output "Not in common locations, searching recursively..."
+          $exe = Get-ChildItem -Path . -Filter "otclient*.exe" -Recurse -ErrorAction SilentlyContinue | 
+            Where-Object { 
+              $_.FullName -notlike "*\.git\*" -and
+              $_.FullName -notlike "*\obj\*" -and
+              $_.FullName -notlike "*\bin\*\Debug\*"
+            } | 
+            Select-Object -First 1
+        }
+        
+        if ($exe) {
+          $absPath = Resolve-Path $exe.FullName
+          echo "executable=$absPath" >> $env:GITHUB_OUTPUT
+          Write-Output "✅ Found: $absPath"
+          Write-Output "Size: $([math]::Round($exe.Length / 1MB, 2)) MB"
+        } else {
+          Write-Output "❌ Executable not found!"
+          Write-Output "Listing all .exe files:"
+          Get-ChildItem -Path . -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | 
+            ForEach-Object { Write-Output "  $($_.FullName)" }
+          exit 1
+        }
+        
+    - name: Upload build log (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log
+        path: build.log
+        retention-days: 7
+        
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: otclient-windows-x64
+        path: ${{ steps.find_exe.outputs.executable }}
+        retention-days: 30
+
